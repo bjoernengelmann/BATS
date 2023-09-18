@@ -1,0 +1,8 @@
+version: "3"
+services:
+
+  usb-pipeline:
+    image: usb-pipeline
+    volumes: 
+        - ./workspace:/workspace
+    tty: true
