@@ -77,34 +77,55 @@ def load_htss_ds():
   #HTSS DATASET
   #https://github.com/slab-itu/HTSS/
 
-  htss_path_base = "/workspace/datasets/htss"
-  htss_file = htss_path_base + '/new_data_set.csv'
+  if not os.path.isfile(path_to_datasets + '/htss/htss.pkl') or 1==1:
+    htss_path = path_to_datasets + 'htss'
+    htss_link = 'https://github.com/slab-itu/HTSS/'
 
-  # htss_simp_df = pd.read_csv(htss_file, encoding='latin1', header=0)
-  # htss_simp_df = htss_simp_df.reset_index()
+    if not os.path.isdir(htss_path):
+      os.mkdir(htss_path)
+      os.chdir(htss_path)
+      clone = 'git clone ' + htss_link
+      os.system(clone)
 
-  # htss_simp_title = []
-  # htss_simp_text = []
-  # htss_source_title = []
-  # htss_source_text = []
+    htss_file = htss_path + '/HTSS/data/new_data_set.csv'
 
-  # for index, row in tqdm(htss_simp_df.iterrows(), total=df.shape[0]):
-  #   source = htss_path_base + '/' + row['Full_Paper_XML'][:-3] + 'txt'
+    htss_simp_df = pd.read_csv(htss_file, encoding='latin1', header=0)
+    htss_simp_df = htss_simp_df.reset_index()
 
-  #   if os.path.exists(source):
-  #     htss_simp_title.append(row['Eureka_Title_Simplified'])
-  #     htss_simp_text.append(row['Eureka_Text_Simplified'])
-  #     htss_source_title.append(row['Paper_Title'])
+    src_ids = []
+    src_title = []
+    src = []
 
-  #     with open(source) as f:
-  #       lines = f.readlines()
-  #       # first four lines are ID and title of paper and can thus be ignored
-  #       doc = str(lines[4:])[2:-2].replace('\\n', '').replace('", "', "', '").replace('", ', "', ").replace(', "', ", '").replace("', '", '').replace('\\r', '').replace('.  #@NEW_LINE#@#  ', '. ').replace('#@NEW_LINE#@#', '\\n').replace('  \\n  ', ' \\n ').replace('"', '').replace("'", '')
-  #       htss_source_text.append(doc)
+    simp_ids = []
+    simp_title = []
+    simp = []
 
-  # full_data = {'orig_snt' : htss_source_text, 'orig_snt_title' : htss_source_title, 'simp' : htss_simp_text, 'simp_snt_title' : htss_simp_title}
-  # htss_dataset = pd.DataFrame(data = full_data)
-  htss_dataset = pd.read_pickle(htss_path_base + '/pickled_df.pkl')
+    for index, row in htss_simp_df.iterrows():
+      source = htss_path + '/HTSS/data/' + row['Full_Paper_XML'][:-3] + 'txt'
+
+
+      if os.path.exists(source):
+        simp_title.append(row['Eureka_Title_Simplified'])
+        simp.append(row['Eureka_Text_Simplified'])
+        src_title.append(row['Paper_Title'])
+        simp_ids.append(len(simp_ids))
+
+        with open(source) as f:
+          lines = f.readlines()
+          # first four lines are ID and title of paper and can thus be ignored
+          doc = str(lines[4:])[2:-2].replace('\\n', '').replace('", "', "', '").replace('", ', "', ").replace(', "', ", '").replace("', '", '').replace('\\r', '').replace('.  #@NEW_LINE#@#  ', '. ').replace('#@NEW_LINE#@#', '\\n').replace('  \\n  ', ' \\n ').replace('"', '').replace("'", '')
+          src.append(doc)
+          src_ids.append(len(src_ids))
+
+    full_data = {'ds_id' : 'HTSS', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'label' : 'test', 'origin' : 'NONE', 'src_title': src_title, 'simp_title': simp_title}
+
+    htss_dataset = pd.DataFrame(data=full_data)
+
+    with open(htss_path + '/htss.pkl', 'wb') as f:
+      pickle.dump(htss_dataset, f)
+  else:  
+    htss_dataset = pd.read_pickle(path_to_datasets + 'htss/htss.pkl')
+
   return htss_dataset
 
 
@@ -252,7 +273,7 @@ def load_rnd_st_ds():
 def main():
   if not os.path.isdir(path_to_datasets):
     os.mkdir(path_to_datasets)
-  ds = load_simpa_ds()
+  ds = load_htss_ds()
 
 if __name__ == '__main__':
   main()
