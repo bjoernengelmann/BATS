@@ -3,6 +3,7 @@ import pandas as pd
 import glob
 import numpy as np
 import pickle
+import urllib.request
 
 path_to_datasets = os.getcwd() + '/datasets/'
 
@@ -74,10 +75,10 @@ def load_asset_ds():
   return asset_dataset
 
 def load_htss_ds():
-  #HTSS DATASET
-  #https://github.com/slab-itu/HTSS/
+  # HTSS DATASET
+  # https://github.com/slab-itu/HTSS/
 
-  if not os.path.isfile(path_to_datasets + '/htss/htss.pkl') or 1==1:
+  if not os.path.isfile(path_to_datasets + '/htss/htss.pkl'):
     htss_path = path_to_datasets + 'htss'
     htss_link = 'https://github.com/slab-itu/HTSS/'
 
@@ -117,41 +118,136 @@ def load_htss_ds():
           src.append(doc)
           src_ids.append(len(src_ids))
 
-    full_data = {'ds_id' : 'HTSS', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'label' : 'test', 'origin' : 'NONE', 'src_title': src_title, 'simp_title': simp_title}
+    full_data = {'ds_id' : 'HTSS', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'label' : 'test', 'src_title': src_title, 'simp_title': simp_title}
 
     htss_dataset = pd.DataFrame(data=full_data)
 
     with open(htss_path + '/htss.pkl', 'wb') as f:
       pickle.dump(htss_dataset, f)
+    
+    #todo: metadata for dataset
   else:  
     htss_dataset = pd.read_pickle(path_to_datasets + 'htss/htss.pkl')
 
   return htss_dataset
 
 
-def load_ebbe_ds():
-  #EBBE dataset (authors do not actually give it a name)
-  #http://www.cs.columbia.edu/~noemie/alignment/
+def load_britannica_ds():
+  # britannica dataset
+  # http://www.cs.columbia.edu/~noemie/alignment/
 
-  ebbe_path = "/workspace/datasets/EBBE"
-  ebbe_files = sorted(glob.glob(f"{ebbe_path}/*"))
+  if not os.path.isfile(path_to_datasets + '/britannica/britannica.pkl'):
+    britannica_path = path_to_datasets + 'britannica'
+    britannica_links = ['http://www.cs.columbia.edu/~noemie/alignment/data/train/hum/baghdad-hum.txt', 
+                        'http://www.cs.columbia.edu/~noemie/alignment/data/train/hum/bangkok-hum.txt', 
+                        'http://www.cs.columbia.edu/~noemie/alignment/data/train/hum/budapest-hum.txt',
+                        'http://www.cs.columbia.edu/~noemie/alignment/data/train/hum/jakart-hum.txt',
+                        'http://www.cs.columbia.edu/~noemie/alignment/data/train/hum/kiev-hum.txt',
+                        'http://www.cs.columbia.edu/~noemie/alignment/data/train/hum/lisbon-hum.txt',
+                        'http://www.cs.columbia.edu/~noemie/alignment/data/train/hum/madrid-hum.txt',
+                        'http://www.cs.columbia.edu/~noemie/alignment/data/train/hum/mexico-hum.txt',
+                        'http://www.cs.columbia.edu/~noemie/alignment/data/train/hum/petersbourg-hum.txt',
+                        'http://www.cs.columbia.edu/~noemie/alignment/data/train/hum/seoul-hum.txt',
+                        'http://www.cs.columbia.edu/~noemie/alignment/data/train/hum/warsaw-hum.txt',
+                        'http://www.cs.columbia.edu/~noemie/alignment/data/test/hum/buenos-hum.txt',
+                        'http://www.cs.columbia.edu/~noemie/alignment/data/test/hum/caracas-hum.txt',
+                        'http://www.cs.columbia.edu/~noemie/alignment/data/test/hum/damascus-hum.txt',
+                        'http://www.cs.columbia.edu/~noemie/alignment/data/test/hum/dublin-hum.txt',
+                        'http://www.cs.columbia.edu/~noemie/alignment/data/test/hum/havana-hum.txt',
+                        'http://www.cs.columbia.edu/~noemie/alignment/data/test/hum/lima-hum.txt',
+                        'http://www.cs.columbia.edu/~noemie/alignment/data/test/hum/manila-hum.txt',
+                        'http://www.cs.columbia.edu/~noemie/alignment/data/test/hum/prague-hum.txt',
+                        'http://www.cs.columbia.edu/~noemie/alignment/data/test/hum/vienna-hum.txt']
 
-  ebbe_simp_text = []
-  ebbe_source_text = []
-  ebbe_label = []
 
-  for path in ebbe_files:
-    with open(path) as f:
-      lines = f.readlines()
-      for l_id in range(0, len(lines), 3):
-        if len(lines[l_id].strip()) > 0 and len(lines[l_id + 1].strip()) > 0:
-          ebbe_source_text.append(lines[l_id].replace(' .\\n', '.'))
-          ebbe_simp_text.append(lines[l_id + 1].replace(' .\\n', '.'))
-          ebbe_label.append(path[len(ebbe_path) + 1:-4])
+    if not os.path.isdir(britannica_path):
+      os.mkdir(britannica_path)
+      os.mkdir(britannica_path + '/train')
+      os.mkdir(britannica_path + '/test')
+      
+      for link in britannica_links:
+        if link[50:54] == 'test':
+          f =  open(britannica_path + '/test/' + link[59:], 'w')
+          for line in urllib.request.urlopen(link):
+            f.write(line.decode('utf-8'))
+        else:
+          f = open(britannica_path + '/train/' + link[60:], 'w')
+          for line in urllib.request.urlopen(link):
+            f.write(line.decode('utf-8'))
 
-  full_data = {'orig_snt' : ebbe_source_text, 'simp' : ebbe_simp_text, 'label' : ebbe_label}
-  ebbe_dataset = pd.DataFrame(data = full_data)
-  return ebbe_dataset
+    src_ids = []
+    src = []
+    simp = []
+    simp_ids = []
+    topics = []
+    labels = []
+
+    britannica_files_train = sorted(glob.glob(f"{britannica_path}/train/*"))
+    britannica_files_test = sorted(glob.glob(f"{britannica_path}/test/*"))
+
+    for path in britannica_files_train:
+      with open(path) as f:
+        lines = f.readlines()
+        for l_id in range(0, len(lines), 3):
+          if len(lines[l_id].strip()) > 0 and len(lines[l_id + 1].strip()) > 0:
+            # filter out starting digits
+            dig_id_source = 0
+            while lines[l_id][dig_id_source].isdigit():
+              dig_id_source = dig_id_source + 1
+            dig_id_simp = 0
+            while lines[l_id + 1][dig_id_simp].isdigit():
+              dig_id_simp = dig_id_simp + 1
+
+            if dig_id_source > 0:
+              dig_id_source += 1
+              dig_id_simp += 1  
+  
+            src.append(lines[l_id][dig_id_source:].replace(' .', '.').replace(' ,', ',').replace('( ', '(').replace(' )', ')'))
+            simp.append(lines[l_id + 1][dig_id_simp:].replace(' .', '.').replace(' ,', ',').replace('( ', '(').replace(' )', ')'))
+
+            labels.append('train')
+            topics.append(path[len(britannica_path) + 7:-8])
+            src_ids.append(len(src_ids))
+            simp_ids.append(len(simp_ids))
+    
+    for path in britannica_files_test:
+      with open(path) as f:
+        lines = f.readlines()
+        for l_id in range(0, len(lines), 3):
+          if len(lines[l_id].strip()) > 0 and len(lines[l_id + 1].strip()) > 0:
+            # filter out starting digits
+            dig_id_source = 0
+            while lines[l_id][dig_id_source].isdigit():
+              dig_id_source = dig_id_source + 1
+            dig_id_simp = 0
+            while lines[l_id + 1][dig_id_simp].isdigit():
+              dig_id_simp = dig_id_simp + 1
+
+            if dig_id_source > 0:
+              dig_id_source += 1
+              dig_id_simp += 1  
+  
+            src.append(lines[l_id][dig_id_source:].replace(' .', '.').replace(' ,', ',').replace('( ', '(').replace(' )', ')').replace('\n', ''))
+            simp.append(lines[l_id + 1][dig_id_simp:].replace(' .', '.').replace(' ,', ',').replace('( ', '(').replace(' )', ')').replace('\n', ''))
+
+            labels.append('test')
+            topics.append(path[len(britannica_path) + 6:-8])
+            src_ids.append(len(src_ids))
+            simp_ids.append(len(simp_ids))  
+
+    full_data = {'ds_id' : 'britannica', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'label' : labels, 'topic': topics}
+
+    britannica_dataset = pd.DataFrame(data = full_data)
+    print(britannica_dataset)
+
+    with open(britannica_path + '/britannica.pkl', 'wb') as f:
+      pickle.dump(britannica_dataset, f)
+    
+    #todo: metadata for dataset
+  else:  
+    britannica_dataset = pd.read_pickle(path_to_datasets + 'britannica/britannica.pkl')
+
+  return britannica_dataset
 
 def load_simpa_ds():
   #SIMPA DATASET
@@ -273,7 +369,7 @@ def load_rnd_st_ds():
 def main():
   if not os.path.isdir(path_to_datasets):
     os.mkdir(path_to_datasets)
-  ds = load_htss_ds()
+  ds = load_britannica_ds()
 
 if __name__ == '__main__':
   main()
