@@ -2,6 +2,10 @@ import os
 import pandas as pd
 import glob
 import numpy as np
+import pickle
+
+path_to_datasets = os.getcwd() + '/datasets/'
+
 
 def load_list_file(path):
   data = []
@@ -9,6 +13,66 @@ def load_list_file(path):
     for line in f.readlines():
       data.append(line.strip())
   return data
+
+def load_asset_ds():
+  # ASSET DATASET
+  # https://github.com/facebookresearch/asset
+
+  if not os.path.isfile(path_to_datasets + '/asset/asset.pkl'):
+    asset_path = path_to_datasets + 'asset'
+    asset_link = 'https://github.com/facebookresearch/asset'
+
+    if not os.path.isdir(asset_path):
+      os.mkdir(asset_path)
+      os.chdir(asset_path)
+      clone = 'git clone ' + asset_link
+      os.system(clone)
+
+    asset_files = sorted(glob.glob(f"{asset_path}/asset/dataset/*"))
+
+    asset_test_orig = load_list_file([path for path in asset_files if ".test.orig" in path][0])
+    asset_valid_orig = load_list_file([path for path in asset_files if ".valid.orig" in path][0])
+
+    asset_test_simps = [load_list_file(path) for path in asset_files if "test.simp" in path]
+    asset_valid_simps = [load_list_file(path) for path in asset_files if "valid.simp" in path]
+
+    src = asset_test_orig * len(asset_test_simps) + asset_valid_orig * len(asset_test_simps)
+    label = ['test'] * len(asset_test_orig) * len(asset_test_simps) + ['valid'] * len(asset_valid_orig) * len(asset_test_simps)
+
+    src_ids = []
+    for j in range(len(asset_test_simps)):
+      for i in range(len(asset_test_orig)):
+        src_ids.append(i)
+    for j in range(len(asset_test_simps)):
+      for i in range(len(asset_valid_orig)):
+        src_ids.append(i + len(asset_test_orig))
+    simp = []
+    origin = []
+
+    simp_ids = range(0, (len(asset_test_orig + asset_valid_orig)) * len(asset_test_simps)) 
+
+    for i in range(len(asset_test_simps)):
+        for j in asset_test_simps[i]:
+          simp.append(j)
+          origin.append('annotator_' + str(i))
+
+    for i in range(len(asset_valid_simps)):
+        for j in asset_valid_simps[i]:
+          simp.append(j)
+          origin.append('annotator_' + str(i))
+
+    full_data = {'ds_id' : 'asset', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'label' : label, 'origin' : origin}
+
+    asset_dataset = pd.DataFrame(data=full_data)
+
+    with open(asset_path + '/asset.pkl', 'wb') as f:
+      pickle.dump(asset_dataset, f)
+
+    #todo: metadata for dataset
+  else:
+    asset_dataset = pd.read_pickle(path_to_datasets + '/asset/asset.pkl')
+
+  return asset_dataset
 
 def load_htss_ds():
   #HTSS DATASET
@@ -144,3 +208,13 @@ def load_rnd_st_ds():
   sub_sample = sub_sample.drop(['doc_id', 'query_id', 'query_text', 'run_id', 'manual'], axis=1)
 
   return sub_sample
+
+
+
+def main():
+  if not os.path.isdir(path_to_datasets):
+    os.mkdir(path_to_datasets)
+  ds = load_asset_ds()
+
+if __name__ == '__main__':
+  main()
