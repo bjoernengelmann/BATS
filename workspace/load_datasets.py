@@ -6,6 +6,9 @@ import pickle
 import urllib.request
 import requests
 import tarfile
+import zipfile
+import en_core_web_sm
+
 
 path_to_datasets = os.getcwd() + '/datasets/'
 
@@ -382,6 +385,70 @@ def load_pwkp_ds():
   
   return pwkp_dataset
 
+def load_benchls_ds():
+  # BenchLS dataset
+  # ghpaetzold.github.io/data/BenchLS.zip
+
+  if not os.path.isfile(path_to_datasets + '/benchls/benchls.pkl'): 
+    benchls_path = path_to_datasets + 'benchls'
+    benchls_link = 'https://ghpaetzold.github.io/data/BenchLS.zip'
+   
+    if not os.path.isdir(benchls_path):
+      os.mkdir(benchls_path)
+      
+    response = requests.get(benchls_link, stream=True)
+    
+    if response.status_code == 200:
+      with open(benchls_path + '/data.zip', 'wb') as f:
+          f.write(response.raw.read())
+
+      with zipfile.ZipFile(benchls_path + '/data.zip', 'r') as f:
+        f.extractall(benchls_path)
+
+    src_ids = []
+    src = []
+    simp_ids = []
+    simp = []
+
+    nlp = en_core_web_sm.load()
+
+    curr_src_id = -1
+
+    with open(benchls_path + '/BenchLS.txt') as f:
+      lines = f.readlines()
+      # complex sentence, TAB, word to substitute, TAB, multiple simplified words
+      for l in lines:
+
+        pts = l.split('\t')
+        replace_word = pts[1]
+        replace_pos = int(pts[2])
+
+        doc = nlp(pts[0])
+        token = [token.text for token in doc]
+        simps = []
+        for i in range(3, len(pts)):
+          token[replace_pos] = pts[i].replace('\n', '').split(':')[1]
+          simps.append(' '.join(token).replace(' ,', ',').replace(' .', '.').replace(' :', ':').replace(' ;', ';').replace(' ?', '?').replace(' !', '!'))
+
+        for i in range(len(simps)):
+          src.append(pts[0])
+          src_ids.append(curr_src_id + 1)
+          simp.append(simps[i])
+          simp_ids.append(len(simp_ids))
+
+        curr_src_id = curr_src_id + 1
+
+      full_data = {'ds_id' : 'BenchLS', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids}
+      benchls_dataset = pd.DataFrame(data = full_data)
+
+      with open(benchls_path + '/benchls.pkl', 'wb') as f:
+        pickle.dump(benchls_dataset, f)
+
+      #todo: metadata for dataset
+  else:
+    benchls_dataset = pd.read_pickle(path_to_datasets + '/benchls/benchls.pkl')
+  return benchls_dataset
+
 
 def load_rnd_st_ds():
   df_simplified = pd.read_json("/workspace/datasets/simple_text_runfiles/irgc_task_3_ChatGPT_2stepTurbo.json")
@@ -405,7 +472,7 @@ def load_rnd_st_ds():
 def main():
   if not os.path.isdir(path_to_datasets):
     os.mkdir(path_to_datasets)
-  ds = load_pwkp_ds()
+  ds = load_benchls_ds()
 
 if __name__ == '__main__':
   main()
