@@ -6,7 +6,6 @@ import pickle
 
 path_to_datasets = os.getcwd() + '/datasets/'
 
-
 def load_list_file(path):
   data = []
   with open(path, "r") as f:
@@ -61,7 +60,7 @@ def load_asset_ds():
           simp.append(j)
           origin.append('annotator_' + str(i))
 
-    full_data = {'ds_id' : 'asset', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'label' : label, 'origin' : origin}
+    full_data = {'ds_id' : 'ASSET', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'label' : label, 'origin' : origin}
 
     asset_dataset = pd.DataFrame(data=full_data)
 
@@ -77,7 +76,6 @@ def load_asset_ds():
 def load_htss_ds():
   #HTSS DATASET
   #https://github.com/slab-itu/HTSS/
-
 
   htss_path_base = "/workspace/datasets/htss"
   htss_file = htss_path_base + '/new_data_set.csv'
@@ -138,23 +136,63 @@ def load_simpa_ds():
   #SIMPA DATASET
   #https://github.com/simpaticoproject/simpa
 
-  simpa_path = "/workspace/datasets/simpa"
-  simpa_files = sorted(glob.glob(f"{simpa_path}/*"))
+  if not os.path.isfile(path_to_datasets + '/simpa/simpa.pkl'):
+    simpa_path = path_to_datasets + 'simpa'
+    simpa_link = 'https://github.com/simpaticoproject/simpa'
 
-  simpa_ls_orig = load_list_file(simpa_files[0])
-  simpa_ls_simp = load_list_file(simpa_files[1])
+    if not os.path.isdir(simpa_path):
+      os.mkdir(simpa_path)
+      os.chdir(simpa_path)
+      clone = 'git clone ' + simpa_link
+      os.system(clone)
+      os.remove(simpa_path + '/simpa/README.md')
 
-  simpa_ss_orig = load_list_file(simpa_files[3])
-  simpa_ss_simp = load_list_file(simpa_files[4])
-  simpa_ss_ls_simp = load_list_file(simpa_files[2])
+    simpa_files = sorted(glob.glob(f"{simpa_path}/simpa/*"))
 
-  full_data_ls = {'orig_snt' : simpa_ls_orig, 'simp' : simpa_ls_simp}
-  full_data_ss = {'orig_snt' : simpa_ss_orig, 'lex_simp' : simpa_ss_ls_simp, 'syn_simp' : simpa_ss_simp}
+    simpa_ls_orig = load_list_file(simpa_files[0])
+    simpa_ls_simp = load_list_file(simpa_files[1])
 
-  simpa_dataset_ls = pd.DataFrame(data = full_data_ls)
-  simpa_dataset_ss = pd.DataFrame(data =full_data_ss)
+    simpa_ss_orig = load_list_file(simpa_files[3])
+    simpa_ss_simp = load_list_file(simpa_files[4])
+    simpa_ss_ls_simp = load_list_file(simpa_files[2])
 
-  return (simpa_dataset_ls, simpa_dataset_ss)
+
+    # ls_source -> ls_simp, ss_source -> ss_ll_simp, ss_source -> ss_simp, ss_ll_simp -> ss_simp
+    src_ids = []
+    for i in range(int(len(simpa_ls_orig)/3)):
+      for j in range(3):
+        src_ids.append(i)
+  
+    for j in range(2):
+      for i in range(len(simpa_ss_orig)):
+        src_ids.append(i + int(len(simpa_ls_orig)/3))
+
+    simp_ids = []
+    for i in range(len(src_ids)):
+      simp_ids.append(i)
+
+    curr_last_src_id = src_ids[-1] + 1
+    curr_last_simp_id = 4400
+    for i in range(len(simpa_ss_ls_simp)):
+      src_ids.append(i + curr_last_src_id)
+      simp_ids.append(i + curr_last_simp_id)
+
+    src = simpa_ls_orig + simpa_ss_orig + simpa_ss_orig + simpa_ss_ls_simp
+    simp = simpa_ls_simp + simpa_ss_ls_simp + simpa_ss_simp + simpa_ss_simp
+    origin = ['lexical_simp'] * len(simpa_ls_orig) + ['syntactic_simp'] * len(simpa_ss_ls_simp) + ['lexical_simp_of_syntactic_simp'] * len(simpa_ss_simp) * 2
+
+    full_data = {'ds_id' : 'simpa', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'label' : 'test', 'origin' : origin}
+
+    simpa_dataset = pd.DataFrame(data = full_data)
+
+    with open(simpa_path + '/simpa.pkl', 'wb') as f:
+      pickle.dump(simpa_dataset, f)
+
+    #todo: metadata for dataset
+  else:
+    simpa_dataset = pd.read_pickle(path_to_datasets + '/simpa/simpa.pkl')
+
+  return simpa_dataset
 
 def load_pwkp_ds():
   #PWKP dataset
@@ -214,7 +252,7 @@ def load_rnd_st_ds():
 def main():
   if not os.path.isdir(path_to_datasets):
     os.mkdir(path_to_datasets)
-  ds = load_asset_ds()
+  ds = load_simpa_ds()
 
 if __name__ == '__main__':
   main()
