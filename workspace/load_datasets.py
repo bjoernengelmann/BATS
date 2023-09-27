@@ -4,6 +4,8 @@ import glob
 import numpy as np
 import pickle
 import urllib.request
+import requests
+import tarfile
 
 path_to_datasets = os.getcwd() + '/datasets/'
 
@@ -37,7 +39,7 @@ def load_asset_ds():
     asset_valid_simps = [load_list_file(path) for path in asset_files if "valid.simp" in path]
 
     src = asset_test_orig * len(asset_test_simps) + asset_valid_orig * len(asset_test_simps)
-    label = ['test'] * len(asset_test_orig) * len(asset_test_simps) + ['valid'] * len(asset_valid_orig) * len(asset_test_simps)
+    labels = ['test'] * len(asset_test_orig) * len(asset_test_simps) + ['valid'] * len(asset_valid_orig) * len(asset_test_simps)
 
     src_ids = []
     for j in range(len(asset_test_simps)):
@@ -61,7 +63,7 @@ def load_asset_ds():
           simp.append(j)
           origin.append('annotator_' + str(i))
 
-    full_data = {'ds_id' : 'ASSET', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'label' : label, 'origin' : origin}
+    full_data = {'ds_id' : 'ASSET', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'label' : labels, 'origin' : origin}
 
     asset_dataset = pd.DataFrame(data=full_data)
 
@@ -118,7 +120,7 @@ def load_htss_ds():
           src.append(doc)
           src_ids.append(len(src_ids))
 
-    full_data = {'ds_id' : 'HTSS', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'label' : 'test', 'src_title': src_title, 'simp_title': simp_title}
+    full_data = {'ds_id' : 'HTSS', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'src_title': src_title, 'simp_title': simp_title}
 
     htss_dataset = pd.DataFrame(data=full_data)
 
@@ -250,8 +252,8 @@ def load_britannica_ds():
   return britannica_dataset
 
 def load_simpa_ds():
-  #SIMPA DATASET
-  #https://github.com/simpaticoproject/simpa
+  # SIMPA DATASET
+  # https://github.com/simpaticoproject/simpa
 
   if not os.path.isfile(path_to_datasets + '/simpa/simpa.pkl'):
     simpa_path = path_to_datasets + 'simpa'
@@ -298,7 +300,7 @@ def load_simpa_ds():
     simp = simpa_ls_simp + simpa_ss_ls_simp + simpa_ss_simp + simpa_ss_simp
     origin = ['lexical_simp'] * len(simpa_ls_orig) + ['syntactic_simp'] * len(simpa_ss_ls_simp) + ['lexical_simp_of_syntactic_simp'] * len(simpa_ss_simp) * 2
 
-    full_data = {'ds_id' : 'simpa', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'label' : 'test', 'origin' : origin}
+    full_data = {'ds_id' : 'simpa', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'origin' : origin}
 
     simpa_dataset = pd.DataFrame(data = full_data)
 
@@ -312,40 +314,74 @@ def load_simpa_ds():
   return simpa_dataset
 
 def load_pwkp_ds():
-  #PWKP dataset
-  #https://tudatalib.ulb.tu-darmstadt.de/handle/tudatalib/2447
+  # PWKP dataset
+  # https://tudatalib.ulb.tu-darmstadt.de/handle/tudatalib/2447
 
-  pwkp_path = "/workspace/datasets/PWKP/PWKP_108016"
+  if not os.path.isfile(path_to_datasets + '/pwkp/pwkp.pkl'): 
+    pwkp_path = path_to_datasets + 'pwkp'
+    pwkp_link = 'https://tudatalib.ulb.tu-darmstadt.de/bitstream/handle/tudatalib/2447/PWKP_108016.tar.gz?sequence=1&isAllowed=y'
 
-  pwkp_simp_text = []
-  pwkp_source_text = []
+    if not os.path.isdir(pwkp_path):
+      os.mkdir(pwkp_path)
+      
+    response = requests.get(pwkp_link, stream=True)
+    
+    if response.status_code == 200:
+      with open(pwkp_path + '/data.tar.gz', 'wb') as f:
+          f.write(response.raw.read())
 
-  with open(pwkp_path) as f:
-    lines = f.readlines()
-    # first: complex sentence, then up to multiple simplified ones
-    source_sent = ''
-    simp_sents = ''
+      f = tarfile.open(pwkp_path + '/data.tar.gz')
+      f.extractall(pwkp_path)
+      f.close()
 
-    last_line_blank = True
-    for l in lines:
-      if len(l.strip()) > 0:
-        if last_line_blank:
-          source_sent = l.strip()
-          last_line_blank = False
+    src_ids = []
+    src = []
+    simp_ids = []
+    simp = []
+    curr_src_id = -1
+
+    with open(pwkp_path + '/PWKP_108016') as f:
+      lines = f.readlines()
+      # first: complex sentence, then up to multiple simplified ones
+      source_sent = ''
+      simp_sents = ''
+
+      last_line_blank = True
+      for l in lines:
+        if len(l.strip()) > 0:
+          if last_line_blank:
+            source_sent = l.strip()
+            curr_src_id = curr_src_id + 1
+            last_line_blank = False
+          else:
+            simp_sents = simp_sents + l.strip() + ' '
+
         else:
-          simp_sents = simp_sents + l.strip() + ' '
-      else:
-        if len(simp_sents) > 0 and len(source_sent) > 0:
-          pwkp_simp_text.append(simp_sents)
-          pwkp_source_text.append(source_sent)
+          if len(simp_sents) > 0 and len(source_sent) > 0:
+            simp.append(simp_sents)
+            src.append(source_sent)
 
-        last_line_blank = True
-        simp_sents = ''
-        source_sent = ''
+            src_ids.append(curr_src_id)
+            simp_ids.append(len(simp_ids))
 
-  full_data = {'orig_snt' : pwkp_source_text, 'simp' : pwkp_simp_text}
-  pwkp_dataset = pd.DataFrame(data = full_data)
+          last_line_blank = True
+          simp_sents = ''
+          source_sent = ''
+
+    full_data = {'ds_id' : 'PWKP', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids}
+    pwkp_dataset = pd.DataFrame(data = full_data)
+
+    print(pwkp_dataset)
+
+    with open(pwkp_path + '/pwkp.pkl', 'wb') as f:
+      pickle.dump(pwkp_dataset, f)
+
+    #todo: metadata for dataset
+  else:
+    pwkp_dataset = pd.read_pickle(path_to_datasets + '/pwkp/pwkp.pkl')
+  
   return pwkp_dataset
+
 
 def load_rnd_st_ds():
   df_simplified = pd.read_json("/workspace/datasets/simple_text_runfiles/irgc_task_3_ChatGPT_2stepTurbo.json")
@@ -369,7 +405,7 @@ def load_rnd_st_ds():
 def main():
   if not os.path.isdir(path_to_datasets):
     os.mkdir(path_to_datasets)
-  ds = load_britannica_ds()
+  ds = load_pwkp_ds()
 
 if __name__ == '__main__':
   main()
