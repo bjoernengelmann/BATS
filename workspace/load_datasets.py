@@ -8,6 +8,7 @@ import requests
 import tarfile
 import zipfile
 import en_core_web_sm
+from pyunpack import Archive
 
 
 path_to_datasets = os.getcwd() + '/datasets/'
@@ -449,6 +450,60 @@ def load_benchls_ds():
     benchls_dataset = pd.read_pickle(path_to_datasets + '/benchls/benchls.pkl')
   return benchls_dataset
 
+def load_dwikipedia_ds():
+  # D-Wikipedia dataset
+  # https://github.com/RLSNLP/Document-level-text-simplification
+
+  if not os.path.isfile(path_to_datasets + '/dwikipedia/dwikipedia.pkl'):
+    dwikipedia_path = path_to_datasets + 'dwikipedia'
+    dwikipedia_link = 'https://github.com/RLSNLP/Document-level-text-simplification'
+
+    if not os.path.isdir(dwikipedia_path):
+      os.mkdir(dwikipedia_path)
+      os.chdir(dwikipedia_path)
+      clone = 'git clone ' + dwikipedia_link
+      os.system(clone)
+
+      Archive(dwikipedia_path + '/Document-level-text-simplification/Dataset/train.src.7z').extractall(dwikipedia_path + '/Document-level-text-simplification/Dataset')
+      Archive(dwikipedia_path + '/Document-level-text-simplification/Dataset/train.tgt.7z').extractall(dwikipedia_path + '/Document-level-text-simplification/Dataset')
+      
+      os.remove(dwikipedia_path + '/Document-level-text-simplification/Dataset/train.src.7z')
+      os.remove(dwikipedia_path + '/Document-level-text-simplification/Dataset/train.tgt.7z')
+
+    dwikipedia_files = sorted(glob.glob(f"{dwikipedia_path}/Document-level-text-simplification/Dataset/*"))
+
+    src_ids = []
+    src = []
+    simp_ids = []
+    simp = []
+    labels = []
+
+    for f in dwikipedia_files:
+      with open(f, encoding='latin1') as f:
+        lines = f.readlines()
+        label = f[len(dwikipedia_files)+1:-4]
+        if f[-3:] == 'src':
+          for l in lines:
+            src.append(l)
+            labels.append(label)
+            src_ids.append(len(src_ids))
+        else:
+          for l in lines:
+            simp.append(l)
+            simp_ids.append(len(simp_ids))
+
+    full_data = {'ds_id' : 'D-Wikipedia', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'label': labels}
+    dwikipedia_dataset = pd.DataFrame(data = full_data)
+
+    print(dwikipedia_dataset)
+
+    with open(dwikipedia_path + '/dwikipedia.pkl', 'wb') as f:
+      pickle.dump(dwikipedia_dataset, f)
+
+    #todo: metadata for dataset
+  else:
+    dwikipedia_dataset = pd.read_pickle(path_to_datasets + '/dwikipedia/dwikipedia.pkl')
+  return dwikipedia_dataset
 
 def load_rnd_st_ds():
   df_simplified = pd.read_json("/workspace/datasets/simple_text_runfiles/irgc_task_3_ChatGPT_2stepTurbo.json")
@@ -472,7 +527,7 @@ def load_rnd_st_ds():
 def main():
   if not os.path.isdir(path_to_datasets):
     os.mkdir(path_to_datasets)
-  ds = load_benchls_ds()
+  ds = load_dwikipedia_ds()
 
 if __name__ == '__main__':
   main()
