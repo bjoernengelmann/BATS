@@ -605,6 +605,70 @@ def load_metaeval_ds():
     metaeval_dataset = pd.read_pickle(path_to_datasets + '/metaeval/metaeval.pkl')
   return metaeval_dataset
 
+def load_nnseval_ds():
+  # NNSeval dataset
+  # ghpaetzold.github.io/data/NNSeval.zip
+
+  if not os.path.isfile(path_to_datasets + '/nnseval/nnseval.pkl'): 
+    nnseval_path = path_to_datasets + 'nnseval'
+    nnseval_link = 'https://ghpaetzold.github.io/data/NNSeval.zip'
+  
+    if not os.path.isdir(nnseval_path):
+      os.mkdir(nnseval_path)
+      
+    response = requests.get(nnseval_link, stream=True)
+    
+    if response.status_code == 200:
+      with open(nnseval_path + '/data.zip', 'wb') as f:
+          f.write(response.raw.read())
+
+      with zipfile.ZipFile(nnseval_path + '/data.zip', 'r') as f:
+        f.extractall(nnseval_path)
+
+    src_ids = []
+    src = []
+    simp_ids = []
+    simp = []
+
+    nlp = en_core_web_sm.load()
+
+    curr_src_id = -1
+
+    with open(nnseval_path + '/NNSeval.txt') as f:
+      lines = f.readlines()
+      # complex sentence, TAB, word to substitute, TAB, multiple simplified words
+      for l in lines:
+
+        pts = l.split('\t')
+        replace_word = pts[1]
+        replace_pos = int(pts[2])
+
+        doc = nlp(pts[0])
+        token = [token.text for token in doc]
+        simps = []
+        for i in range(3, len(pts)):
+          token[replace_pos] = pts[i].replace('\n', '').split(':')[1]
+          simps.append(' '.join(token).replace(' ,', ',').replace(' .', '.').replace(' :', ':').replace(' ;', ';').replace(' ?', '?').replace(' !', '!'))
+
+        for i in range(len(simps)):
+          src.append(pts[0])
+          src_ids.append(curr_src_id + 1)
+          simp.append(simps[i])
+          simp_ids.append(len(simp_ids))
+
+        curr_src_id = curr_src_id + 1
+
+      full_data = {'ds_id' : 'NNSeval', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'granularity': 'sentence'}
+      nnseval_dataset = pd.DataFrame(data = full_data)
+
+      with open(nnseval_path + '/nnseval.pkl', 'wb') as f:
+        pickle.dump(nnseval_dataset, f)
+
+      #todo: metadata for dataset
+  else:
+    nnseval_dataset = pd.read_pickle(path_to_datasets + '/nnseval/nnseval.pkl')
+  return nnseval_dataset
+
 def load_rnd_st_ds():
   df_simplified = pd.read_json("/workspace/datasets/simple_text_runfiles/irgc_task_3_ChatGPT_2stepTurbo.json")
   df_source = pd.read_json("/workspace/datasets/simple_text/simpletext-task3-test-large.json")
@@ -627,7 +691,7 @@ def load_rnd_st_ds():
 def main():
   if not os.path.isdir(path_to_datasets):
     os.mkdir(path_to_datasets)
-  ds = load_metaeval_ds()
+  ds = load_nnseval_ds()
 
 if __name__ == '__main__':
   main()
