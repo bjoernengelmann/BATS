@@ -67,7 +67,7 @@ def load_asset_ds():
           simp.append(j)
           origin.append('annotator_' + str(i))
 
-    full_data = {'ds_id' : 'ASSET', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'label' : labels, 'origin' : origin}
+    full_data = {'ds_id' : 'ASSET', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'label' : labels, 'origin' : origin, 'granularity': 'sentence'}
 
     asset_dataset = pd.DataFrame(data=full_data)
 
@@ -124,7 +124,7 @@ def load_htss_ds():
           src.append(doc)
           src_ids.append(len(src_ids))
 
-    full_data = {'ds_id' : 'HTSS', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'src_title': src_title, 'simp_title': simp_title}
+    full_data = {'ds_id' : 'HTSS', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'src_title': src_title, 'simp_title': simp_title, 'granularity': 'document'}
 
     htss_dataset = pd.DataFrame(data=full_data)
 
@@ -136,7 +136,6 @@ def load_htss_ds():
     htss_dataset = pd.read_pickle(path_to_datasets + 'htss/htss.pkl')
 
   return htss_dataset
-
 
 def load_britannica_ds():
   # britannica dataset
@@ -164,7 +163,6 @@ def load_britannica_ds():
                         'http://www.cs.columbia.edu/~noemie/alignment/data/test/hum/manila-hum.txt',
                         'http://www.cs.columbia.edu/~noemie/alignment/data/test/hum/prague-hum.txt',
                         'http://www.cs.columbia.edu/~noemie/alignment/data/test/hum/vienna-hum.txt']
-
 
     if not os.path.isdir(britannica_path):
       os.mkdir(britannica_path)
@@ -241,10 +239,9 @@ def load_britannica_ds():
             src_ids.append(len(src_ids))
             simp_ids.append(len(simp_ids))  
 
-    full_data = {'ds_id' : 'britannica', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'label' : labels, 'topic': topics}
+    full_data = {'ds_id' : 'britannica', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'label' : labels, 'topic': topics, 'granularity': 'sentence'}
 
     britannica_dataset = pd.DataFrame(data = full_data)
-    print(britannica_dataset)
 
     with open(britannica_path + '/britannica.pkl', 'wb') as f:
       pickle.dump(britannica_dataset, f)
@@ -279,7 +276,6 @@ def load_simpa_ds():
     simpa_ss_simp = load_list_file(simpa_files[4])
     simpa_ss_ls_simp = load_list_file(simpa_files[2])
 
-
     # ls_source -> ls_simp, ss_source -> ss_ll_simp, ss_source -> ss_simp, ss_ll_simp -> ss_simp
     src_ids = []
     for i in range(int(len(simpa_ls_orig)/3)):
@@ -304,7 +300,7 @@ def load_simpa_ds():
     simp = simpa_ls_simp + simpa_ss_ls_simp + simpa_ss_simp + simpa_ss_simp
     origin = ['lexical_simp'] * len(simpa_ls_orig) + ['syntactic_simp'] * len(simpa_ss_ls_simp) + ['lexical_simp_of_syntactic_simp'] * len(simpa_ss_simp) * 2
 
-    full_data = {'ds_id' : 'simpa', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'origin' : origin}
+    full_data = {'ds_id' : 'simpa', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'origin' : origin, 'granularity': 'sentence'}
 
     simpa_dataset = pd.DataFrame(data = full_data)
 
@@ -372,10 +368,8 @@ def load_pwkp_ds():
           simp_sents = ''
           source_sent = ''
 
-    full_data = {'ds_id' : 'PWKP', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids}
+    full_data = {'ds_id' : 'PWKP', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'granularity': 'sentence'}
     pwkp_dataset = pd.DataFrame(data = full_data)
-
-    print(pwkp_dataset)
 
     with open(pwkp_path + '/pwkp.pkl', 'wb') as f:
       pickle.dump(pwkp_dataset, f)
@@ -439,7 +433,7 @@ def load_benchls_ds():
 
         curr_src_id = curr_src_id + 1
 
-      full_data = {'ds_id' : 'BenchLS', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids}
+      full_data = {'ds_id' : 'BenchLS', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'granularity': 'sentence'}
       benchls_dataset = pd.DataFrame(data = full_data)
 
       with open(benchls_path + '/benchls.pkl', 'wb') as f:
@@ -492,10 +486,8 @@ def load_dwikipedia_ds():
             simp.append(l)
             simp_ids.append(len(simp_ids))
 
-    full_data = {'ds_id' : 'D-Wikipedia', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'label': labels}
+    full_data = {'ds_id' : 'D-Wikipedia', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'label': labels, 'granularity': 'sentence'}
     dwikipedia_dataset = pd.DataFrame(data = full_data)
-
-    print(dwikipedia_dataset)
 
     with open(dwikipedia_path + '/dwikipedia.pkl', 'wb') as f:
       pickle.dump(dwikipedia_dataset, f)
@@ -504,6 +496,60 @@ def load_dwikipedia_ds():
   else:
     dwikipedia_dataset = pd.read_pickle(path_to_datasets + '/dwikipedia/dwikipedia.pkl')
   return dwikipedia_dataset
+
+def load_massalign_ds():
+  # massalign dataset
+  # https://github.com/stefanpaun/massalign
+
+  if not os.path.isfile(path_to_datasets + '/massalign/massalign.pkl'):
+    massalign_path = path_to_datasets + 'massalign'
+    massalign_link = 'https://github.com/stefanpaun/massalign'
+
+    if not os.path.isdir(massalign_path):
+      os.mkdir(massalign_path)
+      os.chdir(massalign_path)
+      clone = 'git clone ' + massalign_link
+      os.system(clone)
+
+    paragraph = massalign_path + '/massalign/dataset/dataset_paragraphs.txt'
+    sentence = massalign_path + '/massalign/dataset/dataset_sentences.txt'
+
+    src_ids = []
+    src = []
+    simp_ids = []
+    simp = []
+    granularity = []
+
+    with open(paragraph) as f:
+      lines = f.readlines()
+      for l_id in range(0, len(lines), 3):
+        if len(lines[l_id].strip()) > 0 and len(lines[l_id + 1].strip()) > 0:
+          src.append(lines[l_id])
+          simp.append(lines[l_id + 1])
+          src_ids.append(len(src_ids))
+          simp_ids.append(len(simp_ids))
+          granularity.append('paragraph')
+
+    with open(sentence) as f:
+      lines = f.readlines()
+      for l_id in range(0, len(lines), 3):
+        if len(lines[l_id].strip()) > 0 and len(lines[l_id + 1].strip()) > 0:
+          src.append(lines[l_id])
+          simp.append(lines[l_id + 1])
+          src_ids.append(len(src_ids))
+          simp_ids.append(len(simp_ids))
+          granularity.append('sentence')
+
+    full_data = {'ds_id' : 'massalign', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'granularity': granularity}
+    massalign_dataset = pd.DataFrame(data = full_data)
+
+    with open(massalign_path + '/massalign.pkl', 'wb') as f:
+      pickle.dump(massalign_dataset, f)
+
+    #todo: metadata for dataset
+  else:
+    massalign_dataset = pd.read_pickle(path_to_datasets + '/massalign/massalign.pkl')
+  return massalign_dataset
 
 def load_rnd_st_ds():
   df_simplified = pd.read_json("/workspace/datasets/simple_text_runfiles/irgc_task_3_ChatGPT_2stepTurbo.json")
@@ -527,7 +573,7 @@ def load_rnd_st_ds():
 def main():
   if not os.path.isdir(path_to_datasets):
     os.mkdir(path_to_datasets)
-  ds = load_dwikipedia_ds()
+  ds = load_massalign_ds()
 
 if __name__ == '__main__':
   main()
