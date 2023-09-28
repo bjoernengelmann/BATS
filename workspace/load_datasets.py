@@ -551,6 +551,60 @@ def load_massalign_ds():
     massalign_dataset = pd.read_pickle(path_to_datasets + '/massalign/massalign.pkl')
   return massalign_dataset
 
+def load_metaeval_ds():
+  # metaeval DATASET
+  # https://github.com/feralvam/metaeval-simplification
+
+  if not os.path.isfile(path_to_datasets + '/metaeval/metaeval.pkl'):
+    metaeval_path = path_to_datasets + 'metaeval'
+    metaeval_link = 'https://github.com/feralvam/metaeval-simplification'
+
+    if not os.path.isdir(metaeval_path):
+      os.mkdir(metaeval_path)
+      os.chdir(metaeval_path)
+      clone = 'git clone ' + metaeval_link
+      os.system(clone)
+
+    metaeval_file = metaeval_path + '/metaeval-simplification/data/simplicity_DA.csv'
+
+    metaeval_df = pd.read_csv(metaeval_file, encoding='latin1', header=0)
+    metaeval_df = metaeval_df.reset_index()
+
+    src_ids = []
+    src = []
+    simp_ids = []
+    simp = []
+    origin = []
+    sent_ids = {}
+
+    for index, row in metaeval_df.iterrows():
+      if str(row['sent_id']) in sent_ids:
+        curr_src_id = sent_ids[str(row['sent_id'])]
+        src_ids.append(curr_src_id)
+        src.append(row['orig_sent'])
+        simp_ids.append(len(simp_ids))
+        simp.append(row['simp_sent'])
+        origin.append(row['sys_name'])
+      else:
+        curr_src_id = len(sent_ids)
+        sent_ids[str(row['sent_id'])] = curr_src_id
+        src_ids.append(curr_src_id)
+        src.append(row['orig_sent'])
+        simp_ids.append(len(simp_ids))
+        simp.append(row['simp_sent'])
+        origin.append(row['sys_name'])
+
+    full_data = {'ds_id' : 'metaeval', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'origin': origin, 'granularity': 'sentence'}
+    metaeval_dataset = pd.DataFrame(data = full_data)
+
+    with open(metaeval_path + '/metaeval.pkl', 'wb') as f:
+      pickle.dump(metaeval_dataset, f)
+
+    #todo: metadata for dataset
+  else:
+    metaeval_dataset = pd.read_pickle(path_to_datasets + '/metaeval/metaeval.pkl')
+  return metaeval_dataset
+
 def load_rnd_st_ds():
   df_simplified = pd.read_json("/workspace/datasets/simple_text_runfiles/irgc_task_3_ChatGPT_2stepTurbo.json")
   df_source = pd.read_json("/workspace/datasets/simple_text/simpletext-task3-test-large.json")
@@ -573,7 +627,7 @@ def load_rnd_st_ds():
 def main():
   if not os.path.isdir(path_to_datasets):
     os.mkdir(path_to_datasets)
-  ds = load_massalign_ds()
+  ds = load_metaeval_ds()
 
 if __name__ == '__main__':
   main()
