@@ -669,6 +669,90 @@ def load_nnseval_ds():
     nnseval_dataset = pd.read_pickle(path_to_datasets + '/nnseval/nnseval.pkl')
   return nnseval_dataset
 
+def load_onestopenglish_ds():
+  # OneStopEnglish dataset
+  # https://zenodo.org/record/1219041
+
+  if not os.path.isfile(path_to_datasets + '/onestopenglish/onestopenglish.pkl'): 
+    onestopenglish_path = path_to_datasets + 'onestopenglish'
+    onestopenglish_link = 'https://zenodo.org/record/1219041/files/nishkalavallabhi/OneStopEnglishCorpus-bea2018.zip?download=1'
+
+    if not os.path.isdir(onestopenglish_path):
+      os.mkdir(onestopenglish_path)
+      os.mkdir(onestopenglish_path + '/data')
+
+    response = requests.get(onestopenglish_link, stream=True)
+    
+    if response.status_code == 200:
+      with open(onestopenglish_path + '/data.zip', 'wb') as f:
+          f.write(response.raw.read())
+
+      with zipfile.ZipFile(onestopenglish_path + '/data.zip', 'r') as f:
+        f.extractall(onestopenglish_path)
+    
+    onestopenglish_files = sorted(glob.glob(f"{onestopenglish_path}/nishkalavallabhi-OneStopEnglishCorpus-089be0f/Texts-Together-OneCSVperFile/*"))
+
+    src_ids = []
+    src = []
+    simp_ids = []
+    simp = []
+    topics = []
+    origin = []
+    curr_src_id = -1
+
+    for onestopenglish_file in onestopenglish_files:
+      onestopenglish_simp_df = pd.read_csv(onestopenglish_file, encoding='latin1', header=0)
+      onestopenglish_simp_df.dropna(inplace=True)
+      onestopenglish_simp_df = onestopenglish_simp_df.reset_index()
+
+      topic = onestopenglish_file[len(onestopenglish_path) + 76:-4]
+
+      if 'Intermediate' in onestopenglish_simp_df.columns:
+        intermediate = 'Intermediate'
+      else:
+        intermediate = 'Intermediate '
+
+      for index, row in onestopenglish_simp_df.iterrows():
+        src_ids.append(curr_src_id + 1)
+        src_ids.append(curr_src_id + 1)
+        src_ids.append(curr_src_id + 2)
+        curr_src_id = curr_src_id + 2
+
+
+        src.append(row['Advanced'])
+        src.append(row['Advanced'])
+        src.append(row[intermediate])
+
+        simp_ids.append(len(simp_ids))
+        curr_simp_id = len(simp_ids)
+        simp_ids.append(curr_simp_id)
+        simp_ids.append(curr_simp_id)
+
+        simp.append(row[intermediate])
+        simp.append(row['Elementary'])
+        simp.append(row['Elementary'])
+
+        topics.append(topic)
+        topics.append(topic)
+        topics.append(topic)
+
+        origin.append('advanced-intermediate')
+        origin.append('advanced-elementary')
+        origin.append('intermediate-elementary')
+
+    full_data = {'ds_id' : 'OneStopEnglish', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'origin': origin, 'topic': topics, 'granularity': 'sentence'}
+    onestopenglish_dataset = pd.DataFrame(data = full_data)
+
+    print(onestopenglish_dataset)
+
+    with open(onestopenglish_path + '/onestopenglish.pkl', 'wb') as f:
+      pickle.dump(onestopenglish_dataset, f)
+
+    #todo: metadata for dataset
+  else:
+    onestopenglish_dataset = pd.read_pickle(path_to_datasets + '/onestopenglish/onestopenglish.pkl')
+  return onestopenglish_dataset
+
 def load_rnd_st_ds():
   df_simplified = pd.read_json("/workspace/datasets/simple_text_runfiles/irgc_task_3_ChatGPT_2stepTurbo.json")
   df_source = pd.read_json("/workspace/datasets/simple_text/simpletext-task3-test-large.json")
@@ -691,7 +775,7 @@ def load_rnd_st_ds():
 def main():
   if not os.path.isdir(path_to_datasets):
     os.mkdir(path_to_datasets)
-  ds = load_nnseval_ds()
+  ds = load_onestopenglish_ds()
 
 if __name__ == '__main__':
   main()
