@@ -9,7 +9,7 @@ import tarfile
 import zipfile
 import en_core_web_sm
 from pyunpack import Archive
-
+import gzip
 
 path_to_datasets = os.getcwd() + '/datasets/'
 
@@ -718,7 +718,6 @@ def load_onestopenglish_ds():
         src_ids.append(curr_src_id + 2)
         curr_src_id = curr_src_id + 2
 
-
         src.append(row['Advanced'])
         src.append(row['Advanced'])
         src.append(row[intermediate])
@@ -743,8 +742,6 @@ def load_onestopenglish_ds():
     full_data = {'ds_id' : 'OneStopEnglish', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'origin': origin, 'topic': topics, 'granularity': 'sentence'}
     onestopenglish_dataset = pd.DataFrame(data = full_data)
 
-    print(onestopenglish_dataset)
-
     with open(onestopenglish_path + '/onestopenglish.pkl', 'wb') as f:
       pickle.dump(onestopenglish_dataset, f)
 
@@ -752,6 +749,56 @@ def load_onestopenglish_ds():
   else:
     onestopenglish_dataset = pd.read_pickle(path_to_datasets + '/onestopenglish/onestopenglish.pkl')
   return onestopenglish_dataset
+
+def load_sscorpus_ds():
+  # SSCORPUS dataset
+  # https://github.com/tmu-nlp/sscorpus
+
+  if not os.path.isfile(path_to_datasets + '/sscorpus/sscorpus.pkl'):
+    sscorpus_path = path_to_datasets + 'sscorpus'
+    sscorpus_link = 'https://github.com/tmu-nlp/sscorpus'
+
+    if not os.path.isdir(sscorpus_path):
+      os.mkdir(sscorpus_path)
+      os.chdir(sscorpus_path)
+      clone = 'git clone ' + sscorpus_link
+      os.system(clone)
+
+      fp = open(sscorpus_path + '/sscorpus.txt', 'wb')
+      with gzip.open(sscorpus_path + '/sscorpus/sscorpus.gz', 'rb') as f:
+        bindata = f.read()
+        fp.write(bindata)
+        fp.close()
+
+    src_ids = []
+    src = []
+    simp_ids = []
+    simp = []
+    similarity = []
+
+    with open(sscorpus_path + '/sscorpus.txt') as f:
+      lines = f.readlines()
+      # complex sentence TAB simple sentence TAB similarity score
+      for l in lines:
+        parts = l.split('\t')
+
+        src.append(parts[0].replace(' .', '.').replace(' ,', ',').replace('( ', '(').replace(' )', ')').replace(' ;', ';').replace(' :', ':').replace(" '", "'").replace("` ", "`"))
+        simp.append(parts[1].replace(' .', '.').replace(' ,', ',').replace('( ', '(').replace(' )', ')').replace(' ;', ';').replace(' :', ':').replace(" '", "'").replace("` ", "`"))
+        similarity.append(float(parts[2]))
+        src_ids.append(len(src_ids))
+        simp_ids.append(len(simp_ids))
+
+    full_data = {'ds_id': 'SSCORPUS', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'similarity': similarity, 'granularity': 'sentence'}
+    sscorpus_dataset = pd.DataFrame(data = full_data)
+
+    with open(sscorpus_path + '/sscorpus.pkl', 'wb') as f:
+      pickle.dump(sscorpus_dataset, f)
+
+    #todo: metadata for dataset
+  else:
+    sscorpus_dataset = pd.read_pickle(path_to_datasets + '/sscorpus/sscorpus.pkl')
+  return sscorpus_dataset
+
 
 def load_rnd_st_ds():
   df_simplified = pd.read_json("/workspace/datasets/simple_text_runfiles/irgc_task_3_ChatGPT_2stepTurbo.json")
@@ -775,7 +822,7 @@ def load_rnd_st_ds():
 def main():
   if not os.path.isdir(path_to_datasets):
     os.mkdir(path_to_datasets)
-  ds = load_onestopenglish_ds()
+  ds = load_sscorpus_ds()
 
 if __name__ == '__main__':
   main()
