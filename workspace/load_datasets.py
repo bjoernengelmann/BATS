@@ -799,6 +799,82 @@ def load_sscorpus_ds():
     sscorpus_dataset = pd.read_pickle(path_to_datasets + '/sscorpus/sscorpus.pkl')
   return sscorpus_dataset
 
+def load_turkcorpus_ds():
+  # TurkCorpus dataset
+  # https://github.com/cocoxu/simplification/tree/master
+
+  if not os.path.isfile(path_to_datasets + '/turkcorpus/turkcorpus.pkl'):
+    turkcorpus_path = path_to_datasets + 'turkcorpus'
+    turkcorpus_link = 'https://github.com/cocoxu/simplification'
+
+    if not os.path.isdir(turkcorpus_path):
+      os.mkdir(turkcorpus_path)
+      os.chdir(turkcorpus_path)
+      clone = 'git clone ' + turkcorpus_link
+      os.system(clone)
+
+    turkcorpus_files = sorted(glob.glob(f"{turkcorpus_path}/simplification/data/turkcorpus/GEM/*"))
+
+    src_ids = []
+    src = []
+    simp_ids = []
+    simp = []
+    origin = []
+    label = []
+
+    with open(turkcorpus_path + '/simplification/data/turkcorpus/test.8turkers.tok.simp') as f:
+      lines = f.readlines()
+      for l in lines:
+        simp_ids.append(len(simp_ids))
+        simp.append(l.replace(' .', '.').replace(' ,', ',').replace('( ', '(').replace(' )', ')').replace(' ;', ';').replace(' :', ':'))
+        label.append('test')
+        origin.append('Simple_Wikipedia')
+
+    with open(turkcorpus_path + '/simplification/data/turkcorpus/tune.8turkers.tok.simp') as f:
+      lines = f.readlines()
+      for l in lines:
+        simp_ids.append(len(simp_ids))
+        simp.append(l.replace(' .', '.').replace(' ,', ',').replace('( ', '(').replace(' )', ')').replace(' ;', ';').replace(' :', ':'))
+        label.append('tune')
+        origin.append('Simple_Wikipedia')
+
+    for path in turkcorpus_files:
+      with open(path) as f:
+        lines = f.readlines()
+
+        # Wikipedia sentences
+        if path[-4:] == 'norm':
+          for l in lines:
+            src_ids.append(len(src_ids))
+            src.append(l.replace(' .', '.').replace(' ,', ',').replace('( ', '(').replace(' )', ')').replace(' ;', ';').replace(' :', ':'))
+
+        # Turker sentences
+        else:
+          if path[-24:-20] == 'tune':
+            curr_label = 'tune'
+          else:
+            curr_label = 'test'
+
+          for l in lines:
+            simp_ids.append(len(simp_ids))
+            simp.append(l.replace(' .', '.').replace(' ,', ',').replace('( ', '(').replace(' )', ')').replace(' ;', ';').replace(' :', ':'))
+            label.append(curr_label)
+            origin.append('Turker_' + path[-1])
+
+    multiplicator = 9
+    src = src * multiplicator
+    src_ids = src_ids * multiplicator
+
+    full_data = {'ds_id': 'TurkCorpus', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'label': label, 'origin': origin, 'granularity': 'sentence'}
+    turkcorpus_dataset = pd.DataFrame(data = full_data)
+
+    with open(turkcorpus_path + '/turkcorpus.pkl', 'wb') as f:
+      pickle.dump(turkcorpus_dataset, f)
+
+      #todo: metadata for dataset
+  else:
+    turkcorpus_dataset = pd.read_pickle(path_to_datasets + '/turkcorpus/turkcorpus.pkl')
+  return turkcorpus_dataset
 
 def load_rnd_st_ds():
   df_simplified = pd.read_json("/workspace/datasets/simple_text_runfiles/irgc_task_3_ChatGPT_2stepTurbo.json")
@@ -822,7 +898,7 @@ def load_rnd_st_ds():
 def main():
   if not os.path.isdir(path_to_datasets):
     os.mkdir(path_to_datasets)
-  ds = load_sscorpus_ds()
+  ds = load_turkcorpus_ds()
 
 if __name__ == '__main__':
   main()
