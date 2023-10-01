@@ -11,3 +11,5 @@ language_tool_python
 spacy-universal-sentence-encoder
 openpyxl
 ipywidgets
+py7zr
+dropbox

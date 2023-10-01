@@ -8,10 +8,13 @@ import requests
 import tarfile
 import zipfile
 import en_core_web_sm
-from pyunpack import Archive
 import gzip
 from bs4 import BeautifulSoup
+import py7zr
+import dropbox
+from dropbox.exceptions import AuthError
 
+dropbox_access_token = ''
 path_to_datasets = os.getcwd() + '/datasets/'
 
 def load_list_file(path):
@@ -274,8 +277,13 @@ def load_dwikipedia_ds():
       clone = 'git clone ' + dwikipedia_link
       os.system(clone)
 
-      Archive(dwikipedia_path + '/Document-level-text-simplification/Dataset/train.src.7z').extractall(dwikipedia_path + '/Document-level-text-simplification/Dataset')
-      Archive(dwikipedia_path + '/Document-level-text-simplification/Dataset/train.tgt.7z').extractall(dwikipedia_path + '/Document-level-text-simplification/Dataset')
+      archive = py7zr.SevenZipFile(dwikipedia_path + '/Document-level-text-simplification/Dataset/train.src.7z', mode='r')
+      archive.extractall(path=dwikipedia_path + '/Document-level-text-simplification/Dataset')
+      archive.close()
+      
+      archive = py7zr.SevenZipFile(dwikipedia_path + '/Document-level-text-simplification/Dataset/train.tgt.7z', mode='r')
+      archive.extractall(path=dwikipedia_path + '/Document-level-text-simplification/Dataset')
+      archive.close()
       
       os.remove(dwikipedia_path + '/Document-level-text-simplification/Dataset/train.src.7z')
       os.remove(dwikipedia_path + '/Document-level-text-simplification/Dataset/train.tgt.7z')
@@ -291,8 +299,8 @@ def load_dwikipedia_ds():
       for f in dwikipedia_files:
         with open(f, encoding='latin1') as f:
           lines = f.readlines()
-          label = f[len(dwikipedia_files)+1:-4]
-          if f[-3:] == 'src':
+          label = f.name[len(dwikipedia_files)+1:-4]
+          if f.name[-3:] == 'src':
             for l in lines:
               src.append(l)
               labels.append(label)
@@ -763,7 +771,6 @@ def load_semeval07_ds():
 
   return semeval07_dataset
 
-
 def load_simpa_ds():
   # SIMPA DATASET
   # https://github.com/simpaticoproject/simpa
@@ -950,6 +957,136 @@ def load_turkcorpus_ds():
     turkcorpus_dataset = pd.read_pickle(path_to_datasets + '/turkcorpus/turkcorpus.pkl')
   return turkcorpus_dataset
   
+def load_wikiauto_ds():
+  # Wiki-Auto (ACL) dataset
+  # https://github.com/chaojiang06/wiki-auto
+
+  if not os.path.isfile(path_to_datasets + '/wikiauto/wikiauto.pkl') or 1==1:
+    wikiauto_path = path_to_datasets + 'wikiauto'
+    wikiauto_link = 'https://github.com/chaojiang06/wiki-auto'
+
+    if not os.path.isdir(wikiauto_path):
+      os.mkdir(wikiauto_path)
+      os.chdir(wikiauto_path)
+      clone = 'git clone ' + wikiauto_link
+      os.system(clone)
+
+      src_ids = []
+      src = []
+      simp_ids = []
+      simp = []
+
+      with open(wikiauto_path + '/wiki-auto/wiki-auto/ACL2020/train.src') as f:
+        lines = f.readlines()
+        for l in lines:
+          src_ids.append(len(src_ids))
+          src.append(l.replace(' -RRB- ', ' ').replace(' -LRB- ', ' ').replace(' -RSB- ', ' ').replace(' .', '.').replace(' ,', ',').replace('( ', '(').replace(' )', ')').replace(' ;', ';').replace(' :', ':'))
+      
+      with open(wikiauto_path + '/wiki-auto/wiki-auto/ACL2020/train.dst') as f:
+        lines = f.readlines()
+        for l in lines:
+          simp_ids.append(len(simp_ids))
+          simp.append(l.replace(' -RRB- ', ' ').replace(' -LRB- ', ' ').replace(' -RSB- ', ' ').replace(' .', '.').replace(' ,', ',').replace('( ', '(').replace(' )', ')').replace(' ;', ';').replace(' :', ':'))
+
+      full_data = {'ds_id': 'Wiki-Auto', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'label': 'train', 'granularity': 'sentence'}
+      wikiauto_dataset = pd.DataFrame(data = full_data)
+
+      with open(wikiauto_path + '/wikiauto.pkl', 'wb') as f:
+        pickle.dump(wikiauto_dataset, f)
+
+        #todo: metadata for dataset
+  else:
+    wikiauto_dataset = pd.read_pickle(path_to_datasets + '/wikiauto/wikiauto.pkl')
+  return wikiauto_dataset
+
+def load_wikimanual_ds():
+  # Wiki-Manual dataset, aligned, non-duplicates
+  # https://github.com/chaojiang06/wiki-auto
+  # and https://www.dropbox.com/sh/ohqaw41v48c7e5p/AACdl4UPKtu7CMMa-CJhz4G7a/wiki-manual/train.tsv?dl=0
+
+  if not os.path.isfile(path_to_datasets + '/wikimanual/wikimanual.pkl'):
+    wikimanual_path = path_to_datasets + '/wikimanual'
+    wikimanual_link = 'https://github.com/chaojiang06/wiki-auto'
+
+    if not os.path.isdir(wikimanual_path):
+      os.mkdir(wikimanual_path)
+      os.chdir(wikimanual_path)
+      clone = 'git clone ' + wikimanual_link
+      os.system(clone)     
+
+      wikimanual_dropbox_link = 'https://www.dropbox.com/sh/ohqaw41v48c7e5p/AACdl4UPKtu7CMMa-CJhz4G7a/wiki-manual/train.tsv?dl=0'
+
+      try:
+        try:
+          dbx = dropbox.Dropbox(dropbox_access_token)
+        except AuthError as e:
+          print('Error connecting to Dropbox with access token: ' + str(e))
+
+        with open(wikimanual_path + '/wiki-auto/train.tsv', 'wb') as f:
+          metadata, result = dbx.sharing_get_shared_link_file(wikimanual_dropbox_link, link_password=None)
+          f.write(result.content)
+      except Exception as e:
+        print('Error downloading file from Dropbox: ' + str(e))
+
+      src_ids = []
+      src = []
+      simp_ids = []
+      simp = []
+      label = []
+      srcs = {}
+
+      with open(wikimanual_path + '/wiki-auto/wiki-manual/dev.tsv') as f:
+        lines = f.readlines()
+        for l in lines:
+          pts = l.split('\t')
+          if pts[0] == 'aligned' and pts[3] != pts[4]:
+            if pts[4] not in srcs:
+              srcs[pts[4]] = len(srcs)
+
+            src_ids.append(srcs[pts[4]])
+            src.append(pts[4])
+            simp_ids.append(len(src_ids))
+            simp.append(pts[3])
+            label.append('dev')
+
+      with open(wikimanual_path + '/wiki-auto/wiki-manual/test.tsv') as f:
+        lines = f.readlines()
+        for l in lines:
+          pts = l.split('\t')
+          if pts[0] == 'aligned' and pts[3] != pts[4]:
+            if pts[4] not in srcs:
+              srcs[pts[4]] = len(srcs)
+
+            src_ids.append(srcs[pts[4]])
+            src.append(pts[4])
+            simp_ids.append(len(src_ids))
+            simp.append(pts[3])
+            label.append('test')
+
+      with open(wikimanual_path + '/wiki-auto/train.tsv') as f:
+        lines = f.readlines()
+        for l in lines:
+          pts = l.split('\t')
+          if pts[0] == 'aligned' and pts[3] != pts[4]:
+            if pts[4] not in srcs:
+              srcs[pts[4]] = len(srcs)
+
+            src_ids.append(srcs[pts[4]])
+            src.append(pts[4])
+            simp_ids.append(len(src_ids))
+            simp.append(pts[3])
+            label.append('train')
+
+      full_data = {'ds_id': 'Wiki-Manual', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'label': label, 'granularity': 'sentence'}
+      wikimanual_dataset = pd.DataFrame(data = full_data)
+
+      with open(wikimanual_path + '/wikimanual.pkl', 'wb') as f:
+        pickle.dump(wikimanual_dataset, f)
+
+      #todo: metadata for dataset
+  else:
+    wikimanual_dataset = pd.read_pickle(path_to_datasets + '/wikimanual/wikimanual.pkl')
+  return wikimanual_dataset
 
 def load_rnd_st_ds():
   df_simplified = pd.read_json("/workspace/datasets/simple_text_runfiles/irgc_task_3_ChatGPT_2stepTurbo.json")
@@ -973,7 +1110,7 @@ def load_rnd_st_ds():
 def main():
   if not os.path.isdir(path_to_datasets):
     os.mkdir(path_to_datasets)
-  ds = load_semeval07_ds()
+  ds = load_wikimanual_ds()
 
 if __name__ == '__main__':
   main()
