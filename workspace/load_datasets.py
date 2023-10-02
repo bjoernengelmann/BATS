@@ -83,6 +83,67 @@ def load_asset_ds():
 
   return asset_dataset
 
+def load_automets_ds():
+  # AutoMeTS dataset
+  # https://github.com/vanh17/MedTextSimplifier
+
+  if not os.path.isfile(path_to_datasets + 'automets/automets.pkl') or 1==1:
+    automets_path = path_to_datasets + 'automets'
+    automets_link = 'https://github.com/vanh17/MedTextSimplifier'
+
+    if not os.path.isdir(automets_path):
+      os.mkdir(automets_path)
+      os.chdir(automets_path)
+      clone = 'git clone ' + automets_link
+      os.system(clone)
+
+      src_ids = []
+      src = []
+      simp_ids = []
+      simp = []
+
+      # complex word, TAB, number, TAB, sentence
+      with open(automets_path + '/MedTextSimplifier/data_processing/data/NormalMedicalCorpora') as f:
+        lines = f.readlines()
+        for l in lines:
+          pts = l.split('\t')
+          src.append(pts[2].replace(' ,', ',').replace(' .', '.').replace(' :', ':').replace(' ;', ';').replace(' ?', '?').replace(' !', '!'))
+          src_ids.append(len(src_ids))
+
+      # complex word, TAB, number, TAB, sentence
+      with open(automets_path + '/MedTextSimplifier/data_processing/data/SimpleMedicalCorpora') as f:
+        lines = f.readlines()
+        for l in lines:
+          pts = l.split('\t')
+          simp.append(pts[2].replace(' ,', ',').replace(' .', '.').replace(' :', ':').replace(' ;', ';').replace(' ?', '?').replace(' !', '!'))
+          simp_ids.append(len(simp_ids))
+
+      # sentence
+      with open(automets_path + '/MedTextSimplifier/data_processing/data/normal.txt') as f:
+        lines = f.readlines()
+        for l in lines:
+          src.append(l.replace(' -RRB- ', ' ').replace(' -LRB- ', ' ').replace(' -RSB- ', ' ').replace(' ,', ',').replace(' .', '.').replace(' :', ':').replace(' ;', ';').replace(' ?', '?').replace(' !', '!'))
+          src_ids.append(len(src_ids))
+
+      # sentence
+      with open(automets_path + '/MedTextSimplifier/data_processing/data/simple.txt') as f:
+        lines = f.readlines()
+        for l in lines:
+          simp.append(l.replace(' -RRB- ', ' ').replace(' -LRB- ', ' ').replace(' -RSB- ', ' ').replace(' ,', ',').replace(' .', '.').replace(' :', ':').replace(' ;', ';').replace(' ?', '?').replace(' !', '!'))
+          simp_ids.append(len(simp_ids))
+
+      full_data = {'ds_id' : 'AutoMeTS', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'granularity': 'sentence'}
+      automets_dataset = pd.DataFrame(data = full_data)
+
+      with open(automets_path + '/automets.pkl', 'wb') as f:
+        pickle.dump(automets_dataset, f)
+
+      #todo: metadata for dataset
+  else:
+    automets_dataset = pd.read_pickle(path_to_datasets + 'automets/automets.pkl')
+  return automets_dataset
+        
+
 def load_benchls_ds():
   # BenchLS dataset
   # ghpaetzold.github.io/data/BenchLS.zip
@@ -1248,7 +1309,7 @@ def load_rnd_st_ds():
 def main():
   if not os.path.isdir(path_to_datasets):
     os.mkdir(path_to_datasets)
-  ds = load_ewsewturk_ds()
+  ds = load_automets_ds()
 
 if __name__ == '__main__':
   main()
