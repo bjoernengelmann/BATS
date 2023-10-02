@@ -28,7 +28,7 @@ def load_asset_ds():
   # ASSET DATASET
   # https://github.com/facebookresearch/asset
 
-  if not os.path.isfile(path_to_datasets + '/asset/asset.pkl'):
+  if not os.path.isfile(path_to_datasets + 'asset/asset.pkl'):
     asset_path = path_to_datasets + 'asset'
     asset_link = 'https://github.com/facebookresearch/asset'
 
@@ -80,7 +80,7 @@ def load_asset_ds():
 
       #todo: metadata for dataset
   else:
-    asset_dataset = pd.read_pickle(path_to_datasets + '/asset/asset.pkl')
+    asset_dataset = pd.read_pickle(path_to_datasets + 'asset/asset.pkl')
 
   return asset_dataset
 
@@ -88,7 +88,7 @@ def load_benchls_ds():
   # BenchLS dataset
   # ghpaetzold.github.io/data/BenchLS.zip
 
-  if not os.path.isfile(path_to_datasets + '/benchls/benchls.pkl'): 
+  if not os.path.isfile(path_to_datasets + 'benchls/benchls.pkl'): 
     benchls_path = path_to_datasets + 'benchls'
     benchls_link = 'https://ghpaetzold.github.io/data/BenchLS.zip'
    
@@ -145,14 +145,14 @@ def load_benchls_ds():
 
           #todo: metadata for dataset
   else:
-    benchls_dataset = pd.read_pickle(path_to_datasets + '/benchls/benchls.pkl')
+    benchls_dataset = pd.read_pickle(path_to_datasets + 'benchls/benchls.pkl')
   return benchls_dataset
 
 def load_britannica_ds():
   # britannica dataset
   # http://www.cs.columbia.edu/~noemie/alignment/
 
-  if not os.path.isfile(path_to_datasets + '/britannica/britannica.pkl'):
+  if not os.path.isfile(path_to_datasets + 'britannica/britannica.pkl'):
     britannica_path = path_to_datasets + 'britannica'
     britannica_links = ['http://www.cs.columbia.edu/~noemie/alignment/data/train/hum/baghdad-hum.txt', 
                         'http://www.cs.columbia.edu/~noemie/alignment/data/train/hum/bangkok-hum.txt', 
@@ -267,7 +267,7 @@ def load_dwikipedia_ds():
   # D-Wikipedia dataset
   # https://github.com/RLSNLP/Document-level-text-simplification
 
-  if not os.path.isfile(path_to_datasets + '/dwikipedia/dwikipedia.pkl'):
+  if not os.path.isfile(path_to_datasets + 'dwikipedia/dwikipedia.pkl'):
     dwikipedia_path = path_to_datasets + 'dwikipedia'
     dwikipedia_link = 'https://github.com/RLSNLP/Document-level-text-simplification'
 
@@ -318,14 +318,14 @@ def load_dwikipedia_ds():
 
       #todo: metadata for dataset
   else:
-    dwikipedia_dataset = pd.read_pickle(path_to_datasets + '/dwikipedia/dwikipedia.pkl')
+    dwikipedia_dataset = pd.read_pickle(path_to_datasets + 'dwikipedia/dwikipedia.pkl')
   return dwikipedia_dataset
 
 def load_htss_ds():
   # HTSS DATASET
   # https://github.com/slab-itu/HTSS/
 
-  if not os.path.isfile(path_to_datasets + '/htss/htss.pkl'):
+  if not os.path.isfile(path_to_datasets + 'htss/htss.pkl'):
     htss_path = path_to_datasets + 'htss'
     htss_link = 'https://github.com/slab-itu/HTSS/'
 
@@ -378,11 +378,77 @@ def load_htss_ds():
 
   return htss_dataset
 
+def load_hutssf_ds():
+  # HutSSF dataset
+  # https://cs.pomona.edu/~dkauchak/simplification/human_simplification.data.zip
+
+  if not os.path.isfile(path_to_datasets + 'hutssf/hutssf.pkl'):
+    hutssf_path = path_to_datasets + 'hutssf'
+    hutssf_link = 'https://cs.pomona.edu/~dkauchak/simplification/human_simplification.data.zip'
+
+    if not os.path.isdir(hutssf_path):
+      os.mkdir(hutssf_path)
+      
+    response = requests.get(hutssf_link, stream=True)
+    
+    if response.status_code == 200:
+      with open(hutssf_path + '/data.zip', 'wb') as f:
+          f.write(response.raw.read())
+
+      with zipfile.ZipFile(hutssf_path + '/data.zip', 'r') as f:
+        f.extractall(hutssf_path)
+
+      hutssf_files = sorted(glob.glob(f"{hutssf_path}/data/*"))
+
+      src_ids = []
+      src = []
+      simp_ids = []
+      simp = []
+      origins = []
+      labels = []
+      sent_ids = {}
+
+      for hutssf_file in hutssf_files:
+        if hutssf_file[-3:] == 'csv':
+          hutssf_df = pd.read_csv(hutssf_file, encoding='latin1', header=0)
+        
+          for index, row in hutssf_df.iterrows():
+            # exclude exact copies
+            if row['Original'] != row['Simplified']:
+              if str(row['Original']) in sent_ids:
+                curr_src_id = sent_ids[str(row['Original'])]
+                src_ids.append(curr_src_id)
+                src.append(row['Original'])
+                simp_ids.append(len(simp_ids))
+                simp.append(row['Simplified'])
+                origins.append(row['Source'])
+                labels.append(hutssf_file[len(hutssf_path + '/data/'):-4])
+              else:
+                curr_src_id = len(sent_ids)
+                sent_ids[str(row['Original'])] = curr_src_id
+                src_ids.append(curr_src_id)
+                src.append(row['Original'])
+                simp_ids.append(len(simp_ids))
+                simp.append(row['Simplified'])
+                origins.append(row['Source'])
+                labels.append(hutssf_file[len(hutssf_path + '/data/'):-4])
+
+      full_data = {'ds_id' : 'HutSSF', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'label': labels, 'origin': origins, 'granularity': 'sentence'}
+      hutssf_dataset = pd.DataFrame(data = full_data)
+
+      with open(hutssf_path + '/hutssf.pkl', 'wb') as f:
+        pickle.dump(hutssf_dataset, f)
+
+      #todo: metadata for dataset
+  else:
+    hutssf_dataset = pd.read_pickle(path_to_datasets + 'hutssf/hutssf.pkl')
+  return hutssf_dataset
+
 def load_massalign_ds():
   # massalign dataset
   # https://github.com/stefanpaun/massalign
 
-  if not os.path.isfile(path_to_datasets + '/massalign/massalign.pkl'):
+  if not os.path.isfile(path_to_datasets + 'massalign/massalign.pkl'):
     massalign_path = path_to_datasets + 'massalign'
     massalign_link = 'https://github.com/stefanpaun/massalign'
 
@@ -429,14 +495,14 @@ def load_massalign_ds():
 
       #todo: metadata for dataset
   else:
-    massalign_dataset = pd.read_pickle(path_to_datasets + '/massalign/massalign.pkl')
+    massalign_dataset = pd.read_pickle(path_to_datasets + 'massalign/massalign.pkl')
   return massalign_dataset
 
 def load_metaeval_ds():
   # metaeval DATASET
   # https://github.com/feralvam/metaeval-simplification
 
-  if not os.path.isfile(path_to_datasets + '/metaeval/metaeval.pkl'):
+  if not os.path.isfile(path_to_datasets + 'metaeval/metaeval.pkl'):
     metaeval_path = path_to_datasets + 'metaeval'
     metaeval_link = 'https://github.com/feralvam/metaeval-simplification'
 
@@ -483,14 +549,14 @@ def load_metaeval_ds():
 
       #todo: metadata for dataset
   else:
-    metaeval_dataset = pd.read_pickle(path_to_datasets + '/metaeval/metaeval.pkl')
+    metaeval_dataset = pd.read_pickle(path_to_datasets + 'metaeval/metaeval.pkl')
   return metaeval_dataset
 
 def load_nnseval_ds():
   # NNSeval dataset
   # ghpaetzold.github.io/data/NNSeval.zip
 
-  if not os.path.isfile(path_to_datasets + '/nnseval/nnseval.pkl'): 
+  if not os.path.isfile(path_to_datasets + 'nnseval/nnseval.pkl'): 
     nnseval_path = path_to_datasets + 'nnseval'
     nnseval_link = 'https://ghpaetzold.github.io/data/NNSeval.zip'
   
@@ -547,14 +613,14 @@ def load_nnseval_ds():
 
       #todo: metadata for dataset
   else:
-    nnseval_dataset = pd.read_pickle(path_to_datasets + '/nnseval/nnseval.pkl')
+    nnseval_dataset = pd.read_pickle(path_to_datasets + 'nnseval/nnseval.pkl')
   return nnseval_dataset
 
 def load_onestopenglish_ds():
   # OneStopEnglish dataset
   # https://zenodo.org/record/1219041
 
-  if not os.path.isfile(path_to_datasets + '/onestopenglish/onestopenglish.pkl'): 
+  if not os.path.isfile(path_to_datasets + 'onestopenglish/onestopenglish.pkl'): 
     onestopenglish_path = path_to_datasets + 'onestopenglish'
     onestopenglish_link = 'https://zenodo.org/record/1219041/files/nishkalavallabhi/OneStopEnglishCorpus-bea2018.zip?download=1'
 
@@ -628,14 +694,14 @@ def load_onestopenglish_ds():
 
         #todo: metadata for dataset
   else:
-    onestopenglish_dataset = pd.read_pickle(path_to_datasets + '/onestopenglish/onestopenglish.pkl')
+    onestopenglish_dataset = pd.read_pickle(path_to_datasets + 'onestopenglish/onestopenglish.pkl')
   return onestopenglish_dataset
 
 def load_pwkp_ds():
   # PWKP dataset
   # https://tudatalib.ulb.tu-darmstadt.de/handle/tudatalib/2447
 
-  if not os.path.isfile(path_to_datasets + '/pwkp/pwkp.pkl'): 
+  if not os.path.isfile(path_to_datasets + 'pwkp/pwkp.pkl'): 
     pwkp_path = path_to_datasets + 'pwkp'
     pwkp_link = 'https://tudatalib.ulb.tu-darmstadt.de/bitstream/handle/tudatalib/2447/PWKP_108016.tar.gz?sequence=1&isAllowed=y'
 
@@ -694,7 +760,7 @@ def load_pwkp_ds():
 
       #todo: metadata for dataset
   else:
-    pwkp_dataset = pd.read_pickle(path_to_datasets + '/pwkp/pwkp.pkl')
+    pwkp_dataset = pd.read_pickle(path_to_datasets + 'pwkp/pwkp.pkl')
   
   return pwkp_dataset
 
@@ -702,7 +768,7 @@ def load_semeval07_ds():
   # SemEval_2007 dataset
   # http://www.dianamccarthy.co.uk/files/task10data.tar.gz
 
-  if not os.path.isfile(path_to_datasets + '/semeval07/semeval07.pkl'): 
+  if not os.path.isfile(path_to_datasets + 'semeval07/semeval07.pkl'): 
     semeval07_path = path_to_datasets + 'semeval07'
     semeval07_link = 'http://www.dianamccarthy.co.uk/files/task10data.tar.gz'
 
@@ -767,7 +833,7 @@ def load_semeval07_ds():
 
         #todo: metadata for dataset
   else:
-    semeval07_dataset = pd.read_pickle(path_to_datasets + '/semeval07/semeval07.pkl')
+    semeval07_dataset = pd.read_pickle(path_to_datasets + 'semeval07/semeval07.pkl')
 
   return semeval07_dataset
 
@@ -775,7 +841,7 @@ def load_simpa_ds():
   # SIMPA DATASET
   # https://github.com/simpaticoproject/simpa
 
-  if not os.path.isfile(path_to_datasets + '/simpa/simpa.pkl'):
+  if not os.path.isfile(path_to_datasets + 'simpa/simpa.pkl'):
     simpa_path = path_to_datasets + 'simpa'
     simpa_link = 'https://github.com/simpaticoproject/simpa'
 
@@ -827,7 +893,7 @@ def load_simpa_ds():
 
       #todo: metadata for dataset
   else:
-    simpa_dataset = pd.read_pickle(path_to_datasets + '/simpa/simpa.pkl')
+    simpa_dataset = pd.read_pickle(path_to_datasets + 'simpa/simpa.pkl')
 
   return simpa_dataset
 
@@ -835,7 +901,7 @@ def load_sscorpus_ds():
   # SSCORPUS dataset
   # https://github.com/tmu-nlp/sscorpus
 
-  if not os.path.isfile(path_to_datasets + '/sscorpus/sscorpus.pkl'):
+  if not os.path.isfile(path_to_datasets + 'sscorpus/sscorpus.pkl'):
     sscorpus_path = path_to_datasets + 'sscorpus'
     sscorpus_link = 'https://github.com/tmu-nlp/sscorpus'
 
@@ -877,14 +943,14 @@ def load_sscorpus_ds():
 
       #todo: metadata for dataset
   else:
-    sscorpus_dataset = pd.read_pickle(path_to_datasets + '/sscorpus/sscorpus.pkl')
+    sscorpus_dataset = pd.read_pickle(path_to_datasets + 'sscorpus/sscorpus.pkl')
   return sscorpus_dataset
 
 def load_turkcorpus_ds():
   # TurkCorpus dataset
   # https://github.com/cocoxu/simplification/tree/master
 
-  if not os.path.isfile(path_to_datasets + '/turkcorpus/turkcorpus.pkl'):
+  if not os.path.isfile(path_to_datasets + 'turkcorpus/turkcorpus.pkl'):
     turkcorpus_path = path_to_datasets + 'turkcorpus'
     turkcorpus_link = 'https://github.com/cocoxu/simplification'
 
@@ -954,14 +1020,14 @@ def load_turkcorpus_ds():
 
         #todo: metadata for dataset
   else:
-    turkcorpus_dataset = pd.read_pickle(path_to_datasets + '/turkcorpus/turkcorpus.pkl')
+    turkcorpus_dataset = pd.read_pickle(path_to_datasets + 'turkcorpus/turkcorpus.pkl')
   return turkcorpus_dataset
   
 def load_wikiauto_ds():
   # Wiki-Auto (ACL) dataset
   # https://github.com/chaojiang06/wiki-auto
 
-  if not os.path.isfile(path_to_datasets + '/wikiauto/wikiauto.pkl') or 1==1:
+  if not os.path.isfile(path_to_datasets + 'wikiauto/wikiauto.pkl'):
     wikiauto_path = path_to_datasets + 'wikiauto'
     wikiauto_link = 'https://github.com/chaojiang06/wiki-auto'
 
@@ -996,7 +1062,7 @@ def load_wikiauto_ds():
 
         #todo: metadata for dataset
   else:
-    wikiauto_dataset = pd.read_pickle(path_to_datasets + '/wikiauto/wikiauto.pkl')
+    wikiauto_dataset = pd.read_pickle(path_to_datasets + 'wikiauto/wikiauto.pkl')
   return wikiauto_dataset
 
 def load_wikimanual_ds():
@@ -1004,8 +1070,8 @@ def load_wikimanual_ds():
   # https://github.com/chaojiang06/wiki-auto
   # and https://www.dropbox.com/sh/ohqaw41v48c7e5p/AACdl4UPKtu7CMMa-CJhz4G7a/wiki-manual/train.tsv?dl=0
 
-  if not os.path.isfile(path_to_datasets + '/wikimanual/wikimanual.pkl'):
-    wikimanual_path = path_to_datasets + '/wikimanual'
+  if not os.path.isfile(path_to_datasets + 'wikimanual/wikimanual.pkl'):
+    wikimanual_path = path_to_datasets + 'wikimanual'
     wikimanual_link = 'https://github.com/chaojiang06/wiki-auto'
 
     if not os.path.isdir(wikimanual_path):
@@ -1085,7 +1151,7 @@ def load_wikimanual_ds():
 
       #todo: metadata for dataset
   else:
-    wikimanual_dataset = pd.read_pickle(path_to_datasets + '/wikimanual/wikimanual.pkl')
+    wikimanual_dataset = pd.read_pickle(path_to_datasets + 'wikimanual/wikimanual.pkl')
   return wikimanual_dataset
 
 def load_rnd_st_ds():
@@ -1110,7 +1176,7 @@ def load_rnd_st_ds():
 def main():
   if not os.path.isdir(path_to_datasets):
     os.mkdir(path_to_datasets)
-  ds = load_wikimanual_ds()
+  ds = load_hutssf_ds()
 
 if __name__ == '__main__':
   main()
