@@ -72,7 +72,6 @@ def load_asset_ds():
             origin.append('annotator_' + str(i))
 
       full_data = {'ds_id' : 'ASSET', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'label' : labels, 'origin' : origin, 'granularity': 'sentence'}
-
       asset_dataset = pd.DataFrame(data=full_data)
 
       with open(asset_path + '/asset.pkl', 'wb') as f:
@@ -320,6 +319,79 @@ def load_dwikipedia_ds():
   else:
     dwikipedia_dataset = pd.read_pickle(path_to_datasets + 'dwikipedia/dwikipedia.pkl')
   return dwikipedia_dataset
+
+def load_ewsewturk_ds():
+  # EW-SEW-MTurk
+  # https://cs.pomona.edu/~dkauchak/simplification/lex.mturk.14/lex.mturk.14.tar.gz
+
+  if not os.path.isfile(path_to_datasets + 'ewsewturk/ewsewturk.pkl'): 
+    ewsewturk_path = path_to_datasets + 'ewsewturk'
+    ewsewturk_link = 'https://cs.pomona.edu/~dkauchak/simplification/lex.mturk.14/lex.mturk.14.tar.gz'
+
+    if not os.path.isdir(ewsewturk_path):
+      os.mkdir(ewsewturk_path)
+      
+    response = requests.get(ewsewturk_link, stream=True)
+    
+    if response.status_code == 200:
+      with open(ewsewturk_path + '/data.tar.gz', 'wb') as f:
+          f.write(response.raw.read())
+
+      f = tarfile.open(ewsewturk_path + '/data.tar.gz')
+      f.extractall(ewsewturk_path)
+      f.close()
+
+      src_ids = []
+      src = []
+      simp_ids = []
+      simp = []
+
+      nlp = en_core_web_sm.load()
+
+      curr_src_id = -1
+
+      with open(ewsewturk_path + '/lex.mturk.14/lex.mturk.txt', encoding='latin1') as f:
+        lines = f.readlines()[1:]
+        # complex sentence, TAB, word to substitute, TAB, multiple simplified words
+        for l in lines:
+          pts = l.split('\t')
+          replace_word = pts[1]
+          replace_pos = -1
+          doc = nlp(pts[0])
+          token = [token.text for token in doc]
+          simps = []
+          curr_simps = []
+
+          for i in range(len(token)):
+            if token[i] == replace_word:
+              replace_pos = i
+              break
+
+          for i in range(2, len(pts)):
+            if pts[i] not in curr_simps:
+              token[replace_pos] = pts[i]
+              simps.append(' '.join(token).replace(' ,', ',').replace(' .', '.').replace(' :', ':').replace(' ;', ';').replace(' ?', '?').replace(' !', '!'))
+              curr_simps.append(pts[i])
+
+          for i in range(len(simps)):
+            src.append(pts[0])
+            src_ids.append(curr_src_id + 1)
+            simp.append(simps[i])
+            simp_ids.append(len(simp_ids))
+
+          curr_src_id = curr_src_id + 1
+
+      full_data = {'ds_id' : 'EW-SEW-Turk', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'origin' : 'Turker', 'granularity': 'sentence'}
+      ewsewturk_dataset = pd.DataFrame(data=full_data)
+
+      with open(ewsewturk_path + '/ewsewturk.pkl', 'wb') as f:
+        pickle.dump(ewsewturk_dataset, f)
+
+      #todo: metadata for dataset
+  else:
+    ewsewturk_dataset = pd.read_pickle(path_to_datasets + 'ewsewturk/ewsewturk.pkl')
+
+  return ewsewturk_dataset
 
 def load_htss_ds():
   # HTSS DATASET
@@ -1176,7 +1248,7 @@ def load_rnd_st_ds():
 def main():
   if not os.path.isdir(path_to_datasets):
     os.mkdir(path_to_datasets)
-  ds = load_hutssf_ds()
+  ds = load_ewsewturk_ds()
 
 if __name__ == '__main__':
   main()
