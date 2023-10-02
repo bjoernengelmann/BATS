@@ -87,7 +87,7 @@ def load_automets_ds():
   # AutoMeTS dataset
   # https://github.com/vanh17/MedTextSimplifier
 
-  if not os.path.isfile(path_to_datasets + 'automets/automets.pkl') or 1==1:
+  if not os.path.isfile(path_to_datasets + 'automets/automets.pkl'):
     automets_path = path_to_datasets + 'automets'
     automets_link = 'https://github.com/vanh17/MedTextSimplifier'
 
@@ -143,7 +143,6 @@ def load_automets_ds():
     automets_dataset = pd.read_pickle(path_to_datasets + 'automets/automets.pkl')
   return automets_dataset
         
-
 def load_benchls_ds():
   # BenchLS dataset
   # ghpaetzold.github.io/data/BenchLS.zip
@@ -380,6 +379,74 @@ def load_dwikipedia_ds():
   else:
     dwikipedia_dataset = pd.read_pickle(path_to_datasets + 'dwikipedia/dwikipedia.pkl')
   return dwikipedia_dataset
+
+def load_ewsewgmpm_ds():
+  # EW-SEW-gmpm dataset
+  # https://github.com/senisioi/NeuralTextSimplification
+
+  if not os.path.isfile(path_to_datasets + 'ewsewgmpm/ewsewgmpm.pkl'):
+    ewsewgmpm_path = path_to_datasets + 'ewsewgmpm'
+    ewsewgmpm_link = 'https://github.com/senisioi/NeuralTextSimplification'
+
+    if not os.path.isdir(ewsewgmpm_path):
+      os.mkdir(ewsewgmpm_path)
+      os.chdir(ewsewgmpm_path)
+      clone = 'git clone ' + ewsewgmpm_link
+      os.system(clone)
+
+      src_ids = []
+      src = []
+      simp_ids = []
+      simp = []
+      labels = []
+
+      all_simp = []
+      all_src = []
+      all_labels = []
+
+      ewsewgmpm_files = sorted(glob.glob(f"{ewsewgmpm_path}/NeuralTextSimplification/data/*"))
+
+      for ewsewgmpm_file in ewsewgmpm_files:
+        if os.path.isfile(ewsewgmpm_file):
+          with open(ewsewgmpm_file) as f:
+            lines = f.readlines()
+
+            for l in lines:
+              if ewsewgmpm_file[-3:] == '.en':
+                all_src.append(l.replace(' ,', ',').replace(' .', '.').replace(' :', ':').replace(' ;', ';').replace(' ?', '?').replace(' !', '!').replace('( ', '(').replace(' )', ')'))
+              else:
+                all_simp.append(l.replace(' ,', ',').replace(' .', '.').replace(' :', ':').replace(' ;', ';').replace(' ?', '?').replace(' !', '!').replace('( ', '(').replace(' )', ')'))
+
+                if ewsewgmpm_file[len('ewsewgmpm_path}/NeuralTextSimplification/data/'):2] == 'dev':
+                  all_labels.append('dev')
+                elif ewsewgmpm_file[len('ewsewgmpm_path}/NeuralTextSimplification/data/'):2] == 'tes':
+                  all_labels.append('test')
+                else: 
+                  all_labels.append('train')
+
+      all_src_ids = {}        
+
+      for i in range(len(all_simp)):
+        if all_simp[i] != all_src[i]:
+          if all_src[i] not in all_src_ids:
+            all_src_ids[all_src[i]] = len(all_src_ids)
+          src_ids.append(all_src_ids[all_src[i]])
+          src.append(all_src[i])
+          simp_ids.append(len(simp_ids))
+          simp.append(all_simp[i])
+          labels.append(all_labels[i])
+
+      full_data = {'ds_id' : 'EW-SEW-gmpm', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'label' : labels, 'granularity': 'sentence'}
+      ewsewgmpm_dataset = pd.DataFrame(data=full_data)
+
+      with open(ewsewgmpm_path + '/ewsewgmpm.pkl', 'wb') as f:
+        pickle.dump(ewsewgmpm_dataset, f)
+
+      #todo: metadata for dataset
+  else:
+    ewsewgmpm_dataset = pd.read_pickle(path_to_datasets + 'ewsewgmpm/ewsewgmpm.pkl')
+
+  return ewsewgmpm_dataset
 
 def load_ewsewturk_ds():
   # EW-SEW-MTurk
@@ -1309,7 +1376,7 @@ def load_rnd_st_ds():
 def main():
   if not os.path.isdir(path_to_datasets):
     os.mkdir(path_to_datasets)
-  ds = load_automets_ds()
+  ds = load_ewsewgmpm_ds()
 
 if __name__ == '__main__':
   main()
