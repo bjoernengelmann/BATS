@@ -1404,6 +1404,63 @@ def load_wikisplit_ds():
 
   return wikisplit_dataset
 
+def load_wikipediav1_ds():
+  # Wikipedia version 1 dataset
+  # https://cs.pomona.edu/~dkauchak/simplification/data.v1/data.v1.split.tar.gz
+
+  if not os.path.isfile(path_to_datasets + 'wikipediav1/wikipediav1.pkl'): 
+    wikipediav1_path = path_to_datasets + 'wikipediav1'
+    wikipediav1_link = 'https://cs.pomona.edu/~dkauchak/simplification/data.v1/data.v1.split.tar.gz'
+
+    if not os.path.isdir(wikipediav1_path):
+      os.mkdir(wikipediav1_path)
+      
+    response = requests.get(wikipediav1_link, stream=True)
+    
+    if response.status_code == 200:
+      with open(wikipediav1_path + '/data.tar.gz', 'wb') as f:
+          f.write(response.raw.read())
+
+      f = tarfile.open(wikipediav1_path + '/data.tar.gz')
+      f.extractall(wikipediav1_path)
+      f.close()
+
+      src_ids = []
+      src = []
+      simp_ids = []
+      simp = []
+      labels = []
+
+      wikipediav1_files = sorted(glob.glob(f"{wikipediav1_path}/data.v1.split/*"))
+      for wikipediav1_file in wikipediav1_files:
+        if wikipediav1_file[-3:] == 'txt':
+          is_simp = wikipediav1_file[len(wikipediav1_path + '/data.v1.split/'):].split('.')[0] == 'simple'
+          file_type = wikipediav1_file[len(wikipediav1_path + '/data.v1.split/'):].split('.')[1]
+
+          with open(wikipediav1_file) as f:
+            lines = f.readlines()
+
+            for l in lines:
+              if is_simp:
+                simp_ids.append(len(simp_ids))
+                simp.append(l.replace(' ,', ',').replace(' .', '.').replace(' :', ':').replace(' ;', ';').replace(' ?', '?').replace(' !', '!').replace('( ', '(').replace(' )', ')'))
+                labels.append(file_type)
+              else:
+                src_ids.append(len(src_ids))
+                src.append(l.replace(' ,', ',').replace(' .', '.').replace(' :', ':').replace(' ;', ';').replace(' ?', '?').replace(' !', '!').replace('( ', '(').replace(' )', ')'))
+
+      full_data = {'ds_id' : 'Wikipedia_v1', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'label' : labels, 'granularity': 'sentence'}
+      wikipediav1_dataset = pd.DataFrame(data=full_data)
+
+      with open(wikipediav1_path + '/wikipediav1.pkl', 'wb') as f:
+        pickle.dump(wikipediav1_dataset, f)
+
+      #todo: metadata for dataset
+  else:
+    wikipediav1_dataset = pd.read_pickle(path_to_datasets + 'wikipediav1/wikipediav1.pkl')
+
+  return wikipediav1_dataset
+
 def load_rnd_st_ds():
   df_simplified = pd.read_json("/workspace/datasets/simple_text_runfiles/irgc_task_3_ChatGPT_2stepTurbo.json")
   df_source = pd.read_json("/workspace/datasets/simple_text/simpletext-task3-test-large.json")
@@ -1426,7 +1483,7 @@ def load_rnd_st_ds():
 def main():
   if not os.path.isdir(path_to_datasets):
     os.mkdir(path_to_datasets)
-  ds = load_wikisplit_ds()
+  ds = load_wikipediav1_ds()
 
 if __name__ == '__main__':
   main()
