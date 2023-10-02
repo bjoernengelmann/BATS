@@ -1354,6 +1354,56 @@ def load_wikimanual_ds():
     wikimanual_dataset = pd.read_pickle(path_to_datasets + 'wikimanual/wikimanual.pkl')
   return wikimanual_dataset
 
+def load_wikisplit_ds():
+  # WikiSplit dataset
+  # https://github.com/google-research-datasets/wiki-split
+
+  if not os.path.isfile(path_to_datasets + 'wikisplit/wikisplit.pkl'):
+    wikisplit_path = path_to_datasets + 'wikisplit'
+    wikisplit_link = 'https://github.com/google-research-datasets/wiki-split'
+
+    if not os.path.isdir(wikisplit_path):
+      os.mkdir(wikisplit_path)
+      os.chdir(wikisplit_path)
+      clone = 'git clone ' + wikisplit_link
+      os.system(clone)
+
+      with zipfile.ZipFile(wikisplit_path + '/wiki-split/train.tsv.zip', 'r') as f:
+          f.extractall(wikisplit_path + '/wiki-split/')
+
+      src_ids = []
+      src = []
+      simp_ids = []
+      simp = []
+      labels = []
+
+      wikisplit_files = sorted(glob.glob(f"{wikisplit_path}/wiki-split/*"))
+
+      for wikisplit_file in wikisplit_files:
+        if wikisplit_file[-3:] == 'tsv':
+          with open(wikisplit_file) as f:
+            lines = f.readlines()
+            for l in lines:
+              pts = l.split('\t')
+
+              src_ids.append(len(src_ids))
+              src.append(pts[0].replace(' ,', ',').replace(' .', '.').replace(' :', ':').replace(' ;', ';').replace(' ?', '?').replace(' !', '!').replace('( ', '(').replace(' )', ')'))
+              simp_ids.append(len(simp_ids))
+              simp.append(pts[1].replace(' <::::> ', ' ').replace(' ,', ',').replace(' .', '.').replace(' :', ':').replace(' ;', ';').replace(' ?', '?').replace(' !', '!').replace('( ', '(').replace(' )', ')'))
+              labels.append(wikisplit_file[len(wikisplit_path + '/wiki-split/'):-4])
+
+      full_data = {'ds_id' : 'WikiSplit', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'label' : labels, 'granularity': 'sentence'}
+      wikisplit_dataset = pd.DataFrame(data=full_data)
+
+      with open(wikisplit_path + '/wikisplit.pkl', 'wb') as f:
+        pickle.dump(wikisplit_dataset, f)
+
+      #todo: metadata for dataset
+  else:
+    wikisplit_dataset = pd.read_pickle(path_to_datasets + 'wikisplit/wikisplit.pkl')
+
+  return wikisplit_dataset
+
 def load_rnd_st_ds():
   df_simplified = pd.read_json("/workspace/datasets/simple_text_runfiles/irgc_task_3_ChatGPT_2stepTurbo.json")
   df_source = pd.read_json("/workspace/datasets/simple_text/simpletext-task3-test-large.json")
@@ -1376,7 +1426,7 @@ def load_rnd_st_ds():
 def main():
   if not os.path.isdir(path_to_datasets):
     os.mkdir(path_to_datasets)
-  ds = load_ewsewgmpm_ds()
+  ds = load_wikisplit_ds()
 
 if __name__ == '__main__':
   main()
