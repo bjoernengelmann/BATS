@@ -752,6 +752,61 @@ def load_metaeval_ds():
     metaeval_dataset = pd.read_pickle(path_to_datasets + 'metaeval/metaeval.pkl')
   return metaeval_dataset
 
+def load_mturksf_ds():
+  # MTurkSF dataset
+  # https://cs.pomona.edu/~dkauchak/simplification/word_filtering/MTurk_annotations.zip
+
+  if not os.path.isfile(path_to_datasets + 'mturksf/mturksf.pkl'): 
+    mturksf_path = path_to_datasets + 'mturksf'
+    mturksf_link = 'https://cs.pomona.edu/~dkauchak/simplification/word_filtering/MTurk_annotations.zip'
+  
+    if not os.path.isdir(mturksf_path):
+      os.mkdir(mturksf_path)
+      
+    response = requests.get(mturksf_link, stream=True)
+    
+    if response.status_code == 200:
+      with open(mturksf_path + '/data.zip', 'wb') as f:
+          f.write(response.raw.read())
+
+      with zipfile.ZipFile(mturksf_path + '/data.zip', 'r') as f:
+        f.extractall(mturksf_path)
+
+      src_ids = []
+      src = []
+      simp_ids = []
+      simp = []
+      topics = []
+
+      mturksf_df = pd.read_excel(mturksf_path + '/MTurk_annotations/MTurk-annotations.xlsx', sheet_name=1)
+
+      ids = {}
+
+      for index, row in mturksf_df.iterrows():
+        if row['rating'] == 1:
+          txt = row['sentence'].replace('<b>' + row['original_word'] + '</b>', row['original_word'])
+
+          if txt not in ids:
+            ids[txt] = len(ids)
+
+          src_ids.append(ids[txt])
+          src.append(txt)
+          simp_ids.append(len(simp_ids))
+          simp.append(row['sentence'].replace('<b>' + row['original_word'] + '</b>', row['replacement_word']))
+          topics.append(row['source'][:-4])
+
+      
+      full_data = {'ds_id': 'MTurkSF', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'topic': topics, 'granularity': 'sentence'}
+      mturksf_dataset = pd.DataFrame(data = full_data)
+
+      with open(mturksf_path + '/mturksf.pkl', 'wb') as f:
+        pickle.dump(mturksf_dataset, f)
+
+      #todo: metadata for dataset
+  else:
+    mturksf_dataset = pd.read_pickle(path_to_datasets + 'mturksf/mturksf.pkl')
+  return mturksf_dataset
+
 def load_nnseval_ds():
   # NNSeval dataset
   # ghpaetzold.github.io/data/NNSeval.zip
@@ -1616,7 +1671,7 @@ def load_rnd_st_ds():
 def main():
   if not os.path.isdir(path_to_datasets):
     os.mkdir(path_to_datasets)
-  ds = load_wikipediav2_ds()
+  ds = load_mturksf_ds()
 
 if __name__ == '__main__':
   main()
