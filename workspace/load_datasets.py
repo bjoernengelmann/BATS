@@ -71,7 +71,7 @@ def load_asset_ds():
             simp.append(j)
             origin.append('annotator_' + str(i))
 
-      full_data = {'ds_id' : 'ASSET', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'label' : labels, 'origin' : origin, 'granularity': 'sentence'}
+      full_data = {'ds_id': 'ASSET', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': labels, 'origin': origin, 'granularity': 'sentence'}
       asset_dataset = pd.DataFrame(data=full_data)
 
       with open(asset_path + '/asset.pkl', 'wb') as f:
@@ -132,7 +132,7 @@ def load_automets_ds():
           simp.append(l.replace(' -RRB- ', ' ').replace(' -LRB- ', ' ').replace(' -RSB- ', ' ').replace(' ,', ',').replace(' .', '.').replace(' :', ':').replace(' ;', ';').replace(' ?', '?').replace(' !', '!'))
           simp_ids.append(len(simp_ids))
 
-      full_data = {'ds_id' : 'AutoMeTS', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'granularity': 'sentence'}
+      full_data = {'ds_id': 'AutoMeTS', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'granularity': 'sentence'}
       automets_dataset = pd.DataFrame(data = full_data)
 
       with open(automets_path + '/automets.pkl', 'wb') as f:
@@ -196,7 +196,7 @@ def load_benchls_ds():
 
             curr_src_id = curr_src_id + 1
 
-          full_data = {'ds_id' : 'BenchLS', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'granularity': 'sentence'}
+          full_data = {'ds_id': 'BenchLS', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'granularity': 'sentence'}
           benchls_dataset = pd.DataFrame(data = full_data)
 
           with open(benchls_path + '/benchls.pkl', 'wb') as f:
@@ -309,7 +309,7 @@ def load_britannica_ds():
               src_ids.append(len(src_ids))
               simp_ids.append(len(simp_ids))  
 
-      full_data = {'ds_id' : 'britannica', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'label' : labels, 'topic': topics, 'granularity': 'sentence'}
+      full_data = {'ds_id': 'britannica', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': labels, 'topic': topics, 'granularity': 'sentence'}
 
       britannica_dataset = pd.DataFrame(data = full_data)
 
@@ -369,7 +369,7 @@ def load_dwikipedia_ds():
               simp.append(l)
               simp_ids.append(len(simp_ids))
 
-      full_data = {'ds_id' : 'D-Wikipedia', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'label': labels, 'granularity': 'sentence'}
+      full_data = {'ds_id': 'D-Wikipedia', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': labels, 'granularity': 'sentence'}
       dwikipedia_dataset = pd.DataFrame(data = full_data)
 
       with open(dwikipedia_path + '/dwikipedia.pkl', 'wb') as f:
@@ -436,7 +436,7 @@ def load_ewsewgmpm_ds():
           simp.append(all_simp[i])
           labels.append(all_labels[i])
 
-      full_data = {'ds_id' : 'EW-SEW-gmpm', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'label' : labels, 'granularity': 'sentence'}
+      full_data = {'ds_id': 'EW-SEW-gmpm', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': labels, 'granularity': 'sentence'}
       ewsewgmpm_dataset = pd.DataFrame(data=full_data)
 
       with open(ewsewgmpm_path + '/ewsewgmpm.pkl', 'wb') as f:
@@ -509,7 +509,7 @@ def load_ewsewturk_ds():
 
           curr_src_id = curr_src_id + 1
 
-      full_data = {'ds_id' : 'EW-SEW-Turk', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'origin' : 'Turker', 'granularity': 'sentence'}
+      full_data = {'ds_id': 'EW-SEW-Turk', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'origin': 'Turker', 'granularity': 'sentence'}
       ewsewturk_dataset = pd.DataFrame(data=full_data)
 
       with open(ewsewturk_path + '/ewsewturk.pkl', 'wb') as f:
@@ -565,7 +565,7 @@ def load_htss_ds():
             src.append(doc)
             src_ids.append(len(src_ids))
 
-      full_data = {'ds_id' : 'HTSS', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'src_title': src_title, 'simp_title': simp_title, 'granularity': 'document'}
+      full_data = {'ds_id': 'HTSS', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'src_title': src_title, 'simp_title': simp_title, 'granularity': 'document'}
 
       htss_dataset = pd.DataFrame(data=full_data)
 
@@ -633,7 +633,7 @@ def load_hutssf_ds():
                 origins.append(row['Source'])
                 labels.append(hutssf_file[len(hutssf_path + '/data/'):-4])
 
-      full_data = {'ds_id' : 'HutSSF', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'label': labels, 'origin': origins, 'granularity': 'sentence'}
+      full_data = {'ds_id': 'HutSSF', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': labels, 'origin': origins, 'granularity': 'sentence'}
       hutssf_dataset = pd.DataFrame(data = full_data)
 
       with open(hutssf_path + '/hutssf.pkl', 'wb') as f:
@@ -687,7 +687,7 @@ def load_massalign_ds():
             simp_ids.append(len(simp_ids))
             granularity.append('sentence')
 
-      full_data = {'ds_id' : 'massalign', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'granularity': granularity}
+      full_data = {'ds_id': 'massalign', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'granularity': granularity}
       massalign_dataset = pd.DataFrame(data = full_data)
 
       with open(massalign_path + '/massalign.pkl', 'wb') as f:
@@ -741,7 +741,7 @@ def load_metaeval_ds():
           simp.append(row['simp_sent'])
           origin.append(row['sys_name'])
 
-      full_data = {'ds_id' : 'metaeval', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'origin': origin, 'granularity': 'sentence'}
+      full_data = {'ds_id': 'metaeval', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'origin': origin, 'granularity': 'sentence'}
       metaeval_dataset = pd.DataFrame(data = full_data)
 
       with open(metaeval_path + '/metaeval.pkl', 'wb') as f:
@@ -805,7 +805,7 @@ def load_nnseval_ds():
 
           curr_src_id = curr_src_id + 1
 
-      full_data = {'ds_id' : 'NNSeval', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'granularity': 'sentence'}
+      full_data = {'ds_id': 'NNSeval', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'granularity': 'sentence'}
       nnseval_dataset = pd.DataFrame(data = full_data)
 
       with open(nnseval_path + '/nnseval.pkl', 'wb') as f:
@@ -886,7 +886,7 @@ def load_onestopenglish_ds():
             origin.append('advanced-elementary')
             origin.append('intermediate-elementary')
 
-        full_data = {'ds_id' : 'OneStopEnglish', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'origin': origin, 'topic': topics, 'granularity': 'sentence'}
+        full_data = {'ds_id': 'OneStopEnglish', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'origin': origin, 'topic': topics, 'granularity': 'sentence'}
         onestopenglish_dataset = pd.DataFrame(data = full_data)
 
         with open(onestopenglish_path + '/onestopenglish.pkl', 'wb') as f:
@@ -952,7 +952,7 @@ def load_pwkp_ds():
             simp_sents = ''
             source_sent = ''
 
-      full_data = {'ds_id' : 'PWKP', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'granularity': 'sentence'}
+      full_data = {'ds_id': 'PWKP', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'granularity': 'sentence'}
       pwkp_dataset = pd.DataFrame(data = full_data)
 
       with open(pwkp_path + '/pwkp.pkl', 'wb') as f:
@@ -1025,7 +1025,7 @@ def load_semeval07_ds():
                   simp_ids.append(len(simp_ids))
                   simp.append(src_info[curr_id]['left'] + ' ' + replacement[:-1] + ' ' + src_info[curr_id]['right'])
 
-        full_data = {'ds_id' : 'SemEval_2007', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'label' : 'trial', 'granularity': 'sentence'}
+        full_data = {'ds_id': 'SemEval_2007', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': 'trial', 'granularity': 'sentence'}
         semeval07_dataset = pd.DataFrame(data = full_data)
 
         with open(semeval07_path + '/semeval07.pkl', 'wb') as f:
@@ -1085,7 +1085,7 @@ def load_simpa_ds():
       simp = simpa_ls_simp + simpa_ss_ls_simp + simpa_ss_simp + simpa_ss_simp
       origin = ['lexical_simp'] * len(simpa_ls_orig) + ['syntactic_simp'] * len(simpa_ss_ls_simp) + ['lexical_simp_of_syntactic_simp'] * len(simpa_ss_simp) * 2
 
-      full_data = {'ds_id' : 'simpa', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'origin' : origin, 'granularity': 'sentence'}
+      full_data = {'ds_id': 'simpa', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'origin': origin, 'granularity': 'sentence'}
       simpa_dataset = pd.DataFrame(data = full_data)
 
       with open(simpa_path + '/simpa.pkl', 'wb') as f:
@@ -1135,7 +1135,7 @@ def load_sscorpus_ds():
           src_ids.append(len(src_ids))
           simp_ids.append(len(simp_ids))
 
-      full_data = {'ds_id': 'SSCORPUS', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'similarity': similarity, 'granularity': 'sentence'}
+      full_data = {'ds_id': 'SSCORPUS', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'similarity': similarity, 'granularity': 'sentence'}
       sscorpus_dataset = pd.DataFrame(data = full_data)
 
       with open(sscorpus_path + '/sscorpus.pkl', 'wb') as f:
@@ -1212,7 +1212,7 @@ def load_turkcorpus_ds():
       src = src * multiplicator
       src_ids = src_ids * multiplicator
 
-      full_data = {'ds_id': 'TurkCorpus', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'label': label, 'origin': origin, 'granularity': 'sentence'}
+      full_data = {'ds_id': 'TurkCorpus', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': label, 'origin': origin, 'granularity': 'sentence'}
       turkcorpus_dataset = pd.DataFrame(data = full_data)
 
       with open(turkcorpus_path + '/turkcorpus.pkl', 'wb') as f:
@@ -1254,7 +1254,7 @@ def load_wikiauto_ds():
           simp_ids.append(len(simp_ids))
           simp.append(l.replace(' -RRB- ', ' ').replace(' -LRB- ', ' ').replace(' -RSB- ', ' ').replace(' .', '.').replace(' ,', ',').replace('( ', '(').replace(' )', ')').replace(' ;', ';').replace(' :', ':'))
 
-      full_data = {'ds_id': 'Wiki-Auto', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'label': 'train', 'granularity': 'sentence'}
+      full_data = {'ds_id': 'Wiki-Auto', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': 'train', 'granularity': 'sentence'}
       wikiauto_dataset = pd.DataFrame(data = full_data)
 
       with open(wikiauto_path + '/wikiauto.pkl', 'wb') as f:
@@ -1343,7 +1343,7 @@ def load_wikimanual_ds():
             simp.append(pts[3])
             label.append('train')
 
-      full_data = {'ds_id': 'Wiki-Manual', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'label': label, 'granularity': 'sentence'}
+      full_data = {'ds_id': 'Wiki-Manual', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': label, 'granularity': 'sentence'}
       wikimanual_dataset = pd.DataFrame(data = full_data)
 
       with open(wikimanual_path + '/wikimanual.pkl', 'wb') as f:
@@ -1392,7 +1392,7 @@ def load_wikisplit_ds():
               simp.append(pts[1].replace(' <::::> ', ' ').replace(' ,', ',').replace(' .', '.').replace(' :', ':').replace(' ;', ';').replace(' ?', '?').replace(' !', '!').replace('( ', '(').replace(' )', ')'))
               labels.append(wikisplit_file[len(wikisplit_path + '/wiki-split/'):-4])
 
-      full_data = {'ds_id' : 'WikiSplit', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'label' : labels, 'granularity': 'sentence'}
+      full_data = {'ds_id': 'WikiSplit', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': labels, 'granularity': 'sentence'}
       wikisplit_dataset = pd.DataFrame(data=full_data)
 
       with open(wikisplit_path + '/wikisplit.pkl', 'wb') as f:
@@ -1449,7 +1449,7 @@ def load_wikipediav1_ds():
                 src_ids.append(len(src_ids))
                 src.append(l.replace(' ,', ',').replace(' .', '.').replace(' :', ':').replace(' ;', ';').replace(' ?', '?').replace(' !', '!').replace('( ', '(').replace(' )', ')'))
 
-      full_data = {'ds_id' : 'Wikipedia_v1', 'src' : src, 'src_id' : src_ids, 'simp' : simp, 'simp_id' : simp_ids, 'label' : labels, 'granularity': 'sentence'}
+      full_data = {'ds_id': 'Wikipedia_v1', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': labels, 'granularity': 'sentence'}
       wikipediav1_dataset = pd.DataFrame(data=full_data)
 
       with open(wikipediav1_path + '/wikipediav1.pkl', 'wb') as f:
@@ -1460,6 +1460,139 @@ def load_wikipediav1_ds():
     wikipediav1_dataset = pd.read_pickle(path_to_datasets + 'wikipediav1/wikipediav1.pkl')
 
   return wikipediav1_dataset
+
+def load_wikipediav2_ds():
+  # Wikipedia version 2 dataset
+  # https://cs.pomona.edu/~dkauchak/simplification/data.v2/sentence-aligned.v2.tar.gz
+  # and https://cs.pomona.edu/~dkauchak/simplification/data.v2/document-aligned.v2.tar.gz
+
+  if not os.path.isfile(path_to_datasets + 'wikipediav2/wikipediav2.pkl'): 
+    wikipediav2_path = path_to_datasets + 'wikipediav2'
+    wikipediav2_link_sent = 'https://cs.pomona.edu/~dkauchak/simplification/data.v2/sentence-aligned.v2.tar.gz'
+    wikipediav2_link_doc = 'https://cs.pomona.edu/~dkauchak/simplification/data.v2/document-aligned.v2.tar.gz'
+
+    if not os.path.isdir(wikipediav2_path):
+      os.mkdir(wikipediav2_path)
+      
+    response = requests.get(wikipediav2_link_sent, stream=True)
+    response2 = requests.get(wikipediav2_link_doc, stream=True)
+
+    if response.status_code == 200 and response2.status_code == 200:
+      with open(wikipediav2_path + '/data_sent.tar.gz', 'wb') as f:
+          f.write(response.raw.read())
+
+      f = tarfile.open(wikipediav2_path + '/data_sent.tar.gz')
+      f.extractall(wikipediav2_path)
+      f.close()
+
+      with open(wikipediav2_path + '/data_doc.tar.gz', 'wb') as f2:
+          f2.write(response2.raw.read())
+
+      f2 = tarfile.open(wikipediav2_path + '/data_doc.tar.gz')
+      f2.extractall(wikipediav2_path)
+      f2.close()
+
+      src_ids = []
+      src = []
+      simp_ids = []
+      simp = []
+      topics = []
+      granularities = []
+
+      all_src = []
+      all_simp = []
+      all_topics = []
+
+      wikipediav2_files = sorted(glob.glob(f"{wikipediav2_path}/sentence-aligned.v2/*"))
+      for wikipediav2_file in wikipediav2_files:
+        if wikipediav2_file[-7:] == 'aligned':
+          is_simp = wikipediav2_file[len(wikipediav2_path + '/sentence-aligned.v2/'):].split('.')[0] == 'simple'
+
+          with open(wikipediav2_file) as f:
+            lines = f.readlines()
+
+            for l in lines:
+              pts = l.split('\t')
+
+              if is_simp:
+                all_simp.append(pts[2].replace(' ,', ',').replace(' .', '.').replace(' :', ':').replace(' ;', ';').replace(' ?', '?').replace(' !', '!').replace('( ', '(').replace(' )', ')'))
+              else:
+                all_src.append(pts[2].replace(' ,', ',').replace(' .', '.').replace(' :', ':').replace(' ;', ';').replace(' ?', '?').replace(' !', '!').replace('( ', '(').replace(' )', ')'))
+                all_topics.append(pts[0])
+
+      all_doc_simp = {}
+      all_doc_src = {}
+
+      wikipediav2_files = sorted(glob.glob(f"{wikipediav2_path}/document-aligned.v2/*"))
+      for wikipediav2_file in wikipediav2_files:
+        if wikipediav2_file[-3:] == 'txt':
+          is_simp = wikipediav2_file[len(wikipediav2_path + '/document-aligned.v2/'):].split('.')[0] == 'simple'
+
+          with open(wikipediav2_file) as f:
+            lines = f.readlines()
+
+            curr_topic = ''
+            curr_doc = ''
+            curr_para = 0
+            for l in lines:
+              pts = l.split('\t')
+
+              if pts[0] == curr_topic:
+                if curr_para == int(pts[1]):
+                  curr_doc = curr_doc + ' ' + pts[2]
+                else:
+                  curr_doc = curr_doc + '\n' + pts[2]
+                  curr_para = int(pts[1])
+              else:
+                if len(curr_doc) > 0:
+                  txt = curr_doc.replace(' ,', ',').replace(' .', '.').replace(' :', ':').replace(' ;', ';').replace(' ?', '?').replace(' !', '!').replace('( ', '(').replace(' )', ')')
+
+                  if is_simp:
+                    all_doc_simp[curr_topic] = txt
+                  else:
+                    all_doc_src[curr_topic] = txt
+
+                curr_doc = pts[2]
+                curr_topic = pts[0]
+                curr_para = int(pts[1])
+
+            if len(curr_doc) > 0:
+              txt = curr_doc.replace(' ,', ',').replace(' .', '.').replace(' :', ':').replace(' ;', ';').replace(' ?', '?').replace(' !', '!').replace('( ', '(').replace(' )', ')')
+
+              if is_simp:
+                all_doc_simp[curr_topic] = txt
+              else:
+                all_doc_src[curr_topic] = txt
+
+      for i in range(len(all_src)):
+        if all_src[i] != all_simp[i]:
+          src_ids.append(len(src_ids))
+          src.append(all_src[i])
+          simp_ids.append(len(simp_ids))
+          simp.append(all_simp[i])
+          topics.append(all_topics[i])
+          granularities.append('sentence')
+      
+      for topic in all_doc_src:
+        if topic in all_doc_simp:
+          src_ids.append(len(src_ids))
+          src.append(all_doc_src[topic])
+          simp_ids.append(len(simp_ids))
+          simp.append(all_doc_simp[topic])
+          topics.append(topic)
+          granularities.append('document')
+      
+      full_data = {'ds_id': 'Wikipedia_v2', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'topics': topics, 'granularity': granularities}
+      wikipediav2_dataset = pd.DataFrame(data=full_data)
+
+      with open(wikipediav2_path + '/wikipediav2.pkl', 'wb') as f:
+        pickle.dump(wikipediav2_dataset, f)
+
+      #todo: metadata for dataset
+  else:
+    wikipediav2_dataset = pd.read_pickle(path_to_datasets + 'wikipediav2/wikipediav2.pkl')
+
+  return wikipediav2_dataset
 
 def load_rnd_st_ds():
   df_simplified = pd.read_json("/workspace/datasets/simple_text_runfiles/irgc_task_3_ChatGPT_2stepTurbo.json")
@@ -1483,7 +1616,7 @@ def load_rnd_st_ds():
 def main():
   if not os.path.isdir(path_to_datasets):
     os.mkdir(path_to_datasets)
-  ds = load_wikipediav1_ds()
+  ds = load_wikipediav2_ds()
 
 if __name__ == '__main__':
   main()
