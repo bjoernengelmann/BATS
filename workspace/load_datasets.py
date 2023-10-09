@@ -59,6 +59,7 @@ def load_asset_ds():
           src_ids.append(i + len(asset_test_orig))
       simp = []
       origin = []
+      duplicated = []
 
       simp_ids = range(0, (len(asset_test_orig + asset_valid_orig)) * len(asset_test_simps)) 
 
@@ -72,9 +73,13 @@ def load_asset_ds():
             simp.append(j)
             origin.append('annotator_' + str(i))
 
-      # todo: check if simp == src
+      for i in range(len(simp)):
+        if simp[i] == src[i]:
+          duplicated.append(True)
+        else: 
+          duplicated.append(False)
 
-      full_data = {'ds_id': 'ASSET', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': labels, 'origin': origin, 'granularity': 'sentence'}
+      full_data = {'ds_id': 'ASSET', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': labels, 'origin': origin, 'granularity': 'sentence', 'duplicated': duplicated}
       asset_dataset = pd.DataFrame(data=full_data)
 
       with open(asset_path + '/asset.pkl', 'wb') as f:
@@ -104,6 +109,7 @@ def load_automets_ds():
       src = []
       simp_ids = []
       simp = []
+      duplicated = []
 
       # complex word, TAB, number, TAB, sentence
       with open(automets_path + '/MedTextSimplifier/data_processing/data/NormalMedicalCorpora') as f:
@@ -135,9 +141,13 @@ def load_automets_ds():
           simp.append(l.replace(' -RRB- ', ' ').replace(' -LRB- ', ' ').replace(' -RSB- ', ' ').replace(' ,', ',').replace(' .', '.').replace(' :', ':').replace(' ;', ';').replace(' ?', '?').replace(' !', '!'))
           simp_ids.append(len(simp_ids))
 
-      # todo: check if simp == src
+      for i in range(len(simp)):
+        if simp[i] == src[i]:
+          duplicated.append(True)
+        else: 
+          duplicated.append(False)
 
-      full_data = {'ds_id': 'AutoMeTS', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'granularity': 'sentence'}
+      full_data = {'ds_id': 'AutoMeTS', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'granularity': 'sentence', 'duplicated': duplicated}
       automets_dataset = pd.DataFrame(data = full_data)
 
       with open(automets_path + '/automets.pkl', 'wb') as f:
@@ -172,6 +182,7 @@ def load_benchls_ds():
         src = []
         simp_ids = []
         simp = []
+        duplicated = []
 
         nlp = en_core_web_sm.load()
 
@@ -195,14 +206,18 @@ def load_benchls_ds():
 
             for i in range(len(simps)):
               if simps[i] != pts[0]:
-                src.append(pts[0])
-                src_ids.append(curr_src_id + 1)
-                simp.append(simps[i])
-                simp_ids.append(len(simp_ids))
+                duplicated.append(False)
+              else:
+                duplicated.append(True)
+
+              src.append(pts[0])
+              src_ids.append(curr_src_id + 1)
+              simp.append(simps[i])
+              simp_ids.append(len(simp_ids))
 
             curr_src_id = curr_src_id + 1
 
-          full_data = {'ds_id': 'BenchLS', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'granularity': 'sentence'}
+          full_data = {'ds_id': 'BenchLS', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'granularity': 'sentence', 'duplicated': duplicated}
           benchls_dataset = pd.DataFrame(data = full_data)
 
           with open(benchls_path + '/benchls.pkl', 'wb') as f:
@@ -261,6 +276,7 @@ def load_britannica_ds():
       simp_ids = []
       topics = []
       labels = []
+      duplicated = []
 
       britannica_files_train = sorted(glob.glob(f"{britannica_path}/train/*"))
       britannica_files_test = sorted(glob.glob(f"{britannica_path}/test/*"))
@@ -286,13 +302,17 @@ def load_britannica_ds():
               simp_hlp = lines[l_id + 1][dig_id_simp:].replace(' .', '.').replace(' ,', ',').replace('( ', '(').replace(' )', ')')
               
               if src_hlp != simp_hlp:
-                src.append(src_hlp)
-                simp.append(simp_hlp)
+                duplicated.append(False)
+              else:
+                duplicated.append(True)
 
-                labels.append('train')
-                topics.append(path[len(britannica_path) + 7:-8])
-                src_ids.append(len(src_ids))
-                simp_ids.append(len(simp_ids))
+              src.append(src_hlp)
+              simp.append(simp_hlp)
+
+              labels.append('train')
+              topics.append(path[len(britannica_path) + 7:-8])
+              src_ids.append(len(src_ids))
+              simp_ids.append(len(simp_ids))
       
       for path in britannica_files_test:
         with open(path) as f:
@@ -315,15 +335,19 @@ def load_britannica_ds():
               simp_hlp = lines[l_id + 1][dig_id_simp:].replace(' .', '.').replace(' ,', ',').replace('( ', '(').replace(' )', ')').replace('\n', '')
 
               if src_hlp != simp_hlp:
-                src.append(src_hlp)
-                simp.append(simp_hlp)
+                duplicated.append(False)
+              else: 
+                duplicated.append(True)
 
-                labels.append('test')
-                topics.append(path[len(britannica_path) + 6:-8])
-                src_ids.append(len(src_ids))
-                simp_ids.append(len(simp_ids))  
+              src.append(src_hlp)
+              simp.append(simp_hlp)
 
-      full_data = {'ds_id': 'britannica', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': labels, 'topic': topics, 'granularity': 'sentence'}
+              labels.append('test')
+              topics.append(path[len(britannica_path) + 6:-8])
+              src_ids.append(len(src_ids))
+              simp_ids.append(len(simp_ids))  
+
+      full_data = {'ds_id': 'britannica', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': labels, 'topic': topics, 'granularity': 'sentence', 'duplicated': duplicated}
       britannica_dataset = pd.DataFrame(data = full_data)
 
       with open(britannica_path + '/britannica.pkl', 'wb') as f:
@@ -367,6 +391,7 @@ def load_dwikipedia_ds():
       simp_ids = []
       simp = []
       labels = []
+      duplicated = []
 
       for f in dwikipedia_files:
         with open(f, encoding='latin1') as f:
@@ -382,9 +407,13 @@ def load_dwikipedia_ds():
               simp.append(l)
               simp_ids.append(len(simp_ids))
 
-      # todo: check if simp == src
+      for i in range(len(simp)):
+        if simp[i] == src[i]:
+          duplicated.append(True)
+        else: 
+          duplicated.append(False)
 
-      full_data = {'ds_id': 'D-Wikipedia', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': labels, 'granularity': 'sentence'}
+      full_data = {'ds_id': 'D-Wikipedia', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': labels, 'granularity': 'sentence', 'duplicated': duplicated}
       dwikipedia_dataset = pd.DataFrame(data = full_data)
 
       with open(dwikipedia_path + '/dwikipedia.pkl', 'wb') as f:
@@ -414,6 +443,7 @@ def load_ewsewgmpm_ds():
       simp_ids = []
       simp = []
       labels = []
+      duplicated = []
 
       all_simp = []
       all_src = []
@@ -442,16 +472,22 @@ def load_ewsewgmpm_ds():
       all_src_ids = {}        
 
       for i in range(len(all_simp)):
-        if all_simp[i] != all_src[i]:
-          if all_src[i] not in all_src_ids:
-            all_src_ids[all_src[i]] = len(all_src_ids)
-          src_ids.append(all_src_ids[all_src[i]])
-          src.append(all_src[i])
-          simp_ids.append(len(simp_ids))
-          simp.append(all_simp[i])
-          labels.append(all_labels[i])
+        
+        if all_src[i] not in all_src_ids:
+          all_src_ids[all_src[i]] = len(all_src_ids)
+        src_ids.append(all_src_ids[all_src[i]])
+        src.append(all_src[i])
+        simp_ids.append(len(simp_ids))
+        simp.append(all_simp[i])
+        labels.append(all_labels[i])
 
-      full_data = {'ds_id': 'EW-SEW-gmpm', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': labels, 'granularity': 'sentence'}
+        if all_simp[i] != all_src[i]:
+          duplicated.append(False)
+        else:
+          duplicated.append(True)
+
+
+      full_data = {'ds_id': 'EW-SEW-gmpm', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': labels, 'granularity': 'sentence', 'duplicated': duplicated}
       ewsewgmpm_dataset = pd.DataFrame(data=full_data)
 
       with open(ewsewgmpm_path + '/ewsewgmpm.pkl', 'wb') as f:
@@ -488,6 +524,7 @@ def load_ewsewturk_ds():
       src = []
       simp_ids = []
       simp = []
+      duplicated = []
 
       nlp = en_core_web_sm.load()
 
@@ -517,16 +554,20 @@ def load_ewsewturk_ds():
               curr_simps.append(pts[i])
 
           for i in range(len(simps)):
-            src.append(pts[0])
+            src.append(pts[0].replace(' ,', ',').replace(' .', '.').replace(' :', ':').replace(' ;', ';').replace(' ?', '?').replace(' !', '!'))
             src_ids.append(curr_src_id + 1)
             simp.append(simps[i])
             simp_ids.append(len(simp_ids))
 
           curr_src_id = curr_src_id + 1
 
-      # todo: check if simp == src
+      for i in range(len(simp)):
+        if simp[i] == src[i]:
+          duplicated.append(True)
+        else: 
+          duplicated.append(False)
 
-      full_data = {'ds_id': 'EW-SEW-Turk', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'origin': 'Turker', 'granularity': 'sentence'}
+      full_data = {'ds_id': 'EW-SEW-Turk', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'origin': 'Turker', 'granularity': 'sentence', 'duplicated': duplicated}
       ewsewturk_dataset = pd.DataFrame(data=full_data)
 
       with open(ewsewturk_path + '/ewsewturk.pkl', 'wb') as f:
@@ -564,6 +605,7 @@ def load_htss_ds():
       simp_ids = []
       simp_title = []
       simp = []
+      duplicated = []
 
       for index, row in htss_simp_df.iterrows():
         source = htss_path + '/HTSS/data/' + row['Full_Paper_XML'][:-3] + 'txt'
@@ -577,15 +619,19 @@ def load_htss_ds():
             doc = str(lines[4:])[2:-2].replace('\\n', '').replace('", "', "', '").replace('", ', "', ").replace(', "', ", '").replace("', '", '').replace('\\r', '').replace('.  #@NEW_LINE#@#  ', '. ').replace('#@NEW_LINE#@#', '\\n').replace('  \\n  ', ' \\n ').replace('"', '').replace("'", '')
             
             if doc != simp_hlp:
-              src.append(doc)
-              src_ids.append(len(src_ids))
+              duplicated.append(False)
+            else:
+              duplicated.append(True)
 
-              simp.append(simp_hlp)
-              simp_title.append(row['Eureka_Title_Simplified'])
-              src_title.append(row['Paper_Title'])
-              simp_ids.append(len(simp_ids))
+            src.append(doc)
+            src_ids.append(len(src_ids))
 
-      full_data = {'ds_id': 'HTSS', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'src_title': src_title, 'simp_title': simp_title, 'granularity': 'document'}
+            simp.append(simp_hlp)
+            simp_title.append(row['Eureka_Title_Simplified'])
+            src_title.append(row['Paper_Title'])
+            simp_ids.append(len(simp_ids))
+
+      full_data = {'ds_id': 'HTSS', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'src_title': src_title, 'simp_title': simp_title, 'granularity': 'document', 'duplicated': duplicated}
 
       htss_dataset = pd.DataFrame(data=full_data)
 
@@ -626,6 +672,7 @@ def load_hutssf_ds():
       simp = []
       origins = []
       labels = []
+      duplicated = []
       sent_ids = {}
 
       for hutssf_file in hutssf_files:
@@ -633,27 +680,30 @@ def load_hutssf_ds():
           hutssf_df = pd.read_csv(hutssf_file, encoding='latin1', header=0)
         
           for index, row in hutssf_df.iterrows():
-            # exclude exact copies
-            if row['Original'] != row['Simplified']:
-              if str(row['Original']) in sent_ids:
-                curr_src_id = sent_ids[str(row['Original'])]
-                src_ids.append(curr_src_id)
-                src.append(row['Original'])
-                simp_ids.append(len(simp_ids))
-                simp.append(row['Simplified'])
-                origins.append(row['Source'])
-                labels.append(hutssf_file[len(hutssf_path + '/data/'):-4])
-              else:
-                curr_src_id = len(sent_ids)
-                sent_ids[str(row['Original'])] = curr_src_id
-                src_ids.append(curr_src_id)
-                src.append(row['Original'])
-                simp_ids.append(len(simp_ids))
-                simp.append(row['Simplified'])
-                origins.append(row['Source'])
-                labels.append(hutssf_file[len(hutssf_path + '/data/'):-4])
+            if str(row['Original']) in sent_ids:
+              curr_src_id = sent_ids[str(row['Original'])]
+              src_ids.append(curr_src_id)
+              src.append(row['Original'])
+              simp_ids.append(len(simp_ids))
+              simp.append(row['Simplified'])
+              origins.append(row['Source'])
+              labels.append(hutssf_file[len(hutssf_path + '/data/'):-4])
+            else:
+              curr_src_id = len(sent_ids)
+              sent_ids[str(row['Original'])] = curr_src_id
+              src_ids.append(curr_src_id)
+              src.append(row['Original'])
+              simp_ids.append(len(simp_ids))
+              simp.append(row['Simplified'])
+              origins.append(row['Source'])
+              labels.append(hutssf_file[len(hutssf_path + '/data/'):-4])
 
-      full_data = {'ds_id': 'HutSSF', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': labels, 'origin': origins, 'granularity': 'sentence'}
+            if row['Original'] != row['Simplified']:
+              duplicated.append(False)
+            else:
+              duplicated.append(True)
+
+      full_data = {'ds_id': 'HutSSF', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': labels, 'origin': origins, 'granularity': 'sentence', 'duplicated': duplicated}
       hutssf_dataset = pd.DataFrame(data = full_data)
 
       with open(hutssf_path + '/hutssf.pkl', 'wb') as f:
@@ -1631,6 +1681,7 @@ def load_wikipediav1_ds():
       simp_ids = []
       simp = []
       labels = []
+      duplicated = []
 
       wikipediav1_files = sorted(glob.glob(f"{wikipediav1_path}/data.v1.split/*"))
       for wikipediav1_file in wikipediav1_files:
@@ -1650,9 +1701,13 @@ def load_wikipediav1_ds():
                 src_ids.append(len(src_ids))
                 src.append(l.replace(' ,', ',').replace(' .', '.').replace(' :', ':').replace(' ;', ';').replace(' ?', '?').replace(' !', '!').replace('( ', '(').replace(' )', ')'))
 
-      # todo: check if simp == src
+      for i in range(len(simp)):
+        if simp[i] == src[i]:
+          duplicated.append(True)
+        else: 
+          duplicated.append(False)
 
-      full_data = {'ds_id': 'Wikipedia_v1', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': labels, 'granularity': 'sentence'}
+      full_data = {'ds_id': 'Wikipedia_v1', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': labels, 'granularity': 'sentence', 'duplicated': duplicated}
       wikipediav1_dataset = pd.DataFrame(data=full_data)
 
       with open(wikipediav1_path + '/wikipediav1.pkl', 'wb') as f:
@@ -1822,7 +1877,8 @@ def load_rnd_st_ds():
 def main():
   if not os.path.isdir(path_to_datasets):
     os.mkdir(path_to_datasets)
-  ds = load_simpeval_ds()
+  ds = load_hutssf_ds()
+  print(ds)
 
 if __name__ == '__main__':
   main()
