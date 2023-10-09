@@ -16,7 +16,7 @@ import dropbox
 from dropbox.exceptions import AuthError
 
 dropbox_access_token = ''
-path_to_datasets = 'workspace/datasets/'
+path_to_datasets = '/workspace/datasets/'
 
 if os.path.isfile("workspace/dropbox_token"):
   with open("workspace/dropbox_token") as f:
@@ -27,7 +27,7 @@ else:
 
 def load_list_file(path):
   data = []
-  with open(path, "r") as f:
+  with open('/' + path, "r") as f:
     for line in f.readlines():
       data.append(line.strip())
   return data
@@ -40,13 +40,15 @@ def load_asset_ds():
     asset_path = path_to_datasets + 'asset'
     asset_link = 'https://github.com/facebookresearch/asset'
 
+    print(os.path.dirname(__file__))
+
     if not os.path.isdir(asset_path):
       os.mkdir(asset_path)
       os.chdir(asset_path)
       clone = 'git clone ' + asset_link
       os.system(clone)
 
-      asset_files = sorted(glob.glob(f"{asset_path}/asset/dataset/*"))
+      asset_files = sorted(glob.glob(f"/{asset_path}/asset/dataset/*"))
 
       asset_test_orig = load_list_file([path for path in asset_files if ".test.orig" in path][0])
       asset_valid_orig = load_list_file([path for path in asset_files if ".valid.orig" in path][0])
@@ -89,7 +91,7 @@ def load_asset_ds():
       full_data = {'ds_id': 'ASSET', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': labels, 'origin': origin, 'granularity': 'sentence', 'duplicated': duplicated}
       asset_dataset = pd.DataFrame(data=full_data)
 
-      with open(asset_path + '/asset.pkl', 'wb') as f:
+      with open('/' + asset_path + '/asset.pkl', 'wb') as f:
         pickle.dump(asset_dataset, f)
 
       #todo: metadata for dataset
@@ -119,7 +121,7 @@ def load_automets_ds():
       duplicated = []
 
       # complex word, TAB, number, TAB, sentence
-      with open(automets_path + '/MedTextSimplifier/data_processing/data/NormalMedicalCorpora') as f:
+      with open('/' + automets_path + '/MedTextSimplifier/data_processing/data/NormalMedicalCorpora') as f:
         lines = f.readlines()
         for l in lines:
           pts = l.split('\t')
@@ -127,7 +129,7 @@ def load_automets_ds():
           src_ids.append(len(src_ids))
 
       # complex word, TAB, number, TAB, sentence
-      with open(automets_path + '/MedTextSimplifier/data_processing/data/SimpleMedicalCorpora') as f:
+      with open('/' + automets_path + '/MedTextSimplifier/data_processing/data/SimpleMedicalCorpora') as f:
         lines = f.readlines()
         for l in lines:
           pts = l.split('\t')
@@ -135,14 +137,14 @@ def load_automets_ds():
           simp_ids.append(len(simp_ids))
 
       # sentence
-      with open(automets_path + '/MedTextSimplifier/data_processing/data/normal.txt') as f:
+      with open('/' + automets_path + '/MedTextSimplifier/data_processing/data/normal.txt') as f:
         lines = f.readlines()
         for l in lines:
           src.append(l.replace(' -RRB- ', ' ').replace(' -LRB- ', ' ').replace(' -RSB- ', ' ').replace(' ,', ',').replace(' .', '.').replace(' :', ':').replace(' ;', ';').replace(' ?', '?').replace(' !', '!'))
           src_ids.append(len(src_ids))
 
       # sentence
-      with open(automets_path + '/MedTextSimplifier/data_processing/data/simple.txt') as f:
+      with open('/' + automets_path + '/MedTextSimplifier/data_processing/data/simple.txt') as f:
         lines = f.readlines()
         for l in lines:
           simp.append(l.replace(' -RRB- ', ' ').replace(' -LRB- ', ' ').replace(' -RSB- ', ' ').replace(' ,', ',').replace(' .', '.').replace(' :', ':').replace(' ;', ';').replace(' ?', '?').replace(' !', '!'))
@@ -157,7 +159,7 @@ def load_automets_ds():
       full_data = {'ds_id': 'AutoMeTS', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'granularity': 'sentence', 'duplicated': duplicated}
       automets_dataset = pd.DataFrame(data = full_data)
 
-      with open(automets_path + '/automets.pkl', 'wb') as f:
+      with open('/' + automets_path + '/automets.pkl', 'wb') as f:
         pickle.dump(automets_dataset, f)
 
       #todo: metadata for dataset
@@ -179,7 +181,7 @@ def load_benchls_ds():
       response = requests.get(benchls_link, stream=True)
       
       if response.status_code == 200:
-        with open(benchls_path + '/data.zip', 'wb') as f:
+        with open('/' + benchls_path + '/data.zip', 'wb') as f:
             f.write(response.raw.read())
 
         with zipfile.ZipFile(benchls_path + '/data.zip', 'r') as f:
@@ -195,7 +197,7 @@ def load_benchls_ds():
 
         curr_src_id = -1
 
-        with open(benchls_path + '/BenchLS.txt') as f:
+        with open('/' + benchls_path + '/BenchLS.txt') as f:
           lines = f.readlines()
           # complex sentence, TAB, word to substitute, TAB, multiple simplified words
           for l in lines:
@@ -227,7 +229,7 @@ def load_benchls_ds():
           full_data = {'ds_id': 'BenchLS', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'granularity': 'sentence', 'duplicated': duplicated}
           benchls_dataset = pd.DataFrame(data = full_data)
 
-          with open(benchls_path + '/benchls.pkl', 'wb') as f:
+          with open('/' + benchls_path + '/benchls.pkl', 'wb') as f:
             pickle.dump(benchls_dataset, f)
 
           #todo: metadata for dataset
@@ -289,7 +291,7 @@ def load_britannica_ds():
       britannica_files_test = sorted(glob.glob(f"{britannica_path}/test/*"))
 
       for path in britannica_files_train:
-        with open(path) as f:
+        with open('/' + path) as f:
           lines = f.readlines()
           for l_id in range(0, len(lines), 3):
             if len(lines[l_id].strip()) > 0 and len(lines[l_id + 1].strip()) > 0:
@@ -322,7 +324,7 @@ def load_britannica_ds():
               simp_ids.append(len(simp_ids))
       
       for path in britannica_files_test:
-        with open(path) as f:
+        with open('/' + path) as f:
           lines = f.readlines()
           for l_id in range(0, len(lines), 3):
             if len(lines[l_id].strip()) > 0 and len(lines[l_id + 1].strip()) > 0:
@@ -357,7 +359,7 @@ def load_britannica_ds():
       full_data = {'ds_id': 'britannica', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': labels, 'topic': topics, 'granularity': 'sentence', 'duplicated': duplicated}
       britannica_dataset = pd.DataFrame(data = full_data)
 
-      with open(britannica_path + '/britannica.pkl', 'wb') as f:
+      with open('/' + britannica_path + '/britannica.pkl', 'wb') as f:
         pickle.dump(britannica_dataset, f)
       
       #todo: metadata for dataset
@@ -401,7 +403,7 @@ def load_dwikipedia_ds():
       duplicated = []
 
       for f in dwikipedia_files:
-        with open(f, encoding='latin1') as f:
+        with open('/' + f, encoding='latin1') as f:
           lines = f.readlines()
           label = f.name[len(dwikipedia_files)+1:-4]
           if f.name[-3:] == 'src':
@@ -423,7 +425,7 @@ def load_dwikipedia_ds():
       full_data = {'ds_id': 'D-Wikipedia', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': labels, 'granularity': 'sentence', 'duplicated': duplicated}
       dwikipedia_dataset = pd.DataFrame(data = full_data)
 
-      with open(dwikipedia_path + '/dwikipedia.pkl', 'wb') as f:
+      with open('/' + dwikipedia_path + '/dwikipedia.pkl', 'wb') as f:
         pickle.dump(dwikipedia_dataset, f)
 
       #todo: metadata for dataset
@@ -460,7 +462,7 @@ def load_ewsewgmpm_ds():
 
       for ewsewgmpm_file in ewsewgmpm_files:
         if os.path.isfile(ewsewgmpm_file):
-          with open(ewsewgmpm_file) as f:
+          with open('/' + ewsewgmpm_file) as f:
             lines = f.readlines()
 
             for l in lines:
@@ -497,7 +499,7 @@ def load_ewsewgmpm_ds():
       full_data = {'ds_id': 'EW-SEW-gmpm', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': labels, 'granularity': 'sentence', 'duplicated': duplicated}
       ewsewgmpm_dataset = pd.DataFrame(data=full_data)
 
-      with open(ewsewgmpm_path + '/ewsewgmpm.pkl', 'wb') as f:
+      with open('/' + ewsewgmpm_path + '/ewsewgmpm.pkl', 'wb') as f:
         pickle.dump(ewsewgmpm_dataset, f)
 
       #todo: metadata for dataset
@@ -520,7 +522,7 @@ def load_ewsewturk_ds():
     response = requests.get(ewsewturk_link, stream=True)
     
     if response.status_code == 200:
-      with open(ewsewturk_path + '/data.tar.gz', 'wb') as f:
+      with open('/' + ewsewturk_path + '/data.tar.gz', 'wb') as f:
           f.write(response.raw.read())
 
       f = tarfile.open(ewsewturk_path + '/data.tar.gz')
@@ -537,7 +539,7 @@ def load_ewsewturk_ds():
 
       curr_src_id = -1
 
-      with open(ewsewturk_path + '/lex.mturk.14/lex.mturk.txt', encoding='latin1') as f:
+      with open('/' + ewsewturk_path + '/lex.mturk.14/lex.mturk.txt', encoding='latin1') as f:
         lines = f.readlines()[1:]
         # complex sentence, TAB, word to substitute, TAB, multiple simplified words
         for l in lines:
@@ -577,7 +579,7 @@ def load_ewsewturk_ds():
       full_data = {'ds_id': 'EW-SEW-Turk', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'origin': 'Turker', 'granularity': 'sentence', 'duplicated': duplicated}
       ewsewturk_dataset = pd.DataFrame(data=full_data)
 
-      with open(ewsewturk_path + '/ewsewturk.pkl', 'wb') as f:
+      with open('/' + ewsewturk_path + '/ewsewturk.pkl', 'wb') as f:
         pickle.dump(ewsewturk_dataset, f)
 
       #todo: metadata for dataset
@@ -620,7 +622,7 @@ def load_htss_ds():
         if os.path.exists(source):
           simp_hlp = row['Eureka_Text_Simplified']
 
-          with open(source) as f:
+          with open('/' + source) as f:
             lines = f.readlines()
             # first four lines are ID and title of paper and can thus be ignored
             doc = str(lines[4:])[2:-2].replace('\\n', '').replace('", "', "', '").replace('", ', "', ").replace(', "', ", '").replace("', '", '').replace('\\r', '').replace('.  #@NEW_LINE#@#  ', '. ').replace('#@NEW_LINE#@#', '\\n').replace('  \\n  ', ' \\n ').replace('"', '').replace("'", '')
@@ -642,7 +644,7 @@ def load_htss_ds():
 
       htss_dataset = pd.DataFrame(data=full_data)
 
-      with open(htss_path + '/htss.pkl', 'wb') as f:
+      with open('/' + htss_path + '/htss.pkl', 'wb') as f:
         pickle.dump(htss_dataset, f)
       
       #todo: metadata for dataset
@@ -665,7 +667,7 @@ def load_hutssf_ds():
     response = requests.get(hutssf_link, stream=True)
     
     if response.status_code == 200:
-      with open(hutssf_path + '/data.zip', 'wb') as f:
+      with open('/' + hutssf_path + '/data.zip', 'wb') as f:
           f.write(response.raw.read())
 
       with zipfile.ZipFile(hutssf_path + '/data.zip', 'r') as f:
@@ -713,7 +715,7 @@ def load_hutssf_ds():
       full_data = {'ds_id': 'HutSSF', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': labels, 'origin': origins, 'granularity': 'sentence', 'duplicated': duplicated}
       hutssf_dataset = pd.DataFrame(data = full_data)
 
-      with open(hutssf_path + '/hutssf.pkl', 'wb') as f:
+      with open('/' + hutssf_path + '/hutssf.pkl', 'wb') as f:
         pickle.dump(hutssf_dataset, f)
 
       #todo: metadata for dataset
@@ -743,8 +745,9 @@ def load_massalign_ds():
       simp_ids = []
       simp = []
       granularity = []
+      duplicated = []
 
-      with open(paragraph) as f:
+      with open('/' + paragraph) as f:
         lines = f.readlines()
         for l_id in range(0, len(lines), 3):
           if len(lines[l_id].strip()) > 0 and len(lines[l_id + 1].strip()) > 0:
@@ -752,13 +755,17 @@ def load_massalign_ds():
             simp_hlp = lines[l_id + 1]
 
             if src_hlp != simp_hlp:
-              src.append(src_hlp)
-              simp.append(simp_hlp)
-              src_ids.append(len(src_ids))
-              simp_ids.append(len(simp_ids))
-              granularity.append('paragraph')
+              duplicated.append(False)
+            else:
+              duplicated.append(True)
 
-      with open(sentence) as f:
+            src.append(src_hlp)
+            simp.append(simp_hlp)
+            src_ids.append(len(src_ids))
+            simp_ids.append(len(simp_ids))
+            granularity.append('paragraph')
+
+      with open('/' + sentence) as f:
         lines = f.readlines()
         for l_id in range(0, len(lines), 3):
           if len(lines[l_id].strip()) > 0 and len(lines[l_id + 1].strip()) > 0:
@@ -766,16 +773,20 @@ def load_massalign_ds():
             simp_hlp = lines[l_id + 1]
 
             if src_hlp != simp_hlp:
-              src.append(src_hlp)
-              simp.append(simp_hlp)
-              src_ids.append(len(src_ids))
-              simp_ids.append(len(simp_ids))
-              granularity.append('sentence')
+                duplicated.append(False)
+            else:
+              duplicated.append(True)
 
-      full_data = {'ds_id': 'massalign', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'granularity': granularity}
+            src.append(src_hlp)
+            simp.append(simp_hlp)
+            src_ids.append(len(src_ids))
+            simp_ids.append(len(simp_ids))
+            granularity.append('sentence')
+
+      full_data = {'ds_id': 'massalign', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'granularity': granularity, 'duplicated': duplicated}
       massalign_dataset = pd.DataFrame(data = full_data)
 
-      with open(massalign_path + '/massalign.pkl', 'wb') as f:
+      with open('/' + massalign_path + '/massalign.pkl', 'wb') as f:
         pickle.dump(massalign_dataset, f)
 
       #todo: metadata for dataset
@@ -807,6 +818,7 @@ def load_metaeval_ds():
       simp_ids = []
       simp = []
       origin = []
+      duplicated = []
       sent_ids = {}
 
       for index, row in metaeval_df.iterrows():
@@ -815,29 +827,36 @@ def load_metaeval_ds():
           simp_hlp = row['simp_sent']
 
           if src_hlp != simp_hlp:
-            curr_src_id = sent_ids[str(row['sent_id'])]
-            src_ids.append(curr_src_id)
-            src.append(src_hlp)
-            simp_ids.append(len(simp_ids))
-            simp.append(simp_hlp)
-            origin.append(row['sys_name'])
+            duplicated.append(False)
+          else:
+            duplicated.append(True)
+
+          curr_src_id = sent_ids[str(row['sent_id'])]
+          src_ids.append(curr_src_id)
+          src.append(src_hlp)
+          simp_ids.append(len(simp_ids))
+          simp.append(simp_hlp)
+          origin.append(row['sys_name'])
         else:
           src_hlp = row['orig_sent']
           simp_hlp = row['simp_sent']
         
           if src_hlp != simp_hlp:
-            curr_src_id = len(sent_ids)
-            sent_ids[str(row['sent_id'])] = curr_src_id
-            src_ids.append(curr_src_id)
-            src.append(src_hlp)
-            simp_ids.append(len(simp_ids))
-            simp.append(simp_hlp)
-            origin.append(row['sys_name'])
+            duplicated.append(False)
+          else:
+            duplicated.append(True)
+          curr_src_id = len(sent_ids)
+          sent_ids[str(row['sent_id'])] = curr_src_id
+          src_ids.append(curr_src_id)
+          src.append(src_hlp)
+          simp_ids.append(len(simp_ids))
+          simp.append(simp_hlp)
+          origin.append(row['sys_name'])
 
-      full_data = {'ds_id': 'metaeval', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'origin': origin, 'granularity': 'sentence'}
+      full_data = {'ds_id': 'metaeval', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'origin': origin, 'granularity': 'sentence', 'duplicated': duplicated}
       metaeval_dataset = pd.DataFrame(data = full_data)
 
-      with open(metaeval_path + '/metaeval.pkl', 'wb') as f:
+      with open('/' + metaeval_path + '/metaeval.pkl', 'wb') as f:
         pickle.dump(metaeval_dataset, f)
 
       #todo: metadata for dataset
@@ -859,7 +878,7 @@ def load_mturksf_ds():
     response = requests.get(mturksf_link, stream=True)
     
     if response.status_code == 200:
-      with open(mturksf_path + '/data.zip', 'wb') as f:
+      with open('/' + mturksf_path + '/data.zip', 'wb') as f:
           f.write(response.raw.read())
 
       with zipfile.ZipFile(mturksf_path + '/data.zip', 'r') as f:
@@ -870,6 +889,7 @@ def load_mturksf_ds():
       simp_ids = []
       simp = []
       topics = []
+      duplicated = []
 
       mturksf_df = pd.read_excel(mturksf_path + '/MTurk_annotations/MTurk-annotations.xlsx', sheet_name=1)
 
@@ -885,17 +905,21 @@ def load_mturksf_ds():
           simp_hlp = row['sentence'].replace('<b>' + row['original_word'] + '</b>', row['replacement_word'])
 
           if txt != simp_hlp:
-            src_ids.append(ids[txt])
-            src.append(txt)
-            simp_ids.append(len(simp_ids))
-            simp.append(simp_hlp)
-            topics.append(row['source'][:-4])
+            duplicated.append(False)
+          else:
+            duplicated.append(True)
+
+          src_ids.append(ids[txt])
+          src.append(txt)
+          simp_ids.append(len(simp_ids))
+          simp.append(simp_hlp)
+          topics.append(row['source'][:-4])
 
       
-      full_data = {'ds_id': 'MTurkSF', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'topic': topics, 'granularity': 'sentence'}
+      full_data = {'ds_id': 'MTurkSF', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'topic': topics, 'granularity': 'sentence', 'duplicated': duplicated}
       mturksf_dataset = pd.DataFrame(data = full_data)
 
-      with open(mturksf_path + '/mturksf.pkl', 'wb') as f:
+      with open('/' + mturksf_path + '/mturksf.pkl', 'wb') as f:
         pickle.dump(mturksf_dataset, f)
 
       #todo: metadata for dataset
@@ -917,7 +941,7 @@ def load_nnseval_ds():
     response = requests.get(nnseval_link, stream=True)
     
     if response.status_code == 200:
-      with open(nnseval_path + '/data.zip', 'wb') as f:
+      with open('/' + nnseval_path + '/data.zip', 'wb') as f:
           f.write(response.raw.read())
 
       with zipfile.ZipFile(nnseval_path + '/data.zip', 'r') as f:
@@ -927,12 +951,13 @@ def load_nnseval_ds():
       src = []
       simp_ids = []
       simp = []
-
+      duplicated = []
+      
       nlp = en_core_web_sm.load()
 
       curr_src_id = -1
 
-      with open(nnseval_path + '/NNSeval.txt') as f:
+      with open('/' + nnseval_path + '/NNSeval.txt') as f:
         lines = f.readlines()
         # complex sentence, TAB, word to substitute, TAB, multiple simplified words
         for l in lines:
@@ -953,17 +978,21 @@ def load_nnseval_ds():
             simp_hlp = simps[i]
 
             if src_hlp != simps[i]:
-              src.append(pts[0])
-              src_ids.append(curr_src_id + 1)
-              simp.append(simps[i])
-              simp_ids.append(len(simp_ids))
+              duplicated.append(False)
+            else:
+              duplicated.append(True)
+
+            src.append(pts[0])
+            src_ids.append(curr_src_id + 1)
+            simp.append(simps[i])
+            simp_ids.append(len(simp_ids))
 
           curr_src_id = curr_src_id + 1
 
-      full_data = {'ds_id': 'NNSeval', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'granularity': 'sentence'}
+      full_data = {'ds_id': 'NNSeval', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'granularity': 'sentence', 'duplicated': duplicated}
       nnseval_dataset = pd.DataFrame(data = full_data)
 
-      with open(nnseval_path + '/nnseval.pkl', 'wb') as f:
+      with open('/' + nnseval_path + '/nnseval.pkl', 'wb') as f:
         pickle.dump(nnseval_dataset, f)
 
       #todo: metadata for dataset
@@ -1000,6 +1029,7 @@ def load_onestopenglish_ds():
         simp = []
         topics = []
         origin = []
+        duplicated = []
         curr_src_id = -1
 
         for onestopenglish_file in onestopenglish_files:
@@ -1017,46 +1047,58 @@ def load_onestopenglish_ds():
           for index, row in onestopenglish_simp_df.iterrows():
             ticks = 0
             if row['Advanced'] != row[intermediate]:
-              src_ids.append(curr_src_id + 1)
-              ticks = ticks + 0.5
-              src.append(row['Advanced'])
+              duplicated.append(False)
+            else:
+              duplicated.append(True)
+            
+            src_ids.append(curr_src_id + 1)
+            ticks = ticks + 0.5
+            src.append(row['Advanced'])
 
-              simp_ids.append(len(simp_ids))
-              simp.append(row[intermediate])
+            simp_ids.append(len(simp_ids))
+            simp.append(row[intermediate])
 
-              topics.append(topic)
-              origin.append('advanced-intermediate')
+            topics.append(topic)
+            origin.append('advanced-intermediate')
 
             curr_simp_id = len(simp_ids)
             
             if row['Advanced'] != row['Elementary']:
-              src_ids.append(curr_src_id + 1)
-              ticks = ticks + 0.5
-              src.append(row['Advanced'])
+              duplicated.append(False)
+            else:
+              duplicated.append(True)
+            
+            src_ids.append(curr_src_id + 1)
+            ticks = ticks + 0.5
+            src.append(row['Advanced'])
 
-              simp_ids.append(curr_simp_id)
-              simp.append(row['Elementary'])
+            simp_ids.append(curr_simp_id)
+            simp.append(row['Elementary'])
 
-              topics.append(topic)
-              origin.append('advanced-elementary')
+            topics.append(topic)
+            origin.append('advanced-elementary')
 
             if row[intermediate] != row['Elementary']:
-              src_ids.append(curr_src_id + 2)
-              ticks = ticks + 1
-              src.append(row[intermediate])
-              
-              simp_ids.append(curr_simp_id)
-              simp.append(row['Elementary'])
+              duplicated.append(False)
+            else:
+              duplicated.append(True)
+            
+            src_ids.append(curr_src_id + 2)
+            ticks = ticks + 1
+            src.append(row[intermediate])
+            
+            simp_ids.append(curr_simp_id)
+            simp.append(row['Elementary'])
 
-              topics.append(topic)
-              origin.append('intermediate-elementary')
+            topics.append(topic)
+            origin.append('intermediate-elementary')
 
             curr_src_id = curr_src_id + floor(ticks)
 
-        full_data = {'ds_id': 'OneStopEnglish', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'origin': origin, 'topic': topics, 'granularity': 'sentence'}
+        full_data = {'ds_id': 'OneStopEnglish', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'origin': origin, 'topic': topics, 'granularity': 'sentence', 'duplicated': duplicated}
         onestopenglish_dataset = pd.DataFrame(data = full_data)
 
-        with open(onestopenglish_path + '/onestopenglish.pkl', 'wb') as f:
+        with open('/' + onestopenglish_path + '/onestopenglish.pkl', 'wb') as f:
           pickle.dump(onestopenglish_dataset, f)
 
         #todo: metadata for dataset
@@ -1089,6 +1131,7 @@ def load_pwkp_ds():
       src = []
       simp_ids = []
       simp = []
+      duplicated = []
       curr_src_id = -1
 
       with open(pwkp_path + '/PWKP_108016') as f:
@@ -1110,17 +1153,21 @@ def load_pwkp_ds():
           else:
             if len(simp_sents) > 0 and len(source_sent) > 0:
               if source_sent != simp_sents:
-                simp.append(simp_sents)
-                src.append(source_sent)
+                duplicated.append(False)
+              else:
+                duplicated.append(True)
+              
+              simp.append(simp_sents)
+              src.append(source_sent)
 
-                src_ids.append(curr_src_id)
-                simp_ids.append(len(simp_ids))
+              src_ids.append(curr_src_id)
+              simp_ids.append(len(simp_ids))
 
             last_line_blank = True
             simp_sents = ''
             source_sent = ''
 
-      full_data = {'ds_id': 'PWKP', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'granularity': 'sentence'}
+      full_data = {'ds_id': 'PWKP', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'granularity': 'sentence', 'duplicated': duplicated}
       pwkp_dataset = pd.DataFrame(data = full_data)
 
       with open(pwkp_path + '/pwkp.pkl', 'wb') as f:
@@ -1146,10 +1193,10 @@ def load_semeval07_ds():
       response = requests.get(semeval07_link, stream=True)
       
       if response.status_code == 200:
-        with open(semeval07_path + '/data.tar.gz', 'wb') as f:
+        with open('/' + semeval07_path + '/data.tar.gz', 'wb') as f:
             f.write(response.raw.read())
 
-        f = tarfile.open(semeval07_path + '/data.tar.gz')
+        f = tarfile.open('/' + semeval07_path + '/data.tar.gz')
         f.extractall(semeval07_path)
         f.close()
 
@@ -1157,10 +1204,11 @@ def load_semeval07_ds():
         src = []
         simp_ids = []
         simp = []
-
+        duplicated = []
+        
         src_info = {}
 
-        with open(semeval07_path + '/trial/lexsub_trial.xml') as fp:
+        with open('/' + semeval07_path + '/trial/lexsub_trial.xml') as fp:
           soup = BeautifulSoup(fp, 'xml')
 
           lexelts = soup.find_all('lexelt')
@@ -1171,36 +1219,42 @@ def load_semeval07_ds():
             for i in instances:
               context = i.find('context')
               context_text = str(context).replace(' .', '.').replace(' ,', ',').replace('( ', '(').replace(' )', ')').replace(' ;', ';').replace(' :', ':').replace(' ?', '?').replace(' !', '!').replace('<context>', '').replace('</context>', '').replace('<head>', '').replace('</head>', '')
+              context_raw = str(context).replace(' .', '.').replace(' ,', ',').replace('( ', '(').replace(' )', ')').replace(' ;', ';').replace(' :', ':').replace(' ?', '?').replace(' !', '!').replace('<context>', '').replace('</context>', '')
               curr_id = i.get('id')
 
-              left_side = str(context.next).replace(' .', '.').replace(' ,', ',').replace('( ', '(').replace(' )', ')').replace(' ;', ';').replace(' :', ':').replace(' ?', '?').replace(' !', '!')
-              right_side = str(context.next.next.next.next).replace(' .', '.').replace(' ,', ',').replace('( ', '(').replace(' )', ')').replace(' ;', ';').replace(' :', ':').replace(' ?', '?').replace(' !', '!')
-              
+              left_side = context_raw.split('<head>')[0]
+              right_side = context_raw.split('<head>')[1].split('</head>')[1]
+
               src_info[item + ' ' + curr_id] = {'src_txt': context_text, 'left': left_side, 'right': right_side, 'id': len(src_info)}
 
         for a in ['/trial/gold.trial', '/trial/mwgold.trial']:
-          with open(semeval07_path + a) as fp:
+          with open('/' + semeval07_path + a) as fp:
             for l in fp.readlines():
               pts = l.split(' :: ')
               curr_id = pts[0]
 
               if len(pts) == 2:
                 replacements = pts[1].split(';')
-                for replacement in replacements:
-                  src_hlp = src_info[curr_id]['src_txt']
-                  simp_hlp = src_info[curr_id]['left'] + ' ' + replacement[:-1] + ' ' + src_info[curr_id]['right']
+
+                for replacement in replacements[:-1]:
+                  src_hlp = src_info[curr_id]['src_txt'].strip()
+                  simp_hlp = src_info[curr_id]['left'].strip() + ' ' + replacement[:-1].strip() + ' ' + src_info[curr_id]['right'].replace('\n', '').strip()
 
                   if src_hlp != simp_hlp:
-                    src_ids.append(src_info[curr_id]['id'])
-                    src.append(src_hlp)
+                    duplicated.append(False)
+                  else:
+                    duplicated.append(True)
 
-                    simp_ids.append(len(simp_ids))
-                    simp.append(simp_hlp)
+                  src_ids.append(src_info[curr_id]['id'])
+                  src.append(src_hlp)
 
-        full_data = {'ds_id': 'SemEval_2007', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': 'trial', 'granularity': 'sentence'}
+                  simp_ids.append(len(simp_ids))
+                  simp.append(simp_hlp)
+
+        full_data = {'ds_id': 'SemEval_2007', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': 'trial', 'granularity': 'sentence', 'duplicated': duplicated}
         semeval07_dataset = pd.DataFrame(data = full_data)
 
-        with open(semeval07_path + '/semeval07.pkl', 'wb') as f:
+        with open('/' + semeval07_path + '/semeval07.pkl', 'wb') as f:
           pickle.dump(semeval07_dataset, f)
 
         #todo: metadata for dataset
@@ -1257,12 +1311,17 @@ def load_simpa_ds():
       simp = simpa_ls_simp + simpa_ss_ls_simp + simpa_ss_simp + simpa_ss_simp
       origin = ['lexical_simp'] * len(simpa_ls_orig) + ['syntactic_simp'] * len(simpa_ss_ls_simp) + ['lexical_simp_of_syntactic_simp'] * len(simpa_ss_simp) * 2
 
-      # todo: check if simp == src
+      duplicated = []
+      for i in range(len(simp)):
+        if simp[i] == src[i]:
+          duplicated.append(True)
+        else: 
+          duplicated.append(False)
 
-      full_data = {'ds_id': 'simpa', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'origin': origin, 'granularity': 'sentence'}
+      full_data = {'ds_id': 'simpa', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'origin': origin, 'granularity': 'sentence', 'duplicated': duplicated}
       simpa_dataset = pd.DataFrame(data = full_data)
 
-      with open(simpa_path + '/simpa.pkl', 'wb') as f:
+      with open('/' + simpa_path + '/simpa.pkl', 'wb') as f:
         pickle.dump(simpa_dataset, f)
 
       #todo: metadata for dataset
@@ -1294,6 +1353,7 @@ def load_simpeval_ds():
       simp = []
 
       origin = []
+      duplicated = []
 
       for simpeval_file in simpeval_files:
         simpeval_df = pd.read_csv(simpeval_file, encoding='latin1', header=0)
@@ -1309,33 +1369,41 @@ def load_simpeval_ds():
           simplified_col = 'generation'
 
         for index, row in simpeval_df.iterrows():
+
+          if len(src_ids) == 0 or src[-1] != row[input_col]:
+            if len(src_ids) == 0:
+              src_ids.append(0)
+            else:
+              src_ids.append(src_ids[-1] + 1)
+            src.append(row[input_col])
+
+            simp_ids.append(len(simp_ids))
+            simp.append(row[simplified_col])
+
+            origin.append(simpeval_file[len(simpeval_path + '/LENS/data/'):-4])
+
+            if row[input_col] != row[simplified_col]:
+              duplicated.append(False)
+            else:
+              duplicated.append(True)
+          elif src[-1] == row[input_col] and simp[-1] != row[simplified_col]:
+            src_ids.append(src_ids[-1])
+            src.append(row[input_col])
+
+            simp_ids.append(len(simp_ids))
+            simp.append(row[simplified_col])
+
+            origin.append(simpeval_file[len(simpeval_path + '/LENS/data/'):-4])
           
-          if row[input_col] != row[simplified_col]:
-            if len(src_ids) == 0 or src[-1] != row[input_col]:
-              if len(src_ids) == 0:
-                src_ids.append(0)
-              else:
-                src_ids.append(src_ids[-1] + 1)
-              src.append(row[input_col])
+            if row[input_col] != row[simplified_col]:
+              duplicated.append(False)
+            else:
+              duplicated.append(True)
 
-              simp_ids.append(len(simp_ids))
-              simp.append(row[simplified_col])
-
-              origin.append(simpeval_file[len(simpeval_path + '/LENS/data/'):-4])
-            elif src[-1] == row[input_col] and simp[-1] != row[simplified_col]:
-              src_ids.append(src_ids[-1])
-              src.append(row[input_col])
-
-              simp_ids.append(len(simp_ids))
-              simp.append(row[simplified_col])
-
-              origin.append(simpeval_file[len(simpeval_path + '/LENS/data/'):-4])
-          
-
-      full_data = {'ds_id': 'SimpEval_22', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'origin': origin, 'granularity': 'sentence'}
+      full_data = {'ds_id': 'SimpEval_22', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'origin': origin, 'granularity': 'sentence', 'duplicated': duplicated}
       simpeval_dataset = pd.DataFrame(data = full_data)
 
-      with open(simpeval_path + '/simpeval.pkl', 'wb') as f:
+      with open('/' + simpeval_path + '/simpeval.pkl', 'wb') as f:
         pickle.dump(simpeval_dataset, f)
 
       #todo: metadata for dataset
@@ -1368,8 +1436,9 @@ def load_sscorpus_ds():
       simp_ids = []
       simp = []
       similarity = []
+      duplicated = []
 
-      with open(sscorpus_path + '/sscorpus.txt') as f:
+      with open('/' + sscorpus_path + '/sscorpus.txt') as f:
         lines = f.readlines()
         # complex sentence TAB simple sentence TAB similarity score
         for l in lines:
@@ -1379,16 +1448,20 @@ def load_sscorpus_ds():
           simp_hlp = parts[1].replace(' .', '.').replace(' ,', ',').replace('( ', '(').replace(' )', ')').replace(' ;', ';').replace(' :', ':').replace(" '", "'").replace("` ", "`")
           
           if src_hlp != simp_hlp:
-            src.append(src_hlp)
-            simp.append(simp_hlp)
-            similarity.append(float(parts[2]))
-            src_ids.append(len(src_ids))
-            simp_ids.append(len(simp_ids))
+            duplicated.append(False)
+          else:
+            duplicated.append(True)
 
-      full_data = {'ds_id': 'SSCORPUS', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'similarity': similarity, 'granularity': 'sentence'}
+          src.append(src_hlp)
+          simp.append(simp_hlp)
+          similarity.append(float(parts[2]))
+          src_ids.append(len(src_ids))
+          simp_ids.append(len(simp_ids))
+
+      full_data = {'ds_id': 'SSCORPUS', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'similarity': similarity, 'granularity': 'sentence', 'duplicated': duplicated}
       sscorpus_dataset = pd.DataFrame(data = full_data)
 
-      with open(sscorpus_path + '/sscorpus.pkl', 'wb') as f:
+      with open('/' + sscorpus_path + '/sscorpus.pkl', 'wb') as f:
         pickle.dump(sscorpus_dataset, f)
 
       #todo: metadata for dataset
@@ -1418,8 +1491,9 @@ def load_turkcorpus_ds():
       simp = []
       origin = []
       label = []
+      duplicated = []
 
-      with open(turkcorpus_path + '/simplification/data/turkcorpus/test.8turkers.tok.simp') as f:
+      with open('/' + turkcorpus_path + '/simplification/data/turkcorpus/test.8turkers.tok.simp') as f:
         lines = f.readlines()
         for l in lines:
           simp_ids.append(len(simp_ids))
@@ -1427,7 +1501,7 @@ def load_turkcorpus_ds():
           label.append('test')
           origin.append('Simple_Wikipedia')
 
-      with open(turkcorpus_path + '/simplification/data/turkcorpus/tune.8turkers.tok.simp') as f:
+      with open('/' + turkcorpus_path + '/simplification/data/turkcorpus/tune.8turkers.tok.simp') as f:
         lines = f.readlines()
         for l in lines:
           simp_ids.append(len(simp_ids))
@@ -1436,7 +1510,7 @@ def load_turkcorpus_ds():
           origin.append('Simple_Wikipedia')
 
       for path in turkcorpus_files:
-        with open(path) as f:
+        with open('/' + path) as f:
           lines = f.readlines()
 
           # Wikipedia sentences
@@ -1462,12 +1536,16 @@ def load_turkcorpus_ds():
       src = src * multiplicator
       src_ids = src_ids * multiplicator
 
-      # todo: check if simp == src
+      for i in range(len(simp)):
+        if simp[i] == src[i]:
+          duplicated.append(True)
+        else: 
+          duplicated.append(False)
 
-      full_data = {'ds_id': 'TurkCorpus', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': label, 'origin': origin, 'granularity': 'sentence'}
+      full_data = {'ds_id': 'TurkCorpus', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': label, 'origin': origin, 'granularity': 'sentence', 'duplicated': duplicated}
       turkcorpus_dataset = pd.DataFrame(data = full_data)
 
-      with open(turkcorpus_path + '/turkcorpus.pkl', 'wb') as f:
+      with open('/' + turkcorpus_path + '/turkcorpus.pkl', 'wb') as f:
         pickle.dump(turkcorpus_dataset, f)
 
         #todo: metadata for dataset
@@ -1493,25 +1571,30 @@ def load_wikiauto_ds():
       src = []
       simp_ids = []
       simp = []
+      duplicated = []
 
-      with open(wikiauto_path + '/wiki-auto/wiki-auto/ACL2020/train.src') as f:
+      with open('/' + wikiauto_path + '/wiki-auto/wiki-auto/ACL2020/train.src') as f:
         lines = f.readlines()
         for l in lines:
           src_ids.append(len(src_ids))
           src.append(l.replace(' -RRB- ', ' ').replace(' -LRB- ', ' ').replace(' -RSB- ', ' ').replace(' .', '.').replace(' ,', ',').replace('( ', '(').replace(' )', ')').replace(' ;', ';').replace(' :', ':'))
       
-      with open(wikiauto_path + '/wiki-auto/wiki-auto/ACL2020/train.dst') as f:
+      with open('/' + wikiauto_path + '/wiki-auto/wiki-auto/ACL2020/train.dst') as f:
         lines = f.readlines()
         for l in lines:
           simp_ids.append(len(simp_ids))
           simp.append(l.replace(' -RRB- ', ' ').replace(' -LRB- ', ' ').replace(' -RSB- ', ' ').replace(' .', '.').replace(' ,', ',').replace('( ', '(').replace(' )', ')').replace(' ;', ';').replace(' :', ':'))
 
-      # todo: check if simp == src
+      for i in range(len(simp)):
+        if simp[i] == src[i]:
+          duplicated.append(True)
+        else: 
+          duplicated.append(False)
 
-      full_data = {'ds_id': 'Wiki-Auto', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': 'train', 'granularity': 'sentence'}
+      full_data = {'ds_id': 'Wiki-Auto', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': 'train', 'granularity': 'sentence', 'duplicated': duplicated}
       wikiauto_dataset = pd.DataFrame(data = full_data)
 
-      with open(wikiauto_path + '/wikiauto.pkl', 'wb') as f:
+      with open('/' + wikiauto_path + '/wikiauto.pkl', 'wb') as f:
         pickle.dump(wikiauto_dataset, f)
 
         #todo: metadata for dataset
@@ -1542,7 +1625,7 @@ def load_wikimanual_ds():
         except AuthError as e:
           print('Error connecting to Dropbox with access token: ' + str(e))
 
-        with open(wikimanual_path + '/wiki-auto/train.tsv', 'wb') as f:
+        with open('/' + wikimanual_path + '/wiki-auto/train.tsv', 'wb') as f:
           metadata, result = dbx.sharing_get_shared_link_file(wikimanual_dropbox_link, link_password=None)
           f.write(result.content)
       except Exception as e:
@@ -1553,13 +1636,14 @@ def load_wikimanual_ds():
       simp_ids = []
       simp = []
       label = []
+      duplicated = []
       srcs = {}
 
-      with open(wikimanual_path + '/wiki-auto/wiki-manual/dev.tsv') as f:
+      with open('/' + wikimanual_path + '/wiki-auto/wiki-manual/dev.tsv') as f:
         lines = f.readlines()
         for l in lines:
           pts = l.split('\t')
-          if pts[0] == 'aligned' and pts[3] != pts[4]:
+          if pts[0] == 'aligned':
             if pts[4] not in srcs:
               srcs[pts[4]] = len(srcs)
 
@@ -1569,11 +1653,16 @@ def load_wikimanual_ds():
             simp.append(pts[3])
             label.append('dev')
 
-      with open(wikimanual_path + '/wiki-auto/wiki-manual/test.tsv') as f:
+            if pts[3] != pts[4]:
+              duplicated.append(False)
+            else:
+              duplicated.append(True)
+
+      with open('/' + wikimanual_path + '/wiki-auto/wiki-manual/test.tsv') as f:
         lines = f.readlines()
         for l in lines:
           pts = l.split('\t')
-          if pts[0] == 'aligned' and pts[3] != pts[4]:
+          if pts[0] == 'aligned':
             if pts[4] not in srcs:
               srcs[pts[4]] = len(srcs)
 
@@ -1583,11 +1672,16 @@ def load_wikimanual_ds():
             simp.append(pts[3])
             label.append('test')
 
-      with open(wikimanual_path + '/wiki-auto/train.tsv') as f:
+            if pts[3] != pts[4]:
+              duplicated.append(False)
+            else:
+              duplicated.append(True)
+
+      with open('/' + wikimanual_path + '/wiki-auto/train.tsv') as f:
         lines = f.readlines()
         for l in lines:
           pts = l.split('\t')
-          if pts[0] == 'aligned' and pts[3] != pts[4]:
+          if pts[0] == 'aligned':
             if pts[4] not in srcs:
               srcs[pts[4]] = len(srcs)
 
@@ -1597,10 +1691,15 @@ def load_wikimanual_ds():
             simp.append(pts[3])
             label.append('train')
 
-      full_data = {'ds_id': 'Wiki-Manual', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': label, 'granularity': 'sentence'}
+            if pts[3] != pts[4]:
+              duplicated.append(False)
+            else:
+              duplicated.append(True)
+
+      full_data = {'ds_id': 'Wiki-Manual', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': label, 'granularity': 'sentence', 'duplicated': duplicated}
       wikimanual_dataset = pd.DataFrame(data = full_data)
 
-      with open(wikimanual_path + '/wikimanual.pkl', 'wb') as f:
+      with open('/' + wikimanual_path + '/wikimanual.pkl', 'wb') as f:
         pickle.dump(wikimanual_dataset, f)
 
       #todo: metadata for dataset
@@ -1630,12 +1729,13 @@ def load_wikisplit_ds():
       simp_ids = []
       simp = []
       labels = []
+      duplicated = []
 
       wikisplit_files = sorted(glob.glob(f"{wikisplit_path}/wiki-split/*"))
 
       for wikisplit_file in wikisplit_files:
         if wikisplit_file[-3:] == 'tsv':
-          with open(wikisplit_file) as f:
+          with open('/' + wikisplit_file) as f:
             lines = f.readlines()
             for l in lines:
               pts = l.split('\t')
@@ -1644,16 +1744,20 @@ def load_wikisplit_ds():
               simp_hlp = pts[1].replace(' <::::> ', ' ').replace(' ,', ',').replace(' .', '.').replace(' :', ':').replace(' ;', ';').replace(' ?', '?').replace(' !', '!').replace('( ', '(').replace(' )', ')')
 
               if src_hlp != simp_hlp:
-                src_ids.append(len(src_ids))
-                src.append(src_hlp)
-                simp_ids.append(len(simp_ids))
-                simp.append(simp_hlp)
-                labels.append(wikisplit_file[len(wikisplit_path + '/wiki-split/'):-4])
+                duplicated.append(False)
+              else:
+                duplicated.append(True)
 
-      full_data = {'ds_id': 'WikiSplit', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': labels, 'granularity': 'sentence'}
+              src_ids.append(len(src_ids))
+              src.append(src_hlp)
+              simp_ids.append(len(simp_ids))
+              simp.append(simp_hlp)
+              labels.append(wikisplit_file[len(wikisplit_path + '/wiki-split/'):-4])
+
+      full_data = {'ds_id': 'WikiSplit', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': labels, 'granularity': 'sentence', 'duplicated': duplicated}
       wikisplit_dataset = pd.DataFrame(data=full_data)
 
-      with open(wikisplit_path + '/wikisplit.pkl', 'wb') as f:
+      with open('/' + wikisplit_path + '/wikisplit.pkl', 'wb') as f:
         pickle.dump(wikisplit_dataset, f)
 
       #todo: metadata for dataset
@@ -1676,7 +1780,7 @@ def load_wikipediav1_ds():
     response = requests.get(wikipediav1_link, stream=True)
     
     if response.status_code == 200:
-      with open(wikipediav1_path + '/data.tar.gz', 'wb') as f:
+      with open('/' + wikipediav1_path + '/data.tar.gz', 'wb') as f:
           f.write(response.raw.read())
 
       f = tarfile.open(wikipediav1_path + '/data.tar.gz')
@@ -1696,7 +1800,7 @@ def load_wikipediav1_ds():
           is_simp = wikipediav1_file[len(wikipediav1_path + '/data.v1.split/'):].split('.')[0] == 'simple'
           file_type = wikipediav1_file[len(wikipediav1_path + '/data.v1.split/'):].split('.')[1]
 
-          with open(wikipediav1_file) as f:
+          with open('/' + wikipediav1_file) as f:
             lines = f.readlines()
 
             for l in lines:
@@ -1717,7 +1821,7 @@ def load_wikipediav1_ds():
       full_data = {'ds_id': 'Wikipedia_v1', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': labels, 'granularity': 'sentence', 'duplicated': duplicated}
       wikipediav1_dataset = pd.DataFrame(data=full_data)
 
-      with open(wikipediav1_path + '/wikipediav1.pkl', 'wb') as f:
+      with open('/' + wikipediav1_path + '/wikipediav1.pkl', 'wb') as f:
         pickle.dump(wikipediav1_dataset, f)
 
       #todo: metadata for dataset
@@ -1743,14 +1847,14 @@ def load_wikipediav2_ds():
     response2 = requests.get(wikipediav2_link_doc, stream=True)
 
     if response.status_code == 200 and response2.status_code == 200:
-      with open(wikipediav2_path + '/data_sent.tar.gz', 'wb') as f:
+      with open('/' + wikipediav2_path + '/data_sent.tar.gz', 'wb') as f:
           f.write(response.raw.read())
 
       f = tarfile.open(wikipediav2_path + '/data_sent.tar.gz')
       f.extractall(wikipediav2_path)
       f.close()
 
-      with open(wikipediav2_path + '/data_doc.tar.gz', 'wb') as f2:
+      with open('/' + wikipediav2_path + '/data_doc.tar.gz', 'wb') as f2:
           f2.write(response2.raw.read())
 
       f2 = tarfile.open(wikipediav2_path + '/data_doc.tar.gz')
@@ -1763,6 +1867,7 @@ def load_wikipediav2_ds():
       simp = []
       topics = []
       granularities = []
+      duplicated = []
 
       all_src = []
       all_simp = []
@@ -1773,7 +1878,7 @@ def load_wikipediav2_ds():
         if wikipediav2_file[-7:] == 'aligned':
           is_simp = wikipediav2_file[len(wikipediav2_path + '/sentence-aligned.v2/'):].split('.')[0] == 'simple'
 
-          with open(wikipediav2_file) as f:
+          with open('/' + wikipediav2_file) as f:
             lines = f.readlines()
 
             for l in lines:
@@ -1793,7 +1898,7 @@ def load_wikipediav2_ds():
         if wikipediav2_file[-3:] == 'txt':
           is_simp = wikipediav2_file[len(wikipediav2_path + '/document-aligned.v2/'):].split('.')[0] == 'simple'
 
-          with open(wikipediav2_file) as f:
+          with open('/' + wikipediav2_file) as f:
             lines = f.readlines()
 
             curr_topic = ''
@@ -1831,29 +1936,36 @@ def load_wikipediav2_ds():
 
       for i in range(len(all_src)):
         if all_src[i] != all_simp[i]:
-          src_ids.append(len(src_ids))
-          src.append(all_src[i])
-          simp_ids.append(len(simp_ids))
-          simp.append(all_simp[i])
-          topics.append(all_topics[i])
-          granularities.append('sentence')
+          duplicated.append(False)
+        else: 
+          duplicated.append(True)
+
+        src_ids.append(len(src_ids))
+        src.append(all_src[i])
+        simp_ids.append(len(simp_ids))
+        simp.append(all_simp[i])
+        topics.append(all_topics[i])
+        granularities.append('sentence')
       
       for topic in all_doc_src:
         if topic in all_doc_simp:
           src_hlp = all_doc_src[topic]
           simp_hlp = all_doc_simp[topic]
           if src_hlp != simp_hlp:
-            src_ids.append(len(src_ids))
-            src.append(src_hlp)
-            simp_ids.append(len(simp_ids))
-            simp.append(simp_hlp)
-            topics.append(topic)
-            granularities.append('document')
+            duplicated.append(False)
+          else: 
+            duplicated.append(True)
+          src_ids.append(len(src_ids))
+          src.append(src_hlp)
+          simp_ids.append(len(simp_ids))
+          simp.append(simp_hlp)
+          topics.append(topic)
+          granularities.append('document')
       
-      full_data = {'ds_id': 'Wikipedia_v2', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'topics': topics, 'granularity': granularities}
+      full_data = {'ds_id': 'Wikipedia_v2', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'topics': topics, 'granularity': granularities, 'duplicated': duplicated}
       wikipediav2_dataset = pd.DataFrame(data=full_data)
 
-      with open(wikipediav2_path + '/wikipediav2.pkl', 'wb') as f:
+      with open('/' + wikipediav2_path + '/wikipediav2.pkl', 'wb') as f:
         pickle.dump(wikipediav2_dataset, f)
 
       #todo: metadata for dataset
@@ -1879,13 +1991,3 @@ def load_rnd_st_ds():
 
   return sub_sample
 
-
-
-def main():
-  if not os.path.isdir(path_to_datasets):
-    os.mkdir(path_to_datasets)
-  ds = load_hutssf_ds()
-  print(ds)
-
-if __name__ == '__main__':
-  main()
