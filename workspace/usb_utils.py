@@ -1,5 +1,13 @@
 import spacy
 import spacy_universal_sentence_encoder
+from bert_score import score
+import warnings
+import logging
+import transformers
+transformers.tokenization_utils.logger.setLevel(logging.ERROR)
+transformers.configuration_utils.logger.setLevel(logging.ERROR)
+transformers.modeling_utils.logger.setLevel(logging.ERROR)
+
 
 
 #sent_encoder = spacy_universal_sentence_encoder.load_model('en_use_lg')
@@ -44,3 +52,10 @@ def core_preserved_meaning_max_depth_5(s1, s2, depth=0):
       return check_sent_sim(s1, s2), s2, depth
   else:
     return check_sent_sim(s1, s2), s2, depth
+  
+#https://github.com/Tiiiger/bert_score
+def bertscore(s1, s2):
+  with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    P, R, F1 = score([s1], [s2], lang="en", verbose=False, rescale_with_baseline=True)
+    return P[0]

@@ -161,3 +161,4 @@ cython_debug/
 
 /workspace/datasets
 /workspace/dropbox_token
+/workspace/lfs_tests/*
