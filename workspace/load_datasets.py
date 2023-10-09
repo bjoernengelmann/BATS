@@ -1,3 +1,4 @@
+from math import floor
 import os
 import pandas as pd
 import glob
@@ -71,6 +72,8 @@ def load_asset_ds():
             simp.append(j)
             origin.append('annotator_' + str(i))
 
+      # todo: check if simp == src
+
       full_data = {'ds_id': 'ASSET', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': labels, 'origin': origin, 'granularity': 'sentence'}
       asset_dataset = pd.DataFrame(data=full_data)
 
@@ -132,6 +135,8 @@ def load_automets_ds():
           simp.append(l.replace(' -RRB- ', ' ').replace(' -LRB- ', ' ').replace(' -RSB- ', ' ').replace(' ,', ',').replace(' .', '.').replace(' :', ':').replace(' ;', ';').replace(' ?', '?').replace(' !', '!'))
           simp_ids.append(len(simp_ids))
 
+      # todo: check if simp == src
+
       full_data = {'ds_id': 'AutoMeTS', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'granularity': 'sentence'}
       automets_dataset = pd.DataFrame(data = full_data)
 
@@ -189,10 +194,11 @@ def load_benchls_ds():
               simps.append(' '.join(token).replace(' ,', ',').replace(' .', '.').replace(' :', ':').replace(' ;', ';').replace(' ?', '?').replace(' !', '!'))
 
             for i in range(len(simps)):
-              src.append(pts[0])
-              src_ids.append(curr_src_id + 1)
-              simp.append(simps[i])
-              simp_ids.append(len(simp_ids))
+              if simps[i] != pts[0]:
+                src.append(pts[0])
+                src_ids.append(curr_src_id + 1)
+                simp.append(simps[i])
+                simp_ids.append(len(simp_ids))
 
             curr_src_id = curr_src_id + 1
 
@@ -276,13 +282,17 @@ def load_britannica_ds():
                 dig_id_source += 1
                 dig_id_simp += 1  
     
-              src.append(lines[l_id][dig_id_source:].replace(' .', '.').replace(' ,', ',').replace('( ', '(').replace(' )', ')'))
-              simp.append(lines[l_id + 1][dig_id_simp:].replace(' .', '.').replace(' ,', ',').replace('( ', '(').replace(' )', ')'))
+              src_hlp = lines[l_id][dig_id_source:].replace(' .', '.').replace(' ,', ',').replace('( ', '(').replace(' )', ')')
+              simp_hlp = lines[l_id + 1][dig_id_simp:].replace(' .', '.').replace(' ,', ',').replace('( ', '(').replace(' )', ')')
+              
+              if src_hlp != simp_hlp:
+                src.append(src_hlp)
+                simp.append(simp_hlp)
 
-              labels.append('train')
-              topics.append(path[len(britannica_path) + 7:-8])
-              src_ids.append(len(src_ids))
-              simp_ids.append(len(simp_ids))
+                labels.append('train')
+                topics.append(path[len(britannica_path) + 7:-8])
+                src_ids.append(len(src_ids))
+                simp_ids.append(len(simp_ids))
       
       for path in britannica_files_test:
         with open(path) as f:
@@ -301,16 +311,19 @@ def load_britannica_ds():
                 dig_id_source += 1
                 dig_id_simp += 1  
     
-              src.append(lines[l_id][dig_id_source:].replace(' .', '.').replace(' ,', ',').replace('( ', '(').replace(' )', ')').replace('\n', ''))
-              simp.append(lines[l_id + 1][dig_id_simp:].replace(' .', '.').replace(' ,', ',').replace('( ', '(').replace(' )', ')').replace('\n', ''))
+              src_hlp = lines[l_id][dig_id_source:].replace(' .', '.').replace(' ,', ',').replace('( ', '(').replace(' )', ')').replace('\n', '')
+              simp_hlp = lines[l_id + 1][dig_id_simp:].replace(' .', '.').replace(' ,', ',').replace('( ', '(').replace(' )', ')').replace('\n', '')
 
-              labels.append('test')
-              topics.append(path[len(britannica_path) + 6:-8])
-              src_ids.append(len(src_ids))
-              simp_ids.append(len(simp_ids))  
+              if src_hlp != simp_hlp:
+                src.append(src_hlp)
+                simp.append(simp_hlp)
+
+                labels.append('test')
+                topics.append(path[len(britannica_path) + 6:-8])
+                src_ids.append(len(src_ids))
+                simp_ids.append(len(simp_ids))  
 
       full_data = {'ds_id': 'britannica', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': labels, 'topic': topics, 'granularity': 'sentence'}
-
       britannica_dataset = pd.DataFrame(data = full_data)
 
       with open(britannica_path + '/britannica.pkl', 'wb') as f:
@@ -368,6 +381,8 @@ def load_dwikipedia_ds():
             for l in lines:
               simp.append(l)
               simp_ids.append(len(simp_ids))
+
+      # todo: check if simp == src
 
       full_data = {'ds_id': 'D-Wikipedia', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': labels, 'granularity': 'sentence'}
       dwikipedia_dataset = pd.DataFrame(data = full_data)
@@ -509,6 +524,8 @@ def load_ewsewturk_ds():
 
           curr_src_id = curr_src_id + 1
 
+      # todo: check if simp == src
+
       full_data = {'ds_id': 'EW-SEW-Turk', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'origin': 'Turker', 'granularity': 'sentence'}
       ewsewturk_dataset = pd.DataFrame(data=full_data)
 
@@ -551,19 +568,22 @@ def load_htss_ds():
       for index, row in htss_simp_df.iterrows():
         source = htss_path + '/HTSS/data/' + row['Full_Paper_XML'][:-3] + 'txt'
 
-
         if os.path.exists(source):
-          simp_title.append(row['Eureka_Title_Simplified'])
-          simp.append(row['Eureka_Text_Simplified'])
-          src_title.append(row['Paper_Title'])
-          simp_ids.append(len(simp_ids))
+          simp_hlp = row['Eureka_Text_Simplified']
 
           with open(source) as f:
             lines = f.readlines()
             # first four lines are ID and title of paper and can thus be ignored
             doc = str(lines[4:])[2:-2].replace('\\n', '').replace('", "', "', '").replace('", ', "', ").replace(', "', ", '").replace("', '", '').replace('\\r', '').replace('.  #@NEW_LINE#@#  ', '. ').replace('#@NEW_LINE#@#', '\\n').replace('  \\n  ', ' \\n ').replace('"', '').replace("'", '')
-            src.append(doc)
-            src_ids.append(len(src_ids))
+            
+            if doc != simp_hlp:
+              src.append(doc)
+              src_ids.append(len(src_ids))
+
+              simp.append(simp_hlp)
+              simp_title.append(row['Eureka_Title_Simplified'])
+              src_title.append(row['Paper_Title'])
+              simp_ids.append(len(simp_ids))
 
       full_data = {'ds_id': 'HTSS', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'src_title': src_title, 'simp_title': simp_title, 'granularity': 'document'}
 
@@ -671,21 +691,29 @@ def load_massalign_ds():
         lines = f.readlines()
         for l_id in range(0, len(lines), 3):
           if len(lines[l_id].strip()) > 0 and len(lines[l_id + 1].strip()) > 0:
-            src.append(lines[l_id])
-            simp.append(lines[l_id + 1])
-            src_ids.append(len(src_ids))
-            simp_ids.append(len(simp_ids))
-            granularity.append('paragraph')
+            src_hlp = lines[l_id]
+            simp_hlp = lines[l_id + 1]
+
+            if src_hlp != simp_hlp:
+              src.append(src_hlp)
+              simp.append(simp_hlp)
+              src_ids.append(len(src_ids))
+              simp_ids.append(len(simp_ids))
+              granularity.append('paragraph')
 
       with open(sentence) as f:
         lines = f.readlines()
         for l_id in range(0, len(lines), 3):
           if len(lines[l_id].strip()) > 0 and len(lines[l_id + 1].strip()) > 0:
-            src.append(lines[l_id])
-            simp.append(lines[l_id + 1])
-            src_ids.append(len(src_ids))
-            simp_ids.append(len(simp_ids))
-            granularity.append('sentence')
+            src_hlp = lines[l_id]
+            simp_hlp = lines[l_id + 1]
+
+            if src_hlp != simp_hlp:
+              src.append(src_hlp)
+              simp.append(simp_hlp)
+              src_ids.append(len(src_ids))
+              simp_ids.append(len(simp_ids))
+              granularity.append('sentence')
 
       full_data = {'ds_id': 'massalign', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'granularity': granularity}
       massalign_dataset = pd.DataFrame(data = full_data)
@@ -726,20 +754,28 @@ def load_metaeval_ds():
 
       for index, row in metaeval_df.iterrows():
         if str(row['sent_id']) in sent_ids:
-          curr_src_id = sent_ids[str(row['sent_id'])]
-          src_ids.append(curr_src_id)
-          src.append(row['orig_sent'])
-          simp_ids.append(len(simp_ids))
-          simp.append(row['simp_sent'])
-          origin.append(row['sys_name'])
+          src_hlp = row['orig_sent']
+          simp_hlp = row['simp_sent']
+
+          if src_hlp != simp_hlp:
+            curr_src_id = sent_ids[str(row['sent_id'])]
+            src_ids.append(curr_src_id)
+            src.append(src_hlp)
+            simp_ids.append(len(simp_ids))
+            simp.append(simp_hlp)
+            origin.append(row['sys_name'])
         else:
-          curr_src_id = len(sent_ids)
-          sent_ids[str(row['sent_id'])] = curr_src_id
-          src_ids.append(curr_src_id)
-          src.append(row['orig_sent'])
-          simp_ids.append(len(simp_ids))
-          simp.append(row['simp_sent'])
-          origin.append(row['sys_name'])
+          src_hlp = row['orig_sent']
+          simp_hlp = row['simp_sent']
+        
+          if src_hlp != simp_hlp:
+            curr_src_id = len(sent_ids)
+            sent_ids[str(row['sent_id'])] = curr_src_id
+            src_ids.append(curr_src_id)
+            src.append(src_hlp)
+            simp_ids.append(len(simp_ids))
+            simp.append(simp_hlp)
+            origin.append(row['sys_name'])
 
       full_data = {'ds_id': 'metaeval', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'origin': origin, 'granularity': 'sentence'}
       metaeval_dataset = pd.DataFrame(data = full_data)
@@ -788,12 +824,15 @@ def load_mturksf_ds():
 
           if txt not in ids:
             ids[txt] = len(ids)
+          
+          simp_hlp = row['sentence'].replace('<b>' + row['original_word'] + '</b>', row['replacement_word'])
 
-          src_ids.append(ids[txt])
-          src.append(txt)
-          simp_ids.append(len(simp_ids))
-          simp.append(row['sentence'].replace('<b>' + row['original_word'] + '</b>', row['replacement_word']))
-          topics.append(row['source'][:-4])
+          if txt != simp_hlp:
+            src_ids.append(ids[txt])
+            src.append(txt)
+            simp_ids.append(len(simp_ids))
+            simp.append(simp_hlp)
+            topics.append(row['source'][:-4])
 
       
       full_data = {'ds_id': 'MTurkSF', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'topic': topics, 'granularity': 'sentence'}
@@ -853,10 +892,14 @@ def load_nnseval_ds():
             simps.append(' '.join(token).replace(' ,', ',').replace(' .', '.').replace(' :', ':').replace(' ;', ';').replace(' ?', '?').replace(' !', '!'))
 
           for i in range(len(simps)):
-            src.append(pts[0])
-            src_ids.append(curr_src_id + 1)
-            simp.append(simps[i])
-            simp_ids.append(len(simp_ids))
+            src_hlp = pts[0]
+            simp_hlp = simps[i]
+
+            if src_hlp != simps[i]:
+              src.append(pts[0])
+              src_ids.append(curr_src_id + 1)
+              simp.append(simps[i])
+              simp_ids.append(len(simp_ids))
 
           curr_src_id = curr_src_id + 1
 
@@ -915,31 +958,43 @@ def load_onestopenglish_ds():
             intermediate = 'Intermediate '
 
           for index, row in onestopenglish_simp_df.iterrows():
-            src_ids.append(curr_src_id + 1)
-            src_ids.append(curr_src_id + 1)
-            src_ids.append(curr_src_id + 2)
-            curr_src_id = curr_src_id + 2
+            ticks = 0
+            if row['Advanced'] != row[intermediate]:
+              src_ids.append(curr_src_id + 1)
+              ticks = ticks + 0.5
+              src.append(row['Advanced'])
 
-            src.append(row['Advanced'])
-            src.append(row['Advanced'])
-            src.append(row[intermediate])
+              simp_ids.append(len(simp_ids))
+              simp.append(row[intermediate])
 
-            simp_ids.append(len(simp_ids))
+              topics.append(topic)
+              origin.append('advanced-intermediate')
+
             curr_simp_id = len(simp_ids)
-            simp_ids.append(curr_simp_id)
-            simp_ids.append(curr_simp_id)
+            
+            if row['Advanced'] != row['Elementary']:
+              src_ids.append(curr_src_id + 1)
+              ticks = ticks + 0.5
+              src.append(row['Advanced'])
 
-            simp.append(row[intermediate])
-            simp.append(row['Elementary'])
-            simp.append(row['Elementary'])
+              simp_ids.append(curr_simp_id)
+              simp.append(row['Elementary'])
 
-            topics.append(topic)
-            topics.append(topic)
-            topics.append(topic)
+              topics.append(topic)
+              origin.append('advanced-elementary')
 
-            origin.append('advanced-intermediate')
-            origin.append('advanced-elementary')
-            origin.append('intermediate-elementary')
+            if row[intermediate] != row['Elementary']:
+              src_ids.append(curr_src_id + 2)
+              ticks = ticks + 1
+              src.append(row[intermediate])
+              
+              simp_ids.append(curr_simp_id)
+              simp.append(row['Elementary'])
+
+              topics.append(topic)
+              origin.append('intermediate-elementary')
+
+            curr_src_id = curr_src_id + floor(ticks)
 
         full_data = {'ds_id': 'OneStopEnglish', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'origin': origin, 'topic': topics, 'granularity': 'sentence'}
         onestopenglish_dataset = pd.DataFrame(data = full_data)
@@ -997,11 +1052,12 @@ def load_pwkp_ds():
 
           else:
             if len(simp_sents) > 0 and len(source_sent) > 0:
-              simp.append(simp_sents)
-              src.append(source_sent)
+              if source_sent != simp_sents:
+                simp.append(simp_sents)
+                src.append(source_sent)
 
-              src_ids.append(curr_src_id)
-              simp_ids.append(len(simp_ids))
+                src_ids.append(curr_src_id)
+                simp_ids.append(len(simp_ids))
 
             last_line_blank = True
             simp_sents = ''
@@ -1074,11 +1130,15 @@ def load_semeval07_ds():
               if len(pts) == 2:
                 replacements = pts[1].split(';')
                 for replacement in replacements:
-                  src_ids.append(src_info[curr_id]['id'])
-                  src.append(src_info[curr_id]['src_txt'])
+                  src_hlp = src_info[curr_id]['src_txt']
+                  simp_hlp = src_info[curr_id]['left'] + ' ' + replacement[:-1] + ' ' + src_info[curr_id]['right']
 
-                  simp_ids.append(len(simp_ids))
-                  simp.append(src_info[curr_id]['left'] + ' ' + replacement[:-1] + ' ' + src_info[curr_id]['right'])
+                  if src_hlp != simp_hlp:
+                    src_ids.append(src_info[curr_id]['id'])
+                    src.append(src_hlp)
+
+                    simp_ids.append(len(simp_ids))
+                    simp.append(simp_hlp)
 
         full_data = {'ds_id': 'SemEval_2007', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': 'trial', 'granularity': 'sentence'}
         semeval07_dataset = pd.DataFrame(data = full_data)
@@ -1140,6 +1200,8 @@ def load_simpa_ds():
       simp = simpa_ls_simp + simpa_ss_ls_simp + simpa_ss_simp + simpa_ss_simp
       origin = ['lexical_simp'] * len(simpa_ls_orig) + ['syntactic_simp'] * len(simpa_ss_ls_simp) + ['lexical_simp_of_syntactic_simp'] * len(simpa_ss_simp) * 2
 
+      # todo: check if simp == src
+
       full_data = {'ds_id': 'simpa', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'origin': origin, 'granularity': 'sentence'}
       simpa_dataset = pd.DataFrame(data = full_data)
 
@@ -1151,6 +1213,78 @@ def load_simpa_ds():
     simpa_dataset = pd.read_pickle(path_to_datasets + 'simpa/simpa.pkl')
 
   return simpa_dataset
+
+def load_simpeval_ds():
+  # SimpEval 2022 dataset
+  # https://github.com/Yao-Dou/LENS/
+
+  if not os.path.isfile(path_to_datasets + 'simpeval/simpeval.pkl'):
+    simpeval_path = path_to_datasets + 'simpeval'
+    simpeval_link = 'https://github.com/Yao-Dou/LENS/'
+
+    if not os.path.isdir(simpeval_path):
+      os.mkdir(simpeval_path)
+      os.chdir(simpeval_path)
+      clone = 'git clone ' + simpeval_link
+      os.system(clone)
+
+      simpeval_files = sorted(glob.glob(f"{simpeval_path}/LENS/data/*"))
+
+      src_ids = []
+      src = []
+
+      simp_ids = []
+      simp = []
+
+      origin = []
+
+      for simpeval_file in simpeval_files:
+        simpeval_df = pd.read_csv(simpeval_file, encoding='latin1', header=0)
+    
+        if 'Input.original' in simpeval_df.columns:
+          input_col = 'Input.original'
+        else:
+          input_col = 'original'
+
+        if 'Input.simplified' in simpeval_df.columns:
+          simplified_col = 'Input.simplified'
+        else:
+          simplified_col = 'generation'
+
+        for index, row in simpeval_df.iterrows():
+          
+          if row[input_col] != row[simplified_col]:
+            if len(src_ids) == 0 or src[-1] != row[input_col]:
+              if len(src_ids) == 0:
+                src_ids.append(0)
+              else:
+                src_ids.append(src_ids[-1] + 1)
+              src.append(row[input_col])
+
+              simp_ids.append(len(simp_ids))
+              simp.append(row[simplified_col])
+
+              origin.append(simpeval_file[len(simpeval_path + '/LENS/data/'):-4])
+            elif src[-1] == row[input_col] and simp[-1] != row[simplified_col]:
+              src_ids.append(src_ids[-1])
+              src.append(row[input_col])
+
+              simp_ids.append(len(simp_ids))
+              simp.append(row[simplified_col])
+
+              origin.append(simpeval_file[len(simpeval_path + '/LENS/data/'):-4])
+          
+
+      full_data = {'ds_id': 'SimpEval_22', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'origin': origin, 'granularity': 'sentence'}
+      simpeval_dataset = pd.DataFrame(data = full_data)
+
+      with open(simpeval_path + '/simpeval.pkl', 'wb') as f:
+        pickle.dump(simpeval_dataset, f)
+
+      #todo: metadata for dataset
+  else:
+    simpeval_dataset = pd.read_pickle(path_to_datasets + 'simpeval/simpeval.pkl')
+  return simpeval_dataset
 
 def load_sscorpus_ds():
   # SSCORPUS dataset
@@ -1184,11 +1318,15 @@ def load_sscorpus_ds():
         for l in lines:
           parts = l.split('\t')
 
-          src.append(parts[0].replace(' .', '.').replace(' ,', ',').replace('( ', '(').replace(' )', ')').replace(' ;', ';').replace(' :', ':').replace(" '", "'").replace("` ", "`"))
-          simp.append(parts[1].replace(' .', '.').replace(' ,', ',').replace('( ', '(').replace(' )', ')').replace(' ;', ';').replace(' :', ':').replace(" '", "'").replace("` ", "`"))
-          similarity.append(float(parts[2]))
-          src_ids.append(len(src_ids))
-          simp_ids.append(len(simp_ids))
+          src_hlp = parts[0].replace(' .', '.').replace(' ,', ',').replace('( ', '(').replace(' )', ')').replace(' ;', ';').replace(' :', ':').replace(" '", "'").replace("` ", "`")
+          simp_hlp = parts[1].replace(' .', '.').replace(' ,', ',').replace('( ', '(').replace(' )', ')').replace(' ;', ';').replace(' :', ':').replace(" '", "'").replace("` ", "`")
+          
+          if src_hlp != simp_hlp:
+            src.append(src_hlp)
+            simp.append(simp_hlp)
+            similarity.append(float(parts[2]))
+            src_ids.append(len(src_ids))
+            simp_ids.append(len(simp_ids))
 
       full_data = {'ds_id': 'SSCORPUS', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'similarity': similarity, 'granularity': 'sentence'}
       sscorpus_dataset = pd.DataFrame(data = full_data)
@@ -1267,6 +1405,8 @@ def load_turkcorpus_ds():
       src = src * multiplicator
       src_ids = src_ids * multiplicator
 
+      # todo: check if simp == src
+
       full_data = {'ds_id': 'TurkCorpus', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': label, 'origin': origin, 'granularity': 'sentence'}
       turkcorpus_dataset = pd.DataFrame(data = full_data)
 
@@ -1308,6 +1448,8 @@ def load_wikiauto_ds():
         for l in lines:
           simp_ids.append(len(simp_ids))
           simp.append(l.replace(' -RRB- ', ' ').replace(' -LRB- ', ' ').replace(' -RSB- ', ' ').replace(' .', '.').replace(' ,', ',').replace('( ', '(').replace(' )', ')').replace(' ;', ';').replace(' :', ':'))
+
+      # todo: check if simp == src
 
       full_data = {'ds_id': 'Wiki-Auto', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': 'train', 'granularity': 'sentence'}
       wikiauto_dataset = pd.DataFrame(data = full_data)
@@ -1441,11 +1583,15 @@ def load_wikisplit_ds():
             for l in lines:
               pts = l.split('\t')
 
-              src_ids.append(len(src_ids))
-              src.append(pts[0].replace(' ,', ',').replace(' .', '.').replace(' :', ':').replace(' ;', ';').replace(' ?', '?').replace(' !', '!').replace('( ', '(').replace(' )', ')'))
-              simp_ids.append(len(simp_ids))
-              simp.append(pts[1].replace(' <::::> ', ' ').replace(' ,', ',').replace(' .', '.').replace(' :', ':').replace(' ;', ';').replace(' ?', '?').replace(' !', '!').replace('( ', '(').replace(' )', ')'))
-              labels.append(wikisplit_file[len(wikisplit_path + '/wiki-split/'):-4])
+              src_hlp = pts[0].replace(' ,', ',').replace(' .', '.').replace(' :', ':').replace(' ;', ';').replace(' ?', '?').replace(' !', '!').replace('( ', '(').replace(' )', ')')
+              simp_hlp = pts[1].replace(' <::::> ', ' ').replace(' ,', ',').replace(' .', '.').replace(' :', ':').replace(' ;', ';').replace(' ?', '?').replace(' !', '!').replace('( ', '(').replace(' )', ')')
+
+              if src_hlp != simp_hlp:
+                src_ids.append(len(src_ids))
+                src.append(src_hlp)
+                simp_ids.append(len(simp_ids))
+                simp.append(simp_hlp)
+                labels.append(wikisplit_file[len(wikisplit_path + '/wiki-split/'):-4])
 
       full_data = {'ds_id': 'WikiSplit', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': labels, 'granularity': 'sentence'}
       wikisplit_dataset = pd.DataFrame(data=full_data)
@@ -1503,6 +1649,8 @@ def load_wikipediav1_ds():
               else:
                 src_ids.append(len(src_ids))
                 src.append(l.replace(' ,', ',').replace(' .', '.').replace(' :', ':').replace(' ;', ';').replace(' ?', '?').replace(' !', '!').replace('( ', '(').replace(' )', ')'))
+
+      # todo: check if simp == src
 
       full_data = {'ds_id': 'Wikipedia_v1', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': labels, 'granularity': 'sentence'}
       wikipediav1_dataset = pd.DataFrame(data=full_data)
@@ -1630,12 +1778,15 @@ def load_wikipediav2_ds():
       
       for topic in all_doc_src:
         if topic in all_doc_simp:
-          src_ids.append(len(src_ids))
-          src.append(all_doc_src[topic])
-          simp_ids.append(len(simp_ids))
-          simp.append(all_doc_simp[topic])
-          topics.append(topic)
-          granularities.append('document')
+          src_hlp = all_doc_src[topic]
+          simp_hlp = all_doc_simp[topic]
+          if src_hlp != simp_hlp:
+            src_ids.append(len(src_ids))
+            src.append(src_hlp)
+            simp_ids.append(len(simp_ids))
+            simp.append(simp_hlp)
+            topics.append(topic)
+            granularities.append('document')
       
       full_data = {'ds_id': 'Wikipedia_v2', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'topics': topics, 'granularity': granularities}
       wikipediav2_dataset = pd.DataFrame(data=full_data)
@@ -1671,7 +1822,7 @@ def load_rnd_st_ds():
 def main():
   if not os.path.isdir(path_to_datasets):
     os.mkdir(path_to_datasets)
-  ds = load_mturksf_ds()
+  ds = load_simpeval_ds()
 
 if __name__ == '__main__':
   main()
