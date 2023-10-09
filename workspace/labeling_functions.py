@@ -499,6 +499,30 @@ def make_med_imageability_lf(imageability_threshold, label=SIMPLE):
         pre=[spacy_nlp]
     )
 
+# Fabian: average number of words before the main verb~\cite{textevaluator}
+def avg_num_words_before_main_verb(x, thresh, label):
+  num_w = np.mean([[token.dep_ for token in sentence].index("ROOT") for sentence in x.simp_doc.sents])
+  if label == SIMPLE:
+      if num_w <= thresh:
+        return label
+      else:
+        return ABSTAIN
+  else:
+    if num_w > thresh:
+      return label
+    else:
+      return ABSTAIN
+
+def make_avg_num_words_before_main_verb_lf(thresh, label=SIMPLE):
+
+    return LabelingFunction(
+        name=f"avg_num_words_before_main_verb{thresh}",
+        f=avg_num_words_before_main_verb,
+        resources=dict(thresh=thresh, label=label),
+        pre=[spacy_nlp]
+    )
+
+
 # Fabian: low entity to token ratio per text\cite{DBLP:conf/dsai/StajnerNI20}
 def entity_token_ratio_text(x, thresh, label):
   ratio = len(x.simp_entities)/len(x.simp_tokens)
@@ -1828,6 +1852,9 @@ def get_all_lfs():
   lfs_few_noun_phrases = [few_noun_phrases_thres(noun_phrase_thres, label=SIMPLE) for noun_phrase_thres in (0, 1, 2, 3, 4, 5)]
   ratio_academic_word_list_lfs = [make_ratio_academic_word_list_lf(thresh, label=SIMPLE) for thresh in [0, 0.01, 0.02, 0.03, 0.05, 0.08, 0.13]]
   ratio_academic_word_list_complex_lfs = [make_ratio_academic_word_list_lf(thresh, label=NOT_SIMPLE) for thresh in [0.14, 0.19, 0.25]]
+  avg_num_words_before_main_verb_lfs = [make_avg_num_words_before_main_verb_lf(thresh, label=SIMPLE) for thresh in [1, 2, 3, 4, 6, 8]]
+  avg_num_words_before_main_verb_complex_lfs = [make_avg_num_words_before_main_verb_lf(thresh, label=NOT_SIMPLE) for thresh in [10, 12, 15]]
+
   
 
 
@@ -1849,7 +1876,8 @@ def get_all_lfs():
             ratio_academic_word_list_complex_lfs + median_concreteness_lfs_simple + content_word_cnt_lfs_simple + content_word_cnt_lfs_complex + entity_token_ratio_sentence_lfs_complex +\
             entity_token_ratio_paragraph_lfs_complex + unique_entities_text_lfs_complex + average_entities_sentence_lfs_complex + average_entities_paragraph_lfs_complex +\
             unique_entity_total_entity_ratio_text_lfs_complex + unique_entity_total_entity_ratio_sentence_lfs_complex+ unique_entity_total_entity_ratio_paragraph_lfs_complex +\
-            no_relative_clauses_lfs + no_relative_sub_clauses_lfs + few_anaphors_lfs + avarage_distance_appearance_same_entities_paragraph_lfs
+            no_relative_clauses_lfs + no_relative_sub_clauses_lfs + few_anaphors_lfs + avarage_distance_appearance_same_entities_paragraph_lfs + \
+            avg_num_words_before_main_verb_lfs + avg_num_words_before_main_verb_complex_lfs
 
   return all_lfs
 
