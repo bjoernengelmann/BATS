@@ -660,6 +660,42 @@ def make_entity_token_ratio_paragraph_lf(thresh, label=SIMPLE):
 entity_token_ratio_paragraph_lfs = [make_entity_token_ratio_paragraph_lf(thresh, label=SIMPLE) for thresh in [0, 0.02, 0.05, 0.1, 0.2, 0.3]]
 entity_token_ratio_paragraph_lfs_complex = [make_entity_token_ratio_paragraph_lf(thresh, label=NOT_SIMPLE) for thresh in [0.4,0.5, 0.6, 0.7, 0.8, 0.9, 1]]
 
+# Fabian : low depth of the syntactic tree~\cite{DBLP:conf/lrec/StajnerNH20}
+def depth_of_syntactic_tree(x, thresh, label):
+  doc = x.simp_doc
+  depths = {}
+
+  def walk_tree(node, depth):
+      depths[node.orth_] = depth
+      if node.n_lefts + node.n_rights > 0:
+          return [walk_tree(child, depth + 1) for child in node.children]
+  
+  [walk_tree(sent.root, 0) for sent in doc.sents]
+  max_depth = max(depths.values())
+
+  if label == SIMPLE:
+      if max_depth <= thresh:
+        return label
+      else:
+        return ABSTAIN
+  else:
+    if max_depth > thresh:
+      return label
+    else:
+      return ABSTAIN
+
+def make_depth_of_syntactic_tree_lf(thresh, label=SIMPLE):
+
+    return LabelingFunction(
+        name=f"depth_of_syntactic_tree{thresh}",
+        f=depth_of_syntactic_tree,
+        resources=dict(thresh=thresh, label=label),
+        pre=[spacy_nlp]
+    )
+
+depth_of_syntactic_tree_lfs = [make_depth_of_syntactic_tree_lf(thresh, label=SIMPLE) for thresh in [1, 2, 3, 4]]
+avg_depth_of_syntactic_tree_complex = [make_depth_of_syntactic_tree_lf(thresh, label=NOT_SIMPLE) for thresh in [5, 6, 7, 8, 9, 10, 11, 12]]
+
 
 # Fabian : low number of punctuation in text~\cite{DBLP:conf/dsai/StajnerNI20}
 def avg_num_punctuation_text(x, thresh, label):
@@ -1905,7 +1941,8 @@ def get_all_lfs():
             [lf_no_conjunctions] + [lf_no_conditional] + [lf_no_apposition] + [lf_no_grammatical_errors] + distance_appearance_same_entities_paragraph_lfs + \
             [lf_fewer_modifiers] + lfs_few_modifiers + distance_appearance_same_entities_sentence_lfs + avarage_distance_appearance_same_entities_sentence_lfs + \
             lfs_few_noun_phrases + avg_image_lfs_simple + avg_image_lfs_complex + med_image_lfs_simple + med_image_lfs_complex +avarage_distance_entities_sentence_consec_lfs +\
-            avarage_distance_entities_sentence_same_lfs+ avarage_distance_entities_paragraph_consec_lfs + avarage_distance_entities_paragraph_same_lfs
+            avarage_distance_entities_sentence_same_lfs+ avarage_distance_entities_paragraph_consec_lfs + avarage_distance_entities_paragraph_same_lfs + \
+            depth_of_syntactic_tree_lfs + avg_depth_of_syntactic_tree_complex + avg_num_punctuation_text_lfs + avg_num_punctuation_text_lfs_complex
 
   return all_lfs
 
