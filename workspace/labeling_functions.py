@@ -58,7 +58,7 @@ def init():
   concrete_list = concrete_list.set_index('Word')
   concreteness_dic = concrete_list['Conc.M'].to_dict()
 
-  imageability_df = pd.read_csv("/workspace/datasets/other_resources/megahr.en", delimiter="\t", names=["Word" ,"concreteness", "Imageability"])
+  imageability_df = pd.read_csv("/workspace/datasets/other_resources/megahr.en", delimiter="\t", names=["Word", "concreteness", "Imageability"])
   imageability_df = imageability_df.drop(['concreteness'], axis=1).set_index('Word')
   imageability_dic = imageability_df['Imageability'].to_dict()
 
@@ -659,6 +659,33 @@ def make_entity_token_ratio_paragraph_lf(thresh, label=SIMPLE):
 
 entity_token_ratio_paragraph_lfs = [make_entity_token_ratio_paragraph_lf(thresh, label=SIMPLE) for thresh in [0, 0.02, 0.05, 0.1, 0.2, 0.3]]
 entity_token_ratio_paragraph_lfs_complex = [make_entity_token_ratio_paragraph_lf(thresh, label=NOT_SIMPLE) for thresh in [0.4,0.5, 0.6, 0.7, 0.8, 0.9, 1]]
+
+
+# Fabian : low number of punctuation in text~\cite{DBLP:conf/dsai/StajnerNI20}
+def avg_num_punctuation_text(x, thresh, label):
+  avg_num_punc = np.mean([[tok.pos_ for tok in sent].count("PUNCT") for sent in x.simp_doc.sents])
+  if label == SIMPLE:
+      if avg_num_punc <= thresh:
+        return label
+      else:
+        return ABSTAIN
+  else:
+    if avg_num_punc > thresh:
+      return label
+    else:
+      return ABSTAIN
+
+def make_avg_num_punctuation_text_lf(thresh, label=SIMPLE):
+
+    return LabelingFunction(
+        name=f"avg_num_punctuation_text{thresh}",
+        f=avg_num_punctuation_text,
+        resources=dict(thresh=thresh, label=label),
+        pre=[spacy_nlp]
+    )
+
+avg_num_punctuation_text_lfs = [make_avg_num_punctuation_text_lf(thresh, label=SIMPLE) for thresh in [1, 1.2, 1.5, 2, 2.5]]
+avg_num_punctuation_text_lfs_complex = [make_avg_num_punctuation_text_lf(thresh, label=NOT_SIMPLE) for thresh in [2.5, 3, 4]]
 
 
 # Fabian : low number of unique entities in text~\cite{DBLP:conf/dsai/StajnerNI20}
