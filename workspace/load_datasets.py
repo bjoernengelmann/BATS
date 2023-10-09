@@ -16,7 +16,14 @@ import dropbox
 from dropbox.exceptions import AuthError
 
 dropbox_access_token = ''
-path_to_datasets = os.getcwd() + '/datasets/'
+path_to_datasets = 'workspace/datasets/'
+
+if os.path.isfile("workspace/dropbox_token"):
+  with open("workspace/dropbox_token") as f:
+    dropbox_access_token = f.read()
+    print(dropbox_access_token)
+else:
+  print("pls add dropbox token")
 
 def load_list_file(path):
   data = []
