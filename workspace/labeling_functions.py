@@ -37,6 +37,7 @@ imageability_dic = None
 predictor = None
 tool_us = None
 tool_gb = None
+academic_word_list = [line[:-1] for line in open("academic_word_list.csv", "r")]
 
 def init():
   print("resources get initialised")
@@ -607,7 +608,31 @@ def make_entity_token_ratio_paragraph_lf(thresh, label=SIMPLE):
         pre=[spacy_nlp_paragraph]
     )
 
-# Average lexical richness~\cite{DBLP:conf/lrec/StajnerNH20}
+# Fabian: frequency per thousand words/ratio of all words on Academic Word List \url{https://www.eapfoundation.com/vocab/academic/awllists/}~\cite{textevaluator}
+def ratio_academic_word_list(x, thresh, label):
+  ratio_awl = len([w for w in x.simp_words if w.lower() in academic_word_list])/len(x.simp_words)
+  if label == SIMPLE:
+      if ratio_awl <= thresh:
+        return label
+      else:
+        return ABSTAIN
+  else:
+    if ratio_awl > thresh:
+      return label
+    else:
+      return ABSTAIN
+
+def make_ratio_academic_word_list_lf(thresh, label=SIMPLE):
+
+    return LabelingFunction(
+        name=f"ratio_academic_word_list{thresh}",
+        f=ratio_academic_word_list,
+        resources=dict(thresh=thresh, label=label),
+        pre=[spacy_nlp]
+    )
+
+
+# Fabian: Average lexical richness~\cite{DBLP:conf/lrec/StajnerNH20}
 # as: average number of unique lemmas per sentence
 def num_unique_lemmas(x, thresh, label):
   avg_lemmas = np.mean([len(set([w.lemma_ for w in sent])) for sent in x.simp_doc.sents])
@@ -631,7 +656,7 @@ def make_num_unique_lemmas_lf(thresh, label=SIMPLE):
         pre=[spacy_nlp]
     )
 
-# Average lexical richness~\cite{DBLP:conf/lrec/StajnerNH20}
+# Fabian: Average lexical richness~\cite{DBLP:conf/lrec/StajnerNH20}
 # as: average number of unique lemmas per sentence per number of tokens per sentence
 def num_unique_lemmas_norm(x, thresh, label):
   avg_lemmas = np.mean([len(set([w.lemma_ for w in sent]))/len(sent) for sent in x.simp_doc.sents])
@@ -1800,13 +1825,8 @@ def get_all_lfs():
   lfs_low_sents_num = [low_sents_num_thres(sent_num_threshold, label=SIMPLE) for sent_num_threshold in (1, 2, 3, 4, 5)]
   lfs_few_modifiers = [few_modifiers_thres(few_mod_threshold, label=SIMPLE) for few_mod_threshold in (0, 1, 2, 3, 4, 5)]
   lfs_few_noun_phrases = [few_noun_phrases_thres(noun_phrase_thres, label=SIMPLE) for noun_phrase_thres in (0, 1, 2, 3, 4, 5)]
-
-
-
-
-
-
-
+  ratio_academic_word_list_lfs = [make_ratio_academic_word_list_lf(thresh, label=SIMPLE) for thresh in [0, 0.01, 0.02, 0.03, 0.05, 0.08, 0.13]]
+  ratio_academic_word_list_complex_lfs = [make_ratio_academic_word_list_lf(thresh, label=NOT_SIMPLE) for thresh in [0.14, 0.19, 0.25]]
 
 
 
@@ -1824,7 +1844,7 @@ def get_all_lfs():
             lfs_few_noun_phrases + avg_image_lfs_simple + avg_image_lfs_complex + med_image_lfs_simple + med_image_lfs_complex +avarage_distance_entities_sentence_consec_lfs +\
             avarage_distance_entities_sentence_same_lfs+ avarage_distance_entities_paragraph_consec_lfs + avarage_distance_entities_paragraph_same_lfs + \
             avg_depth_of_syntactic_tree_lfs + avg_depth_of_syntactic_tree_complex + avg_num_punctuation_text_lfs + avg_num_punctuation_text_lfs_complex + \
-            num_unique_lemmas_lfs + num_unique_lemmas_complex + num_unique_lemmas_norm_lfs + num_unique_lemmas_norm_complex
+            num_unique_lemmas_lfs + num_unique_lemmas_complex + num_unique_lemmas_norm_lfs + num_unique_lemmas_norm_complex + ratio_academic_word_list_lfs + ratio_academic_word_list_complex_lfs
 
   return all_lfs
 
