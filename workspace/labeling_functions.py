@@ -660,6 +660,63 @@ def make_entity_token_ratio_paragraph_lf(thresh, label=SIMPLE):
 entity_token_ratio_paragraph_lfs = [make_entity_token_ratio_paragraph_lf(thresh, label=SIMPLE) for thresh in [0, 0.02, 0.05, 0.1, 0.2, 0.3]]
 entity_token_ratio_paragraph_lfs_complex = [make_entity_token_ratio_paragraph_lf(thresh, label=NOT_SIMPLE) for thresh in [0.4,0.5, 0.6, 0.7, 0.8, 0.9, 1]]
 
+
+# Average lexical richness~\cite{DBLP:conf/lrec/StajnerNH20}
+# as: average number of unique lemmas per sentence
+def num_unique_lemmas(x, thresh, label):
+  avg_lemmas = np.mean([len(set([w.lemma_ for w in sent])) for sent in x.simp_doc.sents])
+  if label == SIMPLE:
+      if avg_lemmas <= thresh:
+        return label
+      else:
+        return ABSTAIN
+  else:
+    if avg_lemmas > thresh:
+      return label
+    else:
+      return ABSTAIN
+
+def make_num_unique_lemmas_lf(thresh, label=SIMPLE):
+
+    return LabelingFunction(
+        name=f"num_unique_lemmas{thresh}",
+        f=num_unique_lemmas,
+        resources=dict(thresh=thresh, label=label),
+        pre=[spacy_nlp]
+    )
+
+num_unique_lemmas_lfs = [make_num_unique_lemmas_lf(thresh, label=SIMPLE) for thresh in [5, 10, 15, 20, 25]]
+num_unique_lemmas_complex = [make_num_unique_lemmas_lf(thresh, label=NOT_SIMPLE) for thresh in [30, 35, 40, 45, 50]]
+
+
+# Average lexical richness~\cite{DBLP:conf/lrec/StajnerNH20}
+# as: average number of unique lemmas per sentence per number of tokens per sentence
+def num_unique_lemmas_norm(x, thresh, label):
+  avg_lemmas = np.mean([len(set([w.lemma_ for w in sent]))/len(sent) for sent in x.simp_doc.sents])
+  if label == SIMPLE:
+      if avg_lemmas <= thresh:
+        return label
+      else:
+        return ABSTAIN
+  else:
+    if avg_lemmas > thresh:
+      return label
+    else:
+      return ABSTAIN
+
+def make_num_unique_lemmas_norm_lf(thresh, label=SIMPLE):
+
+    return LabelingFunction(
+        name=f"num_unique_lemmas_norm{thresh}",
+        f=num_unique_lemmas_norm,
+        resources=dict(thresh=thresh, label=label),
+        pre=[spacy_nlp]
+    )
+
+num_unique_lemmas_norm_lfs = [make_num_unique_lemmas_norm_lf(thresh, label=SIMPLE) for thresh in [0.5, 0.6, 0.7, 0.8, 0.9]]
+num_unique_lemmas_norm_complex = [make_num_unique_lemmas_norm_lf(thresh, label=NOT_SIMPLE) for thresh in [0.5, 0.6, 0.7, 0.8, 0.9]]
+
+
 # Fabian : low depth of the syntactic tree~\cite{DBLP:conf/lrec/StajnerNH20}
 def depth_of_syntactic_tree(x, thresh, label):
   doc = x.simp_doc
@@ -693,7 +750,7 @@ def make_depth_of_syntactic_tree_lf(thresh, label=SIMPLE):
         pre=[spacy_nlp]
     )
 
-depth_of_syntactic_tree_lfs = [make_depth_of_syntactic_tree_lf(thresh, label=SIMPLE) for thresh in [1, 2, 3, 4]]
+avg_depth_of_syntactic_tree_lfs = [make_depth_of_syntactic_tree_lf(thresh, label=SIMPLE) for thresh in [1, 2, 3, 4]]
 avg_depth_of_syntactic_tree_complex = [make_depth_of_syntactic_tree_lf(thresh, label=NOT_SIMPLE) for thresh in [5, 6, 7, 8, 9, 10, 11, 12]]
 
 
@@ -1942,7 +1999,8 @@ def get_all_lfs():
             [lf_fewer_modifiers] + lfs_few_modifiers + distance_appearance_same_entities_sentence_lfs + avarage_distance_appearance_same_entities_sentence_lfs + \
             lfs_few_noun_phrases + avg_image_lfs_simple + avg_image_lfs_complex + med_image_lfs_simple + med_image_lfs_complex +avarage_distance_entities_sentence_consec_lfs +\
             avarage_distance_entities_sentence_same_lfs+ avarage_distance_entities_paragraph_consec_lfs + avarage_distance_entities_paragraph_same_lfs + \
-            depth_of_syntactic_tree_lfs + avg_depth_of_syntactic_tree_complex + avg_num_punctuation_text_lfs + avg_num_punctuation_text_lfs_complex
+            avg_depth_of_syntactic_tree_lfs + avg_depth_of_syntactic_tree_complex + avg_num_punctuation_text_lfs + avg_num_punctuation_text_lfs_complex + \
+            num_unique_lemmas_lfs + num_unique_lemmas_complex + num_unique_lemmas_norm_lfs + num_unique_lemmas_norm_complex
 
   return all_lfs
 
