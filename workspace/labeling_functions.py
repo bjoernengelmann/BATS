@@ -37,7 +37,8 @@ imageability_dic = None
 predictor = None
 tool_us = None
 tool_gb = None
-academic_word_list = [line[:-1] for line in open("academic_word_list.csv", "r")]
+
+academic_word_list = [line[:-1] for line in open("/workspace/datasets/other_resources/academic_word_list.csv", "r")]
 
 def init():
   print("resources get initialised")
@@ -313,10 +314,10 @@ def content_words_ratio(x, ratio_threshold, label):
       return ABSTAIN
 
 # bjoern : few content words (nouns, adjectives, verbs and adverbs) per sentence~\cite{simpa}
-def make_content_ratio_lf(ratio_threshold, label=SIMPLE):
+def make_content_words_ratio_lf(ratio_threshold, label=SIMPLE):
 
     return LabelingFunction(
-        name=f"lf_content_ratio_ratio={ratio_threshold}_{label_map[label]}",
+        name=f"lf_content_ratio_={ratio_threshold}_{label_map[label]}",
         f=content_words_ratio,
         resources=dict(ratio_threshold=ratio_threshold, label=label),
         pre=[spacy_nlp]
@@ -1764,8 +1765,8 @@ def get_all_lfs():
   max_concreteness_lfs_complex = [make_max_conreteness_lf(threshold, label=NOT_SIMPLE) for threshold in np.round(np.linspace(1.5,2.5,5), 3)]
   median_concreteness_lfs_simple = [make_median_conreteness_lf(threshold, label=SIMPLE) for threshold in np.round(np.linspace(2.5,4.5,5), 3)]
   median_concreteness_lfs_complex = [make_median_conreteness_lf(threshold, label=NOT_SIMPLE) for threshold in np.round(np.linspace(1.5,2.5,5), 3)]
-  word_cnt_lfs_simple = [make_content_ratio_lf(ratio_threshold, label=SIMPLE) for ratio_threshold in np.round(np.linspace(0.01,0.3,10), 3)]
-  word_cnt_lfs_complex = [make_content_ratio_lf(ratio_threshold, label=NOT_SIMPLE) for ratio_threshold in np.round(np.linspace(0.2,0.8,10), 3)]
+  content_word_cnt_lfs_simple = [make_content_words_ratio_lf(ratio_threshold, label=SIMPLE) for ratio_threshold in np.round(np.linspace(0.01,0.3,10), 3)]
+  content_word_cnt_lfs_complex = [make_content_words_ratio_lf(ratio_threshold, label=NOT_SIMPLE) for ratio_threshold in np.round(np.linspace(0.2,0.8,10), 3)]
   infrequent_words_lfs_simple = [make_infrequent_words_lf(p[0], p[1], label=SIMPLE) for p in [(a,b) for a in range(1,3) for b in animals]]
   infrequent_words_lfs_complex = [make_infrequent_words_lf(p[0], p[1], label=NOT_SIMPLE) for p in [(a,b) for a in range(2,6) for b in animals]]
   avg_aoa_lfs_simple = [make_avg_age_of_acquisition_lf(age, label=SIMPLE) for age in range(4,12)]
@@ -1827,7 +1828,7 @@ def get_all_lfs():
   lfs_few_noun_phrases = [few_noun_phrases_thres(noun_phrase_thres, label=SIMPLE) for noun_phrase_thres in (0, 1, 2, 3, 4, 5)]
   ratio_academic_word_list_lfs = [make_ratio_academic_word_list_lf(thresh, label=SIMPLE) for thresh in [0, 0.01, 0.02, 0.03, 0.05, 0.08, 0.13]]
   ratio_academic_word_list_complex_lfs = [make_ratio_academic_word_list_lf(thresh, label=NOT_SIMPLE) for thresh in [0.14, 0.19, 0.25]]
-
+  
 
 
 
