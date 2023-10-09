@@ -1845,7 +1845,11 @@ def get_all_lfs():
             lfs_few_noun_phrases + avg_image_lfs_simple + avg_image_lfs_complex + med_image_lfs_simple + med_image_lfs_complex +avarage_distance_entities_sentence_consec_lfs +\
             avarage_distance_entities_sentence_same_lfs+ avarage_distance_entities_paragraph_consec_lfs + avarage_distance_entities_paragraph_same_lfs + \
             avg_depth_of_syntactic_tree_lfs + avg_depth_of_syntactic_tree_complex + avg_num_punctuation_text_lfs + avg_num_punctuation_text_lfs_complex + \
-            num_unique_lemmas_lfs + num_unique_lemmas_complex + num_unique_lemmas_norm_lfs + num_unique_lemmas_norm_complex + ratio_academic_word_list_lfs + ratio_academic_word_list_complex_lfs
+            num_unique_lemmas_lfs + num_unique_lemmas_complex + num_unique_lemmas_norm_lfs + num_unique_lemmas_norm_complex + ratio_academic_word_list_lfs + \
+            ratio_academic_word_list_complex_lfs + median_concreteness_lfs_simple + content_word_cnt_lfs_simple + content_word_cnt_lfs_complex + entity_token_ratio_sentence_lfs_complex +\
+            entity_token_ratio_paragraph_lfs_complex + unique_entities_text_lfs_complex + average_entities_sentence_lfs_complex + average_entities_paragraph_lfs_complex +\
+            unique_entity_total_entity_ratio_text_lfs_complex + unique_entity_total_entity_ratio_sentence_lfs_complex+ unique_entity_total_entity_ratio_paragraph_lfs_complex +\
+            no_relative_clauses_lfs + no_relative_sub_clauses_lfs + few_anaphors_lfs + avarage_distance_appearance_same_entities_paragraph_lfs
 
   return all_lfs
 
