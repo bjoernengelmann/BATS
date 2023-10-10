@@ -499,6 +499,181 @@ def make_med_imageability_lf(imageability_threshold, label=SIMPLE):
         pre=[spacy_nlp]
     )
 
+
+# Fabian: Frequency of negation 
+def freq_negations(x, thresh, label):
+  countElements = len([tok for tok in x.simp_doc if tok.dep_ == 'neg'])
+
+  if label == SIMPLE:
+      if countElements <= thresh:
+        return label
+      else:
+        return ABSTAIN
+  else:
+    if countElements > thresh:
+      return label
+    else:
+      return ABSTAIN
+  
+def make_freq_negations_lf(thresh, label=SIMPLE):
+
+    return LabelingFunction(
+        name=f"freq_negations{thresh}",
+        f=freq_negations,
+        resources=dict(thresh=thresh, label=label),
+        pre=[spacy_nlp]
+    )
+
+
+
+# Fabian: frequency of third person singular pronouns~\cite{textevaluator}
+def freq_third_person_singular_pronouns(x, thresh, label):
+  countElements = 0
+  for token in x.simp_doc:
+    if  token.pos_ == "PRON" and token.morph.get("Person") == ["3"] and token.morph.get("Number") == ['Sing']:
+        print(token)
+        countElements+=1
+
+  if label == SIMPLE:
+      if countElements <= thresh:
+        return label
+      else:
+        return ABSTAIN
+  else:
+    if countElements > thresh:
+      return label
+    else:
+      return ABSTAIN
+  
+def make_freq_third_person_singular_pronouns_lf(thresh, label=SIMPLE):
+
+    return LabelingFunction(
+        name=f"freq_third_person_singular_pronouns{thresh}",
+        f=freq_third_person_singular_pronouns,
+        resources=dict(thresh=thresh, label=label),
+        pre=[spacy_nlp]
+    )
+
+
+# Fabian: frequency of past tense aspect verbs~\cite{textevaluator}
+def num_past_tense(x, thresh, label):
+  num_w = len([w for w in x.simp_doc if w.tag_ == "VBD"])
+  if label == SIMPLE:
+      if num_w <= thresh:
+        return label
+      else:
+        return ABSTAIN
+  else:
+    if num_w > thresh:
+      return label
+    else:
+      return ABSTAIN
+
+def make_num_past_tense_lf(thresh, label=SIMPLE):
+
+    return LabelingFunction(
+        name=f"num_past_tense{thresh}",
+        f=num_past_tense,
+        resources=dict(thresh=thresh, label=label),
+        pre=[spacy_nlp]
+    )
+
+# Fabian: percentage of past tense aspect verbs~\cite{textevaluator}
+def perc_past_tense(x, thresh, label):
+  num_w = len([w for w in x.simp_doc if w.tag_ == "VBD"])/len([w for w in x.simp_doc if w.pos_ == "VERB"])
+  if label == SIMPLE:
+      if num_w <= thresh:
+        return label
+      else:
+        return ABSTAIN
+  else:
+    if num_w > thresh:
+      return label
+    else:
+      return ABSTAIN
+
+def make_perc_past_tense_lf(thresh, label=SIMPLE):
+
+    return LabelingFunction(
+        name=f"perc_past_tense{thresh}",
+        f=perc_past_tense,
+        resources=dict(thresh=thresh, label=label),
+        pre=[spacy_nlp]
+    )
+
+
+# Fabian: frequency of past perfect verbs~\cite{textevaluator}
+def num_past_perfect(x, thresh, label):
+  num_w = len([w for w in x.simp_doc if w.tag_ == "VBN"])
+  if label == SIMPLE:
+      if num_w <= thresh:
+        return label
+      else:
+        return ABSTAIN
+  else:
+    if num_w > thresh:
+      return label
+    else:
+      return ABSTAIN
+
+def make_num_past_perfect_lf(thresh, label=SIMPLE):
+
+    return LabelingFunction(
+        name=f"num_past_perfect{thresh}",
+        f=num_past_perfect,
+        resources=dict(thresh=thresh, label=label),
+        pre=[spacy_nlp]
+    )
+
+
+# Fabian: percentage of past perfect aspect verbs~\cite{textevaluator}
+def perc_past_perfect(x, thresh, label):
+  num_w = len([w for w in x.simp_doc if w.tag_ == "VBN"])/len([w for w in x.simp_doc if w.pos_ == "VERB"])
+  if label == SIMPLE:
+      if num_w <= thresh:
+        return label
+      else:
+        return ABSTAIN
+  else:
+    if num_w > thresh:
+      return label
+    else:
+      return ABSTAIN
+
+def make_perc_past_perfect_lf(thresh, label=SIMPLE):
+
+    return LabelingFunction(
+        name=f"perc_past_perfect{thresh}",
+        f=perc_past_perfect,
+        resources=dict(thresh=thresh, label=label),
+        pre=[spacy_nlp]
+    )
+
+
+# Fabian: average number of words before the main verb~\cite{textevaluator}
+def avg_num_words_before_main_verb(x, thresh, label):
+  num_w = np.mean([[token.dep_ for token in sentence].index("ROOT") for sentence in x.simp_doc.sents])
+  if label == SIMPLE:
+      if num_w <= thresh:
+        return label
+      else:
+        return ABSTAIN
+  else:
+    if num_w > thresh:
+      return label
+    else:
+      return ABSTAIN
+
+def make_avg_num_words_before_main_verb_lf(thresh, label=SIMPLE):
+
+    return LabelingFunction(
+        name=f"avg_num_words_before_main_verb{thresh}",
+        f=avg_num_words_before_main_verb,
+        resources=dict(thresh=thresh, label=label),
+        pre=[spacy_nlp]
+    )
+
+
 # Fabian: low entity to token ratio per text\cite{DBLP:conf/dsai/StajnerNI20}
 def entity_token_ratio_text(x, thresh, label):
   ratio = len(x.simp_entities)/len(x.simp_tokens)
@@ -893,7 +1068,7 @@ def unique_entity_total_entity_ratio_sentence(x, thresh, label):
 def make_unique_entity_total_entity_ratio_sentence_lf(thresh, label=SIMPLE):
 
     return LabelingFunction(
-        name=f"unique_entity_total_entity_ratio_sentence{thresh}",
+        name=f"unique_entity_total_entity_ratio_sentence{thresh}label={label}",
         f=unique_entity_total_entity_ratio_sentence,
         resources=dict(thresh=thresh, label=label),
         pre=[spacy_nlp]
@@ -1828,8 +2003,23 @@ def get_all_lfs():
   lfs_few_noun_phrases = [few_noun_phrases_thres(noun_phrase_thres, label=SIMPLE) for noun_phrase_thres in (0, 1, 2, 3, 4, 5)]
   ratio_academic_word_list_lfs = [make_ratio_academic_word_list_lf(thresh, label=SIMPLE) for thresh in [0, 0.01, 0.02, 0.03, 0.05, 0.08, 0.13]]
   ratio_academic_word_list_complex_lfs = [make_ratio_academic_word_list_lf(thresh, label=NOT_SIMPLE) for thresh in [0.14, 0.19, 0.25]]
-  
+  avg_num_words_before_main_verb_lfs = [make_avg_num_words_before_main_verb_lf(thresh, label=SIMPLE) for thresh in [1, 2, 3, 4, 6, 8]]
+  avg_num_words_before_main_verb_complex_lfs = [make_avg_num_words_before_main_verb_lf(thresh, label=NOT_SIMPLE) for thresh in [10, 12, 15]]
+  perc_past_perfect_lfs = [make_perc_past_perfect_lf(thresh, label=SIMPLE) for thresh in [0, 0.1, 0.2, 0.4, 0.6, 0.8]]
+  perc_past_perfect_complex_lfs = [make_perc_past_perfect_lf(thresh, label=NOT_SIMPLE) for thresh in [0.6, 0.8, 1]]
+  num_past_perfect_lfs = [make_num_past_perfect_lf(thresh, label=SIMPLE) for thresh in [0, 1, 2, 3, 4]]
+  num_past_perfect_complex_lfs = [make_num_past_perfect_lf(thresh, label=NOT_SIMPLE) for thresh in [5, 6, 7, 8, 12, 15]]
+  perc_past_tense_lfs = [make_perc_past_tense_lf(thresh, label=SIMPLE) for thresh in [0, 0.1, 0.2, 0.4, 0.6, 0.8]]
+  perc_past_tense_complex_lfs = [make_perc_past_tense_lf(thresh, label=NOT_SIMPLE) for thresh in [0.6, 0.8, 1]]
+  num_past_tense_lfs = [make_num_past_tense_lf(thresh, label=SIMPLE) for thresh in [0, 1, 2, 3, 4]]
+  num_past_tense_complex_lfs = [make_num_past_tense_lf(thresh, label=NOT_SIMPLE) for thresh in [5, 6, 7, 8, 12, 15]]
+  freq_third_person_singular_pronouns_lfs = [make_freq_third_person_singular_pronouns_lf(thresh, label=SIMPLE) for thresh in [0, 1, 2]]
+  freq_third_person_singular_pronouns_lfs_complex = [make_freq_third_person_singular_pronouns_lf(thresh, label=NOT_SIMPLE) for thresh in [1, 2, 3, 4, 5]]
+  freq_negations_lfs = [make_freq_negations_lf(thresh, label=SIMPLE) for thresh in [0, 1, 2]]
+  freq_negations_lfs_complex = [make_freq_negations_lf(thresh, label=NOT_SIMPLE) for thresh in [1, 2, 3, 4, 5]]
 
+
+  
 
 
 
@@ -1849,8 +2039,8 @@ def get_all_lfs():
             ratio_academic_word_list_complex_lfs + median_concreteness_lfs_simple + content_word_cnt_lfs_simple + content_word_cnt_lfs_complex + entity_token_ratio_sentence_lfs_complex +\
             entity_token_ratio_paragraph_lfs_complex + unique_entities_text_lfs_complex + average_entities_sentence_lfs_complex + average_entities_paragraph_lfs_complex +\
             unique_entity_total_entity_ratio_text_lfs_complex + unique_entity_total_entity_ratio_sentence_lfs_complex+ unique_entity_total_entity_ratio_paragraph_lfs_complex +\
-            no_relative_clauses_lfs + no_relative_sub_clauses_lfs + few_anaphors_lfs + avarage_distance_appearance_same_entities_paragraph_lfs
-
+            no_relative_clauses_lfs + no_relative_sub_clauses_lfs + few_anaphors_lfs + avarage_distance_appearance_same_entities_paragraph_lfs + \
+            avg_num_words_before_main_verb_lfs + avg_num_words_before_main_verb_complex_lfs +perc_past_perfect_lfs + perc_past_perfect_complex_lfs +\
+            num_past_perfect_lfs + num_past_perfect_complex_lfs + perc_past_tense_lfs + perc_past_tense_complex_lfs + num_past_tense_lfs + num_past_tense_complex_lfs +\
+            freq_third_person_singular_pronouns_lfs + freq_third_person_singular_pronouns_lfs_complex + freq_negations_lfs_complex
   return all_lfs
-
-

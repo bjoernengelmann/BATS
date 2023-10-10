@@ -53,9 +53,12 @@ def core_preserved_meaning_max_depth_5(s1, s2, depth=0):
   else:
     return check_sent_sim(s1, s2), s2, depth
   
+def mpire_score(s1, s2):
+  return core_preserved_meaning_max_depth_5(s1, s2)[0]
+  
 #https://github.com/Tiiiger/bert_score
 def bertscore(s1, s2):
   with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     P, R, F1 = score([s1], [s2], lang="en", verbose=False, rescale_with_baseline=True)
-    return P[0]
+    return P[0].item()
