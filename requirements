@@ -18,3 +18,4 @@ termcolor==1.1.0
 regex==2022.9.13
 bert-score==0.3.13
 beautifulsoup4==4.12.2
+qanom==0.0.33
