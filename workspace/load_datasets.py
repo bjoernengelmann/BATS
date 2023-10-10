@@ -13,6 +13,8 @@ import gzip
 from bs4 import BeautifulSoup
 import py7zr
 
+path_to_datasets = '/workspace/datasets/'
+
 def load_list_file(path):
   data = []
   with open('/' + path, "r") as f:
@@ -1604,22 +1606,6 @@ def load_wikimanual_ds():
       os.chdir(wikimanual_path)
       clone = 'git clone ' + wikimanual_link
       os.system(clone)     
-
-      #wikimanual_dropbox_link = 'https://www.dropbox.com/sh/ohqaw41v48c7e5p/AACdl4UPKtu7CMMa-CJhz4G7a/wiki-manual/train.tsv?dl=0'
-
-      #try:
-      #  try:
-      #    dbx = dropbox.Dropbox(dropbox_access_token)
-      #  except AuthError as e:
-      #    print('Error connecting to Dropbox with access token: ' + str(e))
-
-      #  with open('/' + wikimanual_path + '/wiki-auto/train.tsv', 'wb') as f:
-      #    metadata, result = dbx.sharing_get_shared_link_file(wikimanual_dropbox_link, link_password=None)
-      #    f.write(result.content)
-      #except Exception as e:
-      #  print('Error downloading file from Dropbox: ' + str(e))
-
-
 
       src_ids = []
       src = []
