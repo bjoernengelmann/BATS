@@ -21,7 +21,6 @@ path_to_datasets = '/workspace/datasets/'
 if os.path.isfile("workspace/dropbox_token"):
   with open("workspace/dropbox_token") as f:
     dropbox_access_token = f.read()
-    print(dropbox_access_token)
 else:
   print("pls add dropbox token")
 

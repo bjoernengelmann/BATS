@@ -5,4 +5,13 @@ services:
     image: usb-pipeline
     volumes: 
         - ./workspace:/workspace
+        
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    
     tty: true

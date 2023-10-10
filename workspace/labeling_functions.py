@@ -893,7 +893,7 @@ def unique_entity_total_entity_ratio_sentence(x, thresh, label):
 def make_unique_entity_total_entity_ratio_sentence_lf(thresh, label=SIMPLE):
 
     return LabelingFunction(
-        name=f"unique_entity_total_entity_ratio_sentence{thresh}",
+        name=f"unique_entity_total_entity_ratio_sentence{thresh}label={label}",
         f=unique_entity_total_entity_ratio_sentence,
         resources=dict(thresh=thresh, label=label),
         pre=[spacy_nlp]
@@ -1830,9 +1830,6 @@ def get_all_lfs():
   ratio_academic_word_list_complex_lfs = [make_ratio_academic_word_list_lf(thresh, label=NOT_SIMPLE) for thresh in [0.14, 0.19, 0.25]]
   
 
-
-
-
   all_lfs = word_cnt_lfs_simple + word_cnt_lfs_complex + infrequent_words_lfs_simple + infrequent_words_lfs_complex + entity_token_ratio_text_lfs + \
             entity_token_ratio_text_lfs_complex + lfs_proportions_of_long_words_syllables_simple + lfs_proportions_of_long_words_letters_simple + lfs_low_fkg_simple + \
             lfs_high_fkre_simple + [lf_no_passive_voice] + lfs_avg_Levenshtein + median_aoa_lfs_simple + median_aoa_lfs_complex + max_aoa_lfs_simple + \
@@ -1852,5 +1849,3 @@ def get_all_lfs():
             no_relative_clauses_lfs + no_relative_sub_clauses_lfs + few_anaphors_lfs + avarage_distance_appearance_same_entities_paragraph_lfs
 
   return all_lfs
-
-
