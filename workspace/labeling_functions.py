@@ -73,7 +73,7 @@ def init():
   tool_us = language_tool_python.LanguageTool('en-US')
   tool_gb = language_tool_python.LanguageTool('en-GB')
 
-  df_ox5k = pd.read_csv("oxford-5k.csv")
+  df_ox5k = pd.read_csv("workspace/datasets/other_resources/oxford-5k.csv")
   ox5k_a = df_ox5k.loc[df_ox5k["level"].isin(['a1','a2'])]["word"].to_list()
 
   academic_word_list = [line[:-1] for line in open("/workspace/datasets/other_resources/academic_word_list.csv", "r")]
