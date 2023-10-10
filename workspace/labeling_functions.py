@@ -499,6 +499,36 @@ def make_med_imageability_lf(imageability_threshold, label=SIMPLE):
         pre=[spacy_nlp]
     )
 
+
+# Fabian: frequency of third person singular pronouns~\cite{textevaluator}
+def freq_third_person_singular_pronouns(x, thresh, label):
+  countElements = 0
+  for token in x.simp_doc:
+    if  token.pos_ == "PRON" and token.morph.get("Person") == ["3"] and token.morph.get("Number") == ['Sing']:
+        print(token)
+        countElements+=1
+
+  if label == SIMPLE:
+      if countElements <= thresh:
+        return label
+      else:
+        return ABSTAIN
+  else:
+    if countElements > thresh:
+      return label
+    else:
+      return ABSTAIN
+  
+def make_freq_third_person_singular_pronouns_lf(thresh, label=SIMPLE):
+
+    return LabelingFunction(
+        name=f"freq_third_person_singular_pronouns{thresh}",
+        f=freq_third_person_singular_pronouns,
+        resources=dict(thresh=thresh, label=label),
+        pre=[spacy_nlp]
+    )
+
+
 # Fabian: frequency of past tense aspect verbs~\cite{textevaluator}
 def num_past_tense(x, thresh, label):
   num_w = len([w for w in x.simp_doc if w.tag_ == "VBD"])
@@ -1957,6 +1987,9 @@ def get_all_lfs():
   perc_past_tense_complex_lfs = [make_perc_past_tense_lf(thresh, label=NOT_SIMPLE) for thresh in [0.6, 0.8, 1]]
   num_past_tense_lfs = [make_num_past_tense_lf(thresh, label=SIMPLE) for thresh in [0, 1, 2, 3, 4]]
   num_past_tense_complex_lfs = [make_num_past_tense_lf(thresh, label=NOT_SIMPLE) for thresh in [5, 6, 7, 8, 12, 15]]
+  freq_third_person_singular_pronouns_lfs = [make_freq_third_person_singular_pronouns_lf(thresh, label=SIMPLE) for thresh in [0, 1, 2]]
+  freq_third_person_singular_pronouns_lfs_complex = [make_freq_third_person_singular_pronouns_lf(thresh, label=NOT_SIMPLE) for thresh in [1, 2, 3, 4, 5]]
+
 
   
 
@@ -1980,6 +2013,6 @@ def get_all_lfs():
             unique_entity_total_entity_ratio_text_lfs_complex + unique_entity_total_entity_ratio_sentence_lfs_complex+ unique_entity_total_entity_ratio_paragraph_lfs_complex +\
             no_relative_clauses_lfs + no_relative_sub_clauses_lfs + few_anaphors_lfs + avarage_distance_appearance_same_entities_paragraph_lfs + \
             avg_num_words_before_main_verb_lfs + avg_num_words_before_main_verb_complex_lfs +perc_past_perfect_lfs + perc_past_perfect_complex_lfs +\
-            num_past_perfect_lfs + num_past_perfect_complex_lfs + perc_past_tense_lfs + perc_past_tense_complex_lfs + num_past_tense_lfs + num_past_tense_complex_lfs 
-
+            num_past_perfect_lfs + num_past_perfect_complex_lfs + perc_past_tense_lfs + perc_past_tense_complex_lfs + num_past_tense_lfs + num_past_tense_complex_lfs +\
+            freq_third_person_singular_pronouns_lfs + freq_third_person_singular_pronouns_lfs_complex
   return all_lfs
