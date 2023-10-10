@@ -500,6 +500,32 @@ def make_med_imageability_lf(imageability_threshold, label=SIMPLE):
     )
 
 
+# Fabian: Frequency of negation 
+def freq_negations(x, thresh, label):
+  countElements = len([tok for tok in x.simp_doc if tok.dep_ == 'neg'])
+
+  if label == SIMPLE:
+      if countElements <= thresh:
+        return label
+      else:
+        return ABSTAIN
+  else:
+    if countElements > thresh:
+      return label
+    else:
+      return ABSTAIN
+  
+def make_freq_negations_lf(thresh, label=SIMPLE):
+
+    return LabelingFunction(
+        name=f"freq_negations{thresh}",
+        f=freq_negations,
+        resources=dict(thresh=thresh, label=label),
+        pre=[spacy_nlp]
+    )
+
+
+
 # Fabian: frequency of third person singular pronouns~\cite{textevaluator}
 def freq_third_person_singular_pronouns(x, thresh, label):
   countElements = 0
@@ -1989,6 +2015,8 @@ def get_all_lfs():
   num_past_tense_complex_lfs = [make_num_past_tense_lf(thresh, label=NOT_SIMPLE) for thresh in [5, 6, 7, 8, 12, 15]]
   freq_third_person_singular_pronouns_lfs = [make_freq_third_person_singular_pronouns_lf(thresh, label=SIMPLE) for thresh in [0, 1, 2]]
   freq_third_person_singular_pronouns_lfs_complex = [make_freq_third_person_singular_pronouns_lf(thresh, label=NOT_SIMPLE) for thresh in [1, 2, 3, 4, 5]]
+  freq_negations_lfs = [make_freq_negations_lf(thresh, label=SIMPLE) for thresh in [0, 1, 2]]
+  freq_negations_lfs_complex = [make_freq_negations_lf(thresh, label=NOT_SIMPLE) for thresh in [1, 2, 3, 4, 5]]
 
 
   
@@ -2014,5 +2042,5 @@ def get_all_lfs():
             no_relative_clauses_lfs + no_relative_sub_clauses_lfs + few_anaphors_lfs + avarage_distance_appearance_same_entities_paragraph_lfs + \
             avg_num_words_before_main_verb_lfs + avg_num_words_before_main_verb_complex_lfs +perc_past_perfect_lfs + perc_past_perfect_complex_lfs +\
             num_past_perfect_lfs + num_past_perfect_complex_lfs + perc_past_tense_lfs + perc_past_tense_complex_lfs + num_past_tense_lfs + num_past_tense_complex_lfs +\
-            freq_third_person_singular_pronouns_lfs + freq_third_person_singular_pronouns_lfs_complex
+            freq_third_person_singular_pronouns_lfs + freq_third_person_singular_pronouns_lfs_complex + freq_negations_lfs_complex
   return all_lfs
