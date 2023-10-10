@@ -531,6 +531,29 @@ def make_freq_nominalisations_lf(thresh, label=SIMPLE):
         pre=[spacy_nlp]
     ) 
 
+# Fabian : high percentage of vocabulary learned in initial stages of foreign language learning~\cite{tanaka} $\rightarrow$ language proficiency test
+def perc_vocab_initial_forLang_learn(x, thresh, label):
+  ratio = len([w for w in x.simp_doc if w.text.lower() in ox5k_a])/len(x.simp_tokens)
+  if label == SIMPLE:
+      if ratio <= thresh:
+        return label
+      else:
+        return ABSTAIN
+  else:
+    if ratio > thresh:
+      return label
+    else:
+      return ABSTAIN
+
+def make_perc_vocab_initial_forLang_learn_lf(thresh, label=SIMPLE):
+
+    return LabelingFunction(
+        name=f"perc_vocab_initial_forLang_learn{thresh}",
+        f=perc_vocab_initial_forLang_learn,
+        resources=dict(thresh=thresh, label=label),
+        pre=[spacy_nlp]
+    )
+
 # Fabian: word length - frequency per thousand words of words containing more than eight characters~\cite{textevaluator}
 
 def perc_more_than_8_characters(x, thresh, label):
@@ -2078,6 +2101,9 @@ def get_all_lfs():
   freq_nominalisations_lfs_complex = [make_freq_negations_lf(thresh, label=NOT_SIMPLE) for thresh in [1, 2, 3, 4, 5]]
   perc_more_than_8_characters_lfs = [make_perc_more_than_8_characters_lf(thresh, label=SIMPLE) for thresh in [0, 0.02, 0.05, 0.1, 0.2, 0.3]]
   perc_more_than_8_characters_complex_lfs = [make_perc_more_than_8_characters_lf(thresh, label=NOT_SIMPLE) for thresh in [0.25, 0.3, 4]]
+  perc_vocab_initial_forLang_learn_lfs = [make_perc_vocab_initial_forLang_learn_lf(thresh, label=SIMPLE) for thresh in [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]]
+  perc_vocab_initial_forLang_learn_lfs_complex = [make_perc_vocab_initial_forLang_learn_lf(thresh, label=NOT_SIMPLE) for thresh in [0.6, 0.7, 0.8, 0.9, 1]]
+
 
   
 
@@ -2103,5 +2129,6 @@ def get_all_lfs():
             avg_num_words_before_main_verb_lfs + avg_num_words_before_main_verb_complex_lfs +perc_past_perfect_lfs + perc_past_perfect_complex_lfs +\
             num_past_perfect_lfs + num_past_perfect_complex_lfs + perc_past_tense_lfs + perc_past_tense_complex_lfs + num_past_tense_lfs + num_past_tense_complex_lfs +\
             freq_third_person_singular_pronouns_lfs + freq_third_person_singular_pronouns_lfs_complex + freq_negations_lfs + freq_negations_lfs_complex +\
-            freq_nominalisations_lfs + freq_nominalisations_lfs_complex + perc_more_than_8_characters_lfs + perc_more_than_8_characters_complex_lfs
+            freq_nominalisations_lfs + freq_nominalisations_lfs_complex + perc_more_than_8_characters_lfs + perc_more_than_8_characters_complex_lfs +\
+            perc_vocab_initial_forLang_learn_lfs + perc_vocab_initial_forLang_learn_lfs_complex
   return all_lfs
