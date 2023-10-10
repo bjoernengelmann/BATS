@@ -23,6 +23,9 @@ from Levenshtein import distance
 import language_tool_python
 passivepy = PassivePy.PassivePyAnalyzer(spacy_model = "en_core_web_sm")
 
+from qanom.nominalization_detector import NominalizationDetector
+nom_detector = NominalizationDetector()
+
 ABSTAIN = -1
 SIMPLE = 0
 NOT_SIMPLE = 1
@@ -498,6 +501,31 @@ def make_med_imageability_lf(imageability_threshold, label=SIMPLE):
         resources=dict(imageability_threshold=imageability_threshold, label=label),
         pre=[spacy_nlp]
     )
+
+# frequency of nominalisations~\cite{textevaluator}, implemented with~\citet{klein2020qanom}
+def freq_nominalisations(x, thresh, label):
+  countElements = len(nom_detector(x.simplified_snt, threshold=0.75, return_probability=False))
+  
+  if label == SIMPLE:
+      if countElements <= thresh:
+        return label
+      else:
+        return ABSTAIN
+  else:
+    if countElements > thresh:
+      return label
+    else:
+      return ABSTAIN
+
+def make_freq_nominalisations_lf(thresh, label=SIMPLE):
+
+    return LabelingFunction(
+        name=f"freq_nominalisations{thresh}",
+        f=freq_nominalisations,
+        resources=dict(thresh=thresh, label=label),
+        pre=[spacy_nlp]
+    ) 
+
 
 
 # Fabian: Frequency of negation 
@@ -2017,6 +2045,8 @@ def get_all_lfs():
   freq_third_person_singular_pronouns_lfs_complex = [make_freq_third_person_singular_pronouns_lf(thresh, label=NOT_SIMPLE) for thresh in [1, 2, 3, 4, 5]]
   freq_negations_lfs = [make_freq_negations_lf(thresh, label=SIMPLE) for thresh in [0, 1, 2]]
   freq_negations_lfs_complex = [make_freq_negations_lf(thresh, label=NOT_SIMPLE) for thresh in [1, 2, 3, 4, 5]]
+  freq_nominalisations_lfs = [make_freq_nominalisations_lf(thresh, label=SIMPLE) for thresh in [0, 1, 2]]
+  freq_nominalisations_lfs_complex = [make_freq_negations_lf(thresh, label=NOT_SIMPLE) for thresh in [1, 2, 3, 4, 5]]
 
 
   
@@ -2042,5 +2072,6 @@ def get_all_lfs():
             no_relative_clauses_lfs + no_relative_sub_clauses_lfs + few_anaphors_lfs + avarage_distance_appearance_same_entities_paragraph_lfs + \
             avg_num_words_before_main_verb_lfs + avg_num_words_before_main_verb_complex_lfs +perc_past_perfect_lfs + perc_past_perfect_complex_lfs +\
             num_past_perfect_lfs + num_past_perfect_complex_lfs + perc_past_tense_lfs + perc_past_tense_complex_lfs + num_past_tense_lfs + num_past_tense_complex_lfs +\
-            freq_third_person_singular_pronouns_lfs + freq_third_person_singular_pronouns_lfs_complex + freq_negations_lfs_complex
+            freq_third_person_singular_pronouns_lfs + freq_third_person_singular_pronouns_lfs_complex + freq_negations_lfs + freq_negations_lfs_complex +\
+            freq_nominalisations_lfs + freq_nominalisations_lfs_complex
   return all_lfs
