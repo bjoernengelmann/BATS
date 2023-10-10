@@ -13,7 +13,6 @@ language_tool_python==2.7.1
 openpyxl==3.1.2
 ipywidgets==8.1.1
 py7zr==0.20.6
-dropbox==11.36.2
 termcolor==1.1.0
 regex==2022.9.13
 bert-score==0.3.13

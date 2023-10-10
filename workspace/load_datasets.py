@@ -12,17 +12,6 @@ import en_core_web_sm
 import gzip
 from bs4 import BeautifulSoup
 import py7zr
-import dropbox
-from dropbox.exceptions import AuthError
-
-dropbox_access_token = ''
-path_to_datasets = '/workspace/datasets/'
-
-if os.path.isfile("workspace/dropbox_token"):
-  with open("workspace/dropbox_token") as f:
-    dropbox_access_token = f.read()
-else:
-  print("pls add dropbox token")
 
 def load_list_file(path):
   data = []
@@ -1604,7 +1593,7 @@ def load_wikiauto_ds():
 def load_wikimanual_ds():
   # Wiki-Manual dataset, aligned, non-duplicates
   # https://github.com/chaojiang06/wiki-auto
-  # and https://www.dropbox.com/sh/ohqaw41v48c7e5p/AACdl4UPKtu7CMMa-CJhz4G7a/wiki-manual/train.tsv?dl=0
+  # and https://www.dropbox.com/sh/ohqaw41v48c7e5p/AACdl4UPKtu7CMMa-CJhz4G7a/wiki-manual/train.tsv?dl=0 (to download manually)
 
   if not os.path.isfile(path_to_datasets + 'wikimanual/wikimanual.pkl'):
     wikimanual_path = path_to_datasets + 'wikimanual'
@@ -1616,19 +1605,21 @@ def load_wikimanual_ds():
       clone = 'git clone ' + wikimanual_link
       os.system(clone)     
 
-      wikimanual_dropbox_link = 'https://www.dropbox.com/sh/ohqaw41v48c7e5p/AACdl4UPKtu7CMMa-CJhz4G7a/wiki-manual/train.tsv?dl=0'
+      #wikimanual_dropbox_link = 'https://www.dropbox.com/sh/ohqaw41v48c7e5p/AACdl4UPKtu7CMMa-CJhz4G7a/wiki-manual/train.tsv?dl=0'
 
-      try:
-        try:
-          dbx = dropbox.Dropbox(dropbox_access_token)
-        except AuthError as e:
-          print('Error connecting to Dropbox with access token: ' + str(e))
+      #try:
+      #  try:
+      #    dbx = dropbox.Dropbox(dropbox_access_token)
+      #  except AuthError as e:
+      #    print('Error connecting to Dropbox with access token: ' + str(e))
 
-        with open('/' + wikimanual_path + '/wiki-auto/train.tsv', 'wb') as f:
-          metadata, result = dbx.sharing_get_shared_link_file(wikimanual_dropbox_link, link_password=None)
-          f.write(result.content)
-      except Exception as e:
-        print('Error downloading file from Dropbox: ' + str(e))
+      #  with open('/' + wikimanual_path + '/wiki-auto/train.tsv', 'wb') as f:
+      #    metadata, result = dbx.sharing_get_shared_link_file(wikimanual_dropbox_link, link_password=None)
+      #    f.write(result.content)
+      #except Exception as e:
+      #  print('Error downloading file from Dropbox: ' + str(e))
+
+
 
       src_ids = []
       src = []
@@ -1676,24 +1667,27 @@ def load_wikimanual_ds():
             else:
               duplicated.append(True)
 
-      with open('/' + wikimanual_path + '/wiki-auto/train.tsv') as f:
-        lines = f.readlines()
-        for l in lines:
-          pts = l.split('\t')
-          if pts[0] == 'aligned':
-            if pts[4] not in srcs:
-              srcs[pts[4]] = len(srcs)
+      if os.path.exists('/' + path_to_datasets + '/train.tsv'):
+        with open('/' + path_to_datasets + '/train.tsv') as f:
+          lines = f.readlines()
+          for l in lines:
+            pts = l.split('\t')
+            if pts[0] == 'aligned':
+              if pts[4] not in srcs:
+                srcs[pts[4]] = len(srcs)
 
-            src_ids.append(srcs[pts[4]])
-            src.append(pts[4])
-            simp_ids.append(len(src_ids))
-            simp.append(pts[3])
-            label.append('train')
+              src_ids.append(srcs[pts[4]])
+              src.append(pts[4])
+              simp_ids.append(len(src_ids))
+              simp.append(pts[3])
+              label.append('train')
 
-            if pts[3] != pts[4]:
-              duplicated.append(False)
-            else:
-              duplicated.append(True)
+              if pts[3] != pts[4]:
+                duplicated.append(False)
+              else:
+                duplicated.append(True)
+      else:
+        print('Please download the Train split for the Wiki-Manual dataset from Dropbox and put it into the datasets folder: https://www.dropbox.com/sh/ohqaw41v48c7e5p/AACdl4UPKtu7CMMa-CJhz4G7a/wiki-manual/train.tsv?dl=0')
 
       full_data = {'ds_id': 'Wiki-Manual', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': label, 'granularity': 'sentence', 'duplicated': duplicated}
       wikimanual_dataset = pd.DataFrame(data = full_data)
