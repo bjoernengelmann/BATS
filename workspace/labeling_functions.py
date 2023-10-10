@@ -41,8 +41,6 @@ predictor = None
 tool_us = None
 tool_gb = None
 
-academic_word_list = [line[:-1] for line in open("/workspace/datasets/other_resources/academic_word_list.csv", "r")]
-
 def init():
   print("resources get initialised")
 
@@ -51,7 +49,9 @@ def init():
   global imageability_dic 
   global predictor 
   global tool_us 
-  global tool_gb 
+  global tool_gb
+  global ox5k_a
+  global academic_word_list
 
   aoa_list = pd.read_excel("/workspace/datasets/other_resources/AoA_ratings_Kuperman_et_al_BRM.xlsx")
   aoa_list = aoa_list.drop(["OccurTotal", "OccurNum", "Freq_pm", "Rating.SD", "Dunno"], axis=1)
@@ -72,6 +72,11 @@ def init():
 
   tool_us = language_tool_python.LanguageTool('en-US')
   tool_gb = language_tool_python.LanguageTool('en-GB')
+
+  df_ox5k = pd.read_csv("oxford-5k.csv")
+  ox5k_a = df_ox5k.loc[df_ox5k["level"].isin(['a1','a2'])]["word"].to_list()
+
+  academic_word_list = [line[:-1] for line in open("/workspace/datasets/other_resources/academic_word_list.csv", "r")]
 
 init()
 
