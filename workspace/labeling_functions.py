@@ -499,7 +499,54 @@ def make_med_imageability_lf(imageability_threshold, label=SIMPLE):
         pre=[spacy_nlp]
     )
 
-# Fabian: frequency of past perfect aspect verbs~\cite{textevaluator}
+# Fabian: frequency of past tense aspect verbs~\cite{textevaluator}
+def num_past_tense(x, thresh, label):
+  num_w = len([w for w in x.simp_doc if w.tag_ == "VBD"])
+  if label == SIMPLE:
+      if num_w <= thresh:
+        return label
+      else:
+        return ABSTAIN
+  else:
+    if num_w > thresh:
+      return label
+    else:
+      return ABSTAIN
+
+def make_num_past_tense_lf(thresh, label=SIMPLE):
+
+    return LabelingFunction(
+        name=f"num_past_tense{thresh}",
+        f=num_past_tense,
+        resources=dict(thresh=thresh, label=label),
+        pre=[spacy_nlp]
+    )
+
+# Fabian: percentage of past tense aspect verbs~\cite{textevaluator}
+def perc_past_tense(x, thresh, label):
+  num_w = len([w for w in x.simp_doc if w.tag_ == "VBD"])/len([w for w in x.simp_doc if w.pos_ == "VERB"])
+  if label == SIMPLE:
+      if num_w <= thresh:
+        return label
+      else:
+        return ABSTAIN
+  else:
+    if num_w > thresh:
+      return label
+    else:
+      return ABSTAIN
+
+def make_perc_past_tense_lf(thresh, label=SIMPLE):
+
+    return LabelingFunction(
+        name=f"perc_past_tense{thresh}",
+        f=perc_past_tense,
+        resources=dict(thresh=thresh, label=label),
+        pre=[spacy_nlp]
+    )
+
+
+# Fabian: frequency of past perfect verbs~\cite{textevaluator}
 def num_past_perfect(x, thresh, label):
   num_w = len([w for w in x.simp_doc if w.tag_ == "VBN"])
   if label == SIMPLE:
@@ -1906,6 +1953,10 @@ def get_all_lfs():
   perc_past_perfect_complex_lfs = [make_perc_past_perfect_lf(thresh, label=NOT_SIMPLE) for thresh in [0.6, 0.8, 1]]
   num_past_perfect_lfs = [make_num_past_perfect_lf(thresh, label=SIMPLE) for thresh in [0, 1, 2, 3, 4]]
   num_past_perfect_complex_lfs = [make_num_past_perfect_lf(thresh, label=NOT_SIMPLE) for thresh in [5, 6, 7, 8, 12, 15]]
+  perc_past_tense_lfs = [make_perc_past_tense_lf(thresh, label=SIMPLE) for thresh in [0, 0.1, 0.2, 0.4, 0.6, 0.8]]
+  perc_past_tense_complex_lfs = [make_perc_past_tense_lf(thresh, label=NOT_SIMPLE) for thresh in [0.6, 0.8, 1]]
+  num_past_tense_lfs = [make_num_past_tense_lf(thresh, label=SIMPLE) for thresh in [0, 1, 2, 3, 4]]
+  num_past_tense_complex_lfs = [make_num_past_tense_lf(thresh, label=NOT_SIMPLE) for thresh in [5, 6, 7, 8, 12, 15]]
 
   
 
@@ -1929,6 +1980,6 @@ def get_all_lfs():
             unique_entity_total_entity_ratio_text_lfs_complex + unique_entity_total_entity_ratio_sentence_lfs_complex+ unique_entity_total_entity_ratio_paragraph_lfs_complex +\
             no_relative_clauses_lfs + no_relative_sub_clauses_lfs + few_anaphors_lfs + avarage_distance_appearance_same_entities_paragraph_lfs + \
             avg_num_words_before_main_verb_lfs + avg_num_words_before_main_verb_complex_lfs +perc_past_perfect_lfs + perc_past_perfect_complex_lfs +\
-            num_past_perfect_lfs + num_past_perfect_complex_lfs
+            num_past_perfect_lfs + num_past_perfect_complex_lfs + perc_past_tense_lfs + perc_past_tense_complex_lfs + num_past_tense_lfs + num_past_tense_complex_lfs 
 
   return all_lfs
