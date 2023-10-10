@@ -611,7 +611,7 @@ def freq_third_person_singular_pronouns(x, thresh, label):
   countElements = 0
   for token in x.simp_doc:
     if  token.pos_ == "PRON" and token.morph.get("Person") == ["3"] and token.morph.get("Number") == ['Sing']:
-        print(token)
+        
         countElements+=1
 
   if label == SIMPLE:
@@ -2098,7 +2098,7 @@ def get_all_lfs():
   freq_negations_lfs = [make_freq_negations_lf(thresh, label=SIMPLE) for thresh in [0, 1, 2]]
   freq_negations_lfs_complex = [make_freq_negations_lf(thresh, label=NOT_SIMPLE) for thresh in [1, 2, 3, 4, 5]]
   freq_nominalisations_lfs = [make_freq_nominalisations_lf(thresh, label=SIMPLE) for thresh in [0, 1, 2]]
-  freq_nominalisations_lfs_complex = [make_freq_negations_lf(thresh, label=NOT_SIMPLE) for thresh in [1, 2, 3, 4, 5]]
+  freq_nominalisations_lfs_complex = [make_freq_nominalisations_lf(thresh, label=NOT_SIMPLE) for thresh in [1, 2, 3, 4, 5]]
   perc_more_than_8_characters_lfs = [make_perc_more_than_8_characters_lf(thresh, label=SIMPLE) for thresh in [0, 0.02, 0.05, 0.1, 0.2, 0.3]]
   perc_more_than_8_characters_complex_lfs = [make_perc_more_than_8_characters_lf(thresh, label=NOT_SIMPLE) for thresh in [0.25, 0.3, 4]]
   perc_vocab_initial_forLang_learn_lfs = [make_perc_vocab_initial_forLang_learn_lf(thresh, label=SIMPLE) for thresh in [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]]
