@@ -548,7 +548,7 @@ def perc_vocab_initial_forLang_learn(x, thresh, label):
 def make_perc_vocab_initial_forLang_learn_lf(thresh, label=SIMPLE):
 
     return LabelingFunction(
-        name=f"perc_vocab_initial_forLang_learn{thresh}",
+        name=f"perc_vocab_initial_forLang_learn_{label}_{thresh}",
         f=perc_vocab_initial_forLang_learn,
         resources=dict(thresh=thresh, label=label),
         pre=[spacy_nlp]
@@ -573,7 +573,7 @@ def perc_more_than_8_characters(x, thresh, label):
 def make_perc_more_than_8_characters_lf(thresh, label=SIMPLE):
 
     return LabelingFunction(
-        name=f"perc_more_than_8_characters{thresh}",
+        name=f"perc_more_than_8_characters_{label}_{thresh}",
         f=perc_more_than_8_characters,
         resources=dict(thresh=thresh, label=label),
         pre=[spacy_nlp]
@@ -598,7 +598,7 @@ def freq_negations(x, thresh, label):
 def make_freq_negations_lf(thresh, label=SIMPLE):
 
     return LabelingFunction(
-        name=f"freq_negations{thresh}",
+        name=f"freq_negations_{label}_{thresh}",
         f=freq_negations,
         resources=dict(thresh=thresh, label=label),
         pre=[spacy_nlp]
@@ -628,7 +628,7 @@ def freq_third_person_singular_pronouns(x, thresh, label):
 def make_freq_third_person_singular_pronouns_lf(thresh, label=SIMPLE):
 
     return LabelingFunction(
-        name=f"freq_third_person_singular_pronouns{thresh}",
+        name=f"freq_third_person_singular_pronouns_{label}_{thresh}",
         f=freq_third_person_singular_pronouns,
         resources=dict(thresh=thresh, label=label),
         pre=[spacy_nlp]
@@ -652,7 +652,7 @@ def num_past_tense(x, thresh, label):
 def make_num_past_tense_lf(thresh, label=SIMPLE):
 
     return LabelingFunction(
-        name=f"num_past_tense{thresh}",
+        name=f"num_past_tense_{label}_{thresh}",
         f=num_past_tense,
         resources=dict(thresh=thresh, label=label),
         pre=[spacy_nlp]
@@ -675,7 +675,7 @@ def perc_past_tense(x, thresh, label):
 def make_perc_past_tense_lf(thresh, label=SIMPLE):
 
     return LabelingFunction(
-        name=f"perc_past_tense{thresh}",
+        name=f"perc_past_tense_{label}_{thresh}",
         f=perc_past_tense,
         resources=dict(thresh=thresh, label=label),
         pre=[spacy_nlp]
@@ -699,7 +699,7 @@ def num_past_perfect(x, thresh, label):
 def make_num_past_perfect_lf(thresh, label=SIMPLE):
 
     return LabelingFunction(
-        name=f"num_past_perfect{thresh}",
+        name=f"num_past_perfect_{label}_{thresh}",
         f=num_past_perfect,
         resources=dict(thresh=thresh, label=label),
         pre=[spacy_nlp]
@@ -723,7 +723,7 @@ def perc_past_perfect(x, thresh, label):
 def make_perc_past_perfect_lf(thresh, label=SIMPLE):
 
     return LabelingFunction(
-        name=f"perc_past_perfect{thresh}",
+        name=f"perc_past_perfect_{label}_{thresh}",
         f=perc_past_perfect,
         resources=dict(thresh=thresh, label=label),
         pre=[spacy_nlp]
@@ -747,7 +747,7 @@ def avg_num_words_before_main_verb(x, thresh, label):
 def make_avg_num_words_before_main_verb_lf(thresh, label=SIMPLE):
 
     return LabelingFunction(
-        name=f"avg_num_words_before_main_verb{thresh}",
+        name=f"avg_num_words_before_main_verb_{label}_{thresh}",
         f=avg_num_words_before_main_verb,
         resources=dict(thresh=thresh, label=label),
         pre=[spacy_nlp]
@@ -771,7 +771,7 @@ def entity_token_ratio_text(x, thresh, label):
 def make_entity_token_ratio_text_lf(thresh, label=SIMPLE):
 
     return LabelingFunction(
-        name=f"entity_token_ratio_text{thresh}",
+        name=f"entity_token_ratio_text_{label}_{thresh}",
         f=entity_token_ratio_text,
         resources=dict(thresh=thresh, label=label),
         pre=[spacy_nlp]
@@ -815,7 +815,7 @@ def entity_token_ratio_sentence(x, thresh, label):
 def make_entity_token_ratio_sentence_lf(thresh, label=SIMPLE):
 
     return LabelingFunction(
-        name=f"entity_token_ratio_sentence{thresh}",
+        name=f"entity_token_ratio_sentence_{label}_{thresh}",
         f=entity_token_ratio_sentence,
         resources=dict(thresh=thresh, label=label),
         pre=[spacy_nlp]
@@ -858,7 +858,7 @@ def entity_token_ratio_paragraph(x, thresh, label):
 def make_entity_token_ratio_paragraph_lf(thresh, label=SIMPLE):
 
     return LabelingFunction(
-        name=f"entity_token_ratio_paragraph{thresh}",
+        name=f"entity_token_ratio_paragraph_{label}_{thresh}",
         f=entity_token_ratio_paragraph,
         resources=dict(thresh=thresh, label=label),
         pre=[spacy_nlp_paragraph]
@@ -881,7 +881,7 @@ def ratio_academic_word_list(x, thresh, label):
 def make_ratio_academic_word_list_lf(thresh, label=SIMPLE):
 
     return LabelingFunction(
-        name=f"ratio_academic_word_list{thresh}",
+        name=f"ratio_academic_word_list_{label}_{thresh}",
         f=ratio_academic_word_list,
         resources=dict(thresh=thresh, label=label),
         pre=[spacy_nlp]
@@ -906,7 +906,7 @@ def num_unique_lemmas(x, thresh, label):
 def make_num_unique_lemmas_lf(thresh, label=SIMPLE):
 
     return LabelingFunction(
-        name=f"num_unique_lemmas{thresh}",
+        name=f"num_unique_lemmas_{label}_{thresh}",
         f=num_unique_lemmas,
         resources=dict(thresh=thresh, label=label),
         pre=[spacy_nlp]
@@ -930,7 +930,7 @@ def num_unique_lemmas_norm(x, thresh, label):
 def make_num_unique_lemmas_norm_lf(thresh, label=SIMPLE):
 
     return LabelingFunction(
-        name=f"num_unique_lemmas_norm{thresh}",
+        name=f"num_unique_lemmas_norm_{label}_{thresh}",
         f=num_unique_lemmas_norm,
         resources=dict(thresh=thresh, label=label),
         pre=[spacy_nlp]
@@ -963,7 +963,7 @@ def depth_of_syntactic_tree(x, thresh, label):
 def make_depth_of_syntactic_tree_lf(thresh, label=SIMPLE):
 
     return LabelingFunction(
-        name=f"depth_of_syntactic_tree{thresh}",
+        name=f"depth_of_syntactic_tree_{label}_{thresh}",
         f=depth_of_syntactic_tree,
         resources=dict(thresh=thresh, label=label),
         pre=[spacy_nlp]
@@ -986,7 +986,7 @@ def avg_num_punctuation_text(x, thresh, label):
 def make_avg_num_punctuation_text_lf(thresh, label=SIMPLE):
 
     return LabelingFunction(
-        name=f"avg_num_punctuation_text{thresh}",
+        name=f"avg_num_punctuation_text_{label}_{thresh}",
         f=avg_num_punctuation_text,
         resources=dict(thresh=thresh, label=label),
         pre=[spacy_nlp]
@@ -1009,7 +1009,7 @@ def unique_entities_text(x, thresh, label):
 def make_unique_entities_text_lf(thresh, label=SIMPLE):
 
     return LabelingFunction(
-        name=f"unique_entities_text{thresh}",
+        name=f"unique_entities_text_{label}_{thresh}",
         f=unique_entities_text,
         resources=dict(thresh=thresh, label=label),
         pre=[spacy_nlp]
@@ -1040,7 +1040,7 @@ def average_entities_sentence(x, thresh, label):
 def make_average_entities_sentence_lf(thresh, label=SIMPLE):
 
     return LabelingFunction(
-        name=f"average_entities_sentence{thresh}",
+        name=f"average_entities_sentence_{label}_{thresh}",
         f=average_entities_sentence,
         resources=dict(thresh=thresh, label=label),
         pre=[spacy_nlp]
@@ -1072,7 +1072,7 @@ def average_entities_paragraph(x, thresh, label):
 def make_average_entities_paragraph_lf(thresh, label=SIMPLE):
 
     return LabelingFunction(
-        name=f"average_entities_paragraph{thresh}",
+        name=f"average_entities_paragraph_{label}_{thresh}",
         f=average_entities_paragraph,
         resources=dict(thresh=thresh, label=label),
         pre=[spacy_nlp_paragraph]
@@ -1100,7 +1100,7 @@ def unique_entity_total_entity_ratio_text(x, thresh, label):
 def make_unique_entity_total_entity_ratio_text_lf(thresh, label=SIMPLE):
 
     return LabelingFunction(
-        name=f"unique_entity_total_entity_ratio_text{thresh}",
+        name=f"unique_entity_total_entity_ratio_text_{label}_{thresh}",
         f=unique_entity_total_entity_ratio_text,
         resources=dict(thresh=thresh, label=label),
         pre=[spacy_nlp]
@@ -1200,7 +1200,7 @@ def unique_entity_total_entity_ratio_paragraph(x, thresh, label):
 def make_unique_entity_total_entity_ratio_paragraph_lf(thresh, label=SIMPLE):
 
     return LabelingFunction(
-        name=f"unique_entity_total_entity_ratio_paragraph{thresh}",
+        name=f"unique_entity_total_entity_ratio_paragraph_{label}_{thresh}",
         f=unique_entity_total_entity_ratio_paragraph,
         resources=dict(thresh=thresh, label=label),
         pre=[spacy_nlp_paragraph]
@@ -1227,7 +1227,7 @@ def no_relative_clauses(x, thresh, label):
 def make_no_relative_clauses_lf(thresh, label=SIMPLE):
 
     return LabelingFunction(
-        name=f"no_relative_clauses{thresh}",
+        name=f"no_relative_clauses_{label}_{thresh}",
         f=no_relative_clauses,
         resources=dict(thresh=thresh, label=label),
         pre=[spacy_nlp_paragraph]
@@ -1260,7 +1260,7 @@ def no_relative_sub_clauses(x, thresh, label):
 def make_no_relative_sub_clauses_lf(thresh, label=SIMPLE):
 
     return LabelingFunction(
-        name=f"no_relative_sub_clauses{thresh}",
+        name=f"no_relative_sub_clauses_{label}_{thresh}",
         f=no_relative_sub_clauses,
         resources=dict(thresh=thresh, label=label),
         pre=[spacy_nlp_paragraph]
@@ -1299,7 +1299,7 @@ def few_anaphors(x, thresh, label):
 def make_few_anaphors_lf(thresh, label=SIMPLE):
 
     return LabelingFunction(
-        name=f"few_anaphors{thresh}",
+        name=f"few_anaphors_{label}_{thresh}",
         f=few_anaphors,
         resources=dict(thresh=thresh, label=label),
         pre=[spacy_nlp_paragraph]
@@ -1349,7 +1349,7 @@ def distance_appearance_same_entities_paragraph(x, thresh_distance, thresh_numbe
 def make_distance_appearance_same_entities_paragraph_lf(thresh_distance, thresh_number, label=SIMPLE):
 
     return LabelingFunction(
-        name=f"distance_appearance_same_entities_paragraph_dist{thresh_distance}_num{thresh_number}",
+        name=f"distance_appearance_same_entities_paragraph_dist_{label}_{thresh_distance}_num{thresh_number}",
         f=distance_appearance_same_entities_paragraph,
         resources=dict(thresh_distance= thresh_distance, thresh_number=thresh_number,  label=label),
         pre=[spacy_nlp_paragraph]
@@ -1409,7 +1409,7 @@ def avarage_distance_appearance_same_entities_paragraph(x, thresh, label=SIMPLE)
 def make_average_distance_appearance_same_entities_paragraph_lf(thresh, label=SIMPLE):
 
     return LabelingFunction(
-        name=f"avarage_distance_appearance_same_entities_paragraph{thresh}",
+        name=f"avarage_distance_appearance_same_entities_paragraph_{label}_{thresh}",
         f=avarage_distance_appearance_same_entities_paragraph,
         resources=dict(thresh=thresh,  label=label),
         pre=[spacy_nlp_paragraph]
@@ -1469,7 +1469,7 @@ def avarage_distance_appearance_same_entities_sentence(x, thresh, label=SIMPLE):
 def make_average_distance_appearance_same_entities_sentence_lf(thresh, label=SIMPLE):
 
     return LabelingFunction(
-        name=f"avarage_distance_appearance_same_entities_sentence{thresh}",
+        name=f"avarage_distance_appearance_same_entities_sentence_{label}_{thresh}",
         f=avarage_distance_appearance_same_entities_sentence,
         resources=dict(thresh=thresh,  label=label),
         pre=[spacy_nlp]
@@ -1519,13 +1519,13 @@ def distance_appearance_same_entities_sentence(x, thresh_distance, thresh_number
 def make_distance_appearance_same_entities_sentence_lf(thresh_distance, thresh_number, label=SIMPLE):
 
     return LabelingFunction(
-        name=f"distance_appearance_same_entities_sentence_dist{thresh_distance}_num{thresh_number}",
+        name=f"distance_appearance_same_entities_sentence_dist_{label}_{thresh_distance}_num{thresh_number}",
         f=distance_appearance_same_entities_sentence,
         resources=dict(thresh_distance= thresh_distance, thresh_number=thresh_number,  label=label),
         pre=[spacy_nlp_paragraph]
     )
 
-#high average distance (in sentences, paragraphs) between consecutive entities ~\cite{DBLP:conf/dsai/StajnerNI20}
+# Fabian: high average distance (in sentences, paragraphs) between consecutive entities ~\cite{DBLP:conf/dsai/StajnerNI20}
 
 def avarage_distance_entities(x, thresh, scope, same_or_consecutive, label=SIMPLE):
 
