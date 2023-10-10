@@ -525,7 +525,7 @@ def freq_nominalisations(x, thresh, label):
 def make_freq_nominalisations_lf(thresh, label=SIMPLE):
 
     return LabelingFunction(
-        name=f"freq_nominalisations{thresh}",
+        name=f"freq_nominalisations_{label}_{thresh}",
         f=freq_nominalisations,
         resources=dict(thresh=thresh, label=label),
         pre=[spacy_nlp]
