@@ -23,6 +23,9 @@ from Levenshtein import distance
 import language_tool_python
 passivepy = PassivePy.PassivePyAnalyzer(spacy_model = "en_core_web_sm")
 
+from qanom.nominalization_detector import NominalizationDetector
+nom_detector = NominalizationDetector()
+
 ABSTAIN = -1
 SIMPLE = 0
 NOT_SIMPLE = 1
@@ -38,8 +41,6 @@ predictor = None
 tool_us = None
 tool_gb = None
 
-academic_word_list = [line[:-1] for line in open("/workspace/datasets/other_resources/academic_word_list.csv", "r")]
-
 def init():
   print("resources get initialised")
 
@@ -48,7 +49,9 @@ def init():
   global imageability_dic 
   global predictor 
   global tool_us 
-  global tool_gb 
+  global tool_gb
+  global ox5k_a
+  global academic_word_list
 
   aoa_list = pd.read_excel("/workspace/datasets/other_resources/AoA_ratings_Kuperman_et_al_BRM.xlsx")
   aoa_list = aoa_list.drop(["OccurTotal", "OccurNum", "Freq_pm", "Rating.SD", "Dunno"], axis=1)
@@ -69,6 +72,11 @@ def init():
 
   tool_us = language_tool_python.LanguageTool('en-US')
   tool_gb = language_tool_python.LanguageTool('en-GB')
+
+  df_ox5k = pd.read_csv("oxford-5k.csv")
+  ox5k_a = df_ox5k.loc[df_ox5k["level"].isin(['a1','a2'])]["word"].to_list()
+
+  academic_word_list = [line[:-1] for line in open("/workspace/datasets/other_resources/academic_word_list.csv", "r")]
 
 init()
 
@@ -496,6 +504,78 @@ def make_med_imageability_lf(imageability_threshold, label=SIMPLE):
         name=f"lf_med_imageability={imageability_threshold}_{label_map[label]}",
         f=med_imageability,
         resources=dict(imageability_threshold=imageability_threshold, label=label),
+        pre=[spacy_nlp]
+    )
+
+# frequency of nominalisations~\cite{textevaluator}, implemented with~\citet{klein2020qanom}
+def freq_nominalisations(x, thresh, label):
+  countElements = len(nom_detector(x.simplified_snt, threshold=0.75, return_probability=False))
+  
+  if label == SIMPLE:
+      if countElements <= thresh:
+        return label
+      else:
+        return ABSTAIN
+  else:
+    if countElements > thresh:
+      return label
+    else:
+      return ABSTAIN
+
+def make_freq_nominalisations_lf(thresh, label=SIMPLE):
+
+    return LabelingFunction(
+        name=f"freq_nominalisations{thresh}",
+        f=freq_nominalisations,
+        resources=dict(thresh=thresh, label=label),
+        pre=[spacy_nlp]
+    ) 
+
+# Fabian : high percentage of vocabulary learned in initial stages of foreign language learning~\cite{tanaka} $\rightarrow$ language proficiency test
+def perc_vocab_initial_forLang_learn(x, thresh, label):
+  ratio = len([w for w in x.simp_doc if w.text.lower() in ox5k_a])/len(x.simp_tokens)
+  if label == SIMPLE:
+      if ratio <= thresh:
+        return label
+      else:
+        return ABSTAIN
+  else:
+    if ratio > thresh:
+      return label
+    else:
+      return ABSTAIN
+
+def make_perc_vocab_initial_forLang_learn_lf(thresh, label=SIMPLE):
+
+    return LabelingFunction(
+        name=f"perc_vocab_initial_forLang_learn{thresh}",
+        f=perc_vocab_initial_forLang_learn,
+        resources=dict(thresh=thresh, label=label),
+        pre=[spacy_nlp]
+    )
+
+# Fabian: word length - frequency per thousand words of words containing more than eight characters~\cite{textevaluator}
+
+def perc_more_than_8_characters(x, thresh, label):
+  freqElements = len([w for w in x.simp_doc if len(w)>8])/len(x.simp_doc)
+
+  if label == SIMPLE:
+      if freqElements <= thresh:
+        return label
+      else:
+        return ABSTAIN
+  else:
+    if freqElements > thresh:
+      return label
+    else:
+      return ABSTAIN
+  
+def make_perc_more_than_8_characters_lf(thresh, label=SIMPLE):
+
+    return LabelingFunction(
+        name=f"perc_more_than_8_characters{thresh}",
+        f=perc_more_than_8_characters,
+        resources=dict(thresh=thresh, label=label),
         pre=[spacy_nlp]
     )
 
@@ -2017,6 +2097,12 @@ def get_all_lfs():
   freq_third_person_singular_pronouns_lfs_complex = [make_freq_third_person_singular_pronouns_lf(thresh, label=NOT_SIMPLE) for thresh in [1, 2, 3, 4, 5]]
   freq_negations_lfs = [make_freq_negations_lf(thresh, label=SIMPLE) for thresh in [0, 1, 2]]
   freq_negations_lfs_complex = [make_freq_negations_lf(thresh, label=NOT_SIMPLE) for thresh in [1, 2, 3, 4, 5]]
+  freq_nominalisations_lfs = [make_freq_nominalisations_lf(thresh, label=SIMPLE) for thresh in [0, 1, 2]]
+  freq_nominalisations_lfs_complex = [make_freq_negations_lf(thresh, label=NOT_SIMPLE) for thresh in [1, 2, 3, 4, 5]]
+  perc_more_than_8_characters_lfs = [make_perc_more_than_8_characters_lf(thresh, label=SIMPLE) for thresh in [0, 0.02, 0.05, 0.1, 0.2, 0.3]]
+  perc_more_than_8_characters_complex_lfs = [make_perc_more_than_8_characters_lf(thresh, label=NOT_SIMPLE) for thresh in [0.25, 0.3, 4]]
+  perc_vocab_initial_forLang_learn_lfs = [make_perc_vocab_initial_forLang_learn_lf(thresh, label=SIMPLE) for thresh in [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]]
+  perc_vocab_initial_forLang_learn_lfs_complex = [make_perc_vocab_initial_forLang_learn_lf(thresh, label=NOT_SIMPLE) for thresh in [0.6, 0.7, 0.8, 0.9, 1]]
 
 
   
@@ -2042,5 +2128,7 @@ def get_all_lfs():
             no_relative_clauses_lfs + no_relative_sub_clauses_lfs + few_anaphors_lfs + avarage_distance_appearance_same_entities_paragraph_lfs + \
             avg_num_words_before_main_verb_lfs + avg_num_words_before_main_verb_complex_lfs +perc_past_perfect_lfs + perc_past_perfect_complex_lfs +\
             num_past_perfect_lfs + num_past_perfect_complex_lfs + perc_past_tense_lfs + perc_past_tense_complex_lfs + num_past_tense_lfs + num_past_tense_complex_lfs +\
-            freq_third_person_singular_pronouns_lfs + freq_third_person_singular_pronouns_lfs_complex + freq_negations_lfs_complex
+            freq_third_person_singular_pronouns_lfs + freq_third_person_singular_pronouns_lfs_complex + freq_negations_lfs + freq_negations_lfs_complex +\
+            freq_nominalisations_lfs + freq_nominalisations_lfs_complex + perc_more_than_8_characters_lfs + perc_more_than_8_characters_complex_lfs +\
+            perc_vocab_initial_forLang_learn_lfs + perc_vocab_initial_forLang_learn_lfs_complex
   return all_lfs
