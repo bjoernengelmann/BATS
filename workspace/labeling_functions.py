@@ -73,7 +73,7 @@ def init():
   tool_us = language_tool_python.LanguageTool('en-US')
   tool_gb = language_tool_python.LanguageTool('en-GB')
 
-  df_ox5k = pd.read_csv("workspace/datasets/other_resources/oxford-5k.csv")
+  df_ox5k = pd.read_csv("/workspace/datasets/other_resources/oxford-5k.csv")
   ox5k_a = df_ox5k.loc[df_ox5k["level"].isin(['a1','a2'])]["word"].to_list()
 
   academic_word_list = [line[:-1] for line in open("/workspace/datasets/other_resources/academic_word_list.csv", "r")]
@@ -708,7 +708,7 @@ def make_num_past_perfect_lf(thresh, label=SIMPLE):
 
 # Fabian: percentage of past perfect aspect verbs~\cite{textevaluator}
 def perc_past_perfect(x, thresh, label):
-  num_w = len([w for w in x.simp_doc if w.tag_ == "VBN"])/max((1,len([w for w in x.simp_doc if w.pos_ == "VERB"]))
+  num_w = len([w for w in x.simp_doc if w.tag_ == "VBN"])/ max(1,len([w for w in x.simp_doc if w.pos_ == "VERB"]))
   if label == SIMPLE:
       if num_w <= thresh:
         return label
