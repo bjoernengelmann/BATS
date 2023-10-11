@@ -38,7 +38,7 @@ def load_asset_ds():
       clone = 'git clone ' + asset_link
       os.system(clone)
 
-      asset_files = sorted(glob.glob(f"/{asset_path}/asset/dataset/*"))
+      asset_files = sorted(glob.glob(f"/{asset_path}/asset/human_ratings/human_ratings-"))
 
       asset_test_orig = load_list_file([path for path in asset_files if ".test.orig" in path][0])
       asset_valid_orig = load_list_file([path for path in asset_files if ".valid.orig" in path][0])
@@ -59,6 +59,7 @@ def load_asset_ds():
       simp = []
       origin = []
       duplicated = []
+      meaningPreservationScore = []
 
       simp_ids = range(0, (len(asset_test_orig + asset_valid_orig)) * len(asset_test_simps)) 
 
@@ -78,7 +79,7 @@ def load_asset_ds():
         else: 
           duplicated.append(False)
 
-      full_data = {'ds_id': 'ASSET', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': labels, 'origin': origin, 'granularity': 'sentence', 'duplicated': duplicated}
+      full_data = {'ds_id': 'ASSET', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': labels, 'origin': origin, 'granularity': 'sentence', 'duplicated': duplicated, 'meaningPreservationScore': meaningPreservationScore}
       asset_dataset = pd.DataFrame(data=full_data)
 
       with open('/' + asset_path + '/asset.pkl', 'wb') as f:
@@ -1168,6 +1169,69 @@ def load_pwkp_ds():
     pwkp_dataset = pd.read_pickle(path_to_datasets + 'pwkp/pwkp.pkl')
   
   return pwkp_dataset
+
+def load_questeval_ds():
+  # QuestEval dataset
+  # http://dl.fbaipublicfiles.com/questeval/simplification_human_evaluations.tar.gz
+
+  if not os.path.isfile(path_to_datasets + 'questeval/questeval.pkl'): 
+    questeval_path = path_to_datasets + 'questeval'
+    questeval_link = 'http://dl.fbaipublicfiles.com/questeval/simplification_human_evaluations.tar.gz'
+
+    if not os.path.isdir(questeval_path):
+      os.mkdir(questeval_path)
+      
+      response = requests.get(questeval_link, stream=True)
+      
+      if response.status_code == 200:
+        with open('/' + questeval_path + '/data.tar.gz', 'wb') as f:
+            f.write(response.raw.read())
+
+        f = tarfile.open('/' + questeval_path + '/data.tar.gz')
+        f.extractall(questeval_path)
+        f.close()
+
+        src_ids = []
+        src = []
+        simp_ids = []
+        simp = []
+        duplicated = []
+        
+        src_ids_hlp = {}
+        src_info = set()
+
+        questeval_df = pd.read_csv(questeval_path + '/simplification_human_evaluations/questeval_simplification_likert_ratings.csv', encoding='latin1', header=0)
+        for index, row in questeval_df.iterrows():
+          src_hlp = row['source']
+          simp_hlp = row['simplification']
+          comb = src_hlp + '$$$$$' + simp_hlp
+
+          if comb not in src_info:
+            src_info.add(comb)
+
+            if src_hlp not in src_ids_hlp:
+              src_ids_hlp[src_hlp] = len(src_ids_hlp)
+
+            src_ids.append(src_ids_hlp[src_hlp])
+            src.append(src_hlp)
+
+            simp_ids.append(len(simp_ids))
+            simp.append(simp_hlp)
+
+            if src_hlp == simp_hlp:
+              duplicated.append(True)
+            else:
+              duplicated.append(False)
+
+        full_data = {'ds_id': 'QuestEval', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'granularity': 'sentence', 'duplicated': duplicated}
+        questeval_dataset = pd.DataFrame(data = full_data)
+
+        with open(questeval_path + '/questeval.pkl', 'wb') as f:
+          pickle.dump(questeval_dataset, f)
+  else:
+    questeval_dataset = pd.read_pickle(path_to_datasets + 'questeval/questeval.pkl')
+  
+  return questeval_dataset       
 
 def load_semeval07_ds():
   # SemEval_2007 dataset
