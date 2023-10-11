@@ -84,8 +84,6 @@ def load_asset_ds():
 
       with open('/' + asset_path + '/asset.pkl', 'wb') as f:
         pickle.dump(asset_dataset, f)
-
-      #todo: metadata for dataset
   else:
     asset_dataset = pd.read_pickle(path_to_datasets + 'asset/asset.pkl')
 
@@ -152,8 +150,6 @@ def load_automets_ds():
 
       with open('/' + automets_path + '/automets.pkl', 'wb') as f:
         pickle.dump(automets_dataset, f)
-
-      #todo: metadata for dataset
   else:
     automets_dataset = pd.read_pickle(path_to_datasets + 'automets/automets.pkl')
   return automets_dataset
@@ -222,8 +218,6 @@ def load_benchls_ds():
 
           with open('/' + benchls_path + '/benchls.pkl', 'wb') as f:
             pickle.dump(benchls_dataset, f)
-
-          #todo: metadata for dataset
   else:
     benchls_dataset = pd.read_pickle(path_to_datasets + 'benchls/benchls.pkl')
   return benchls_dataset
@@ -352,8 +346,6 @@ def load_britannica_ds():
 
       with open('/' + britannica_path + '/britannica.pkl', 'wb') as f:
         pickle.dump(britannica_dataset, f)
-      
-      #todo: metadata for dataset
   else:  
     britannica_dataset = pd.read_pickle(path_to_datasets + 'britannica/britannica.pkl')
 
@@ -418,8 +410,6 @@ def load_dwikipedia_ds():
 
       with open('/' + dwikipedia_path + '/dwikipedia.pkl', 'wb') as f:
         pickle.dump(dwikipedia_dataset, f)
-
-      #todo: metadata for dataset
   else:
     dwikipedia_dataset = pd.read_pickle(path_to_datasets + 'dwikipedia/dwikipedia.pkl')
   return dwikipedia_dataset
@@ -492,8 +482,6 @@ def load_ewsewgmpm_ds():
 
       with open('/' + ewsewgmpm_path + '/ewsewgmpm.pkl', 'wb') as f:
         pickle.dump(ewsewgmpm_dataset, f)
-
-      #todo: metadata for dataset
   else:
     ewsewgmpm_dataset = pd.read_pickle(path_to_datasets + 'ewsewgmpm/ewsewgmpm.pkl')
 
@@ -572,8 +560,6 @@ def load_ewsewturk_ds():
 
       with open('/' + ewsewturk_path + '/ewsewturk.pkl', 'wb') as f:
         pickle.dump(ewsewturk_dataset, f)
-
-      #todo: metadata for dataset
   else:
     ewsewturk_dataset = pd.read_pickle(path_to_datasets + 'ewsewturk/ewsewturk.pkl')
 
@@ -637,8 +623,6 @@ def load_htss_ds():
 
       with open('/' + htss_path + '/htss.pkl', 'wb') as f:
         pickle.dump(htss_dataset, f)
-      
-      #todo: metadata for dataset
   else:  
     htss_dataset = pd.read_pickle(path_to_datasets + 'htss/htss.pkl')
 
@@ -708,8 +692,6 @@ def load_hutssf_ds():
 
       with open('/' + hutssf_path + '/hutssf.pkl', 'wb') as f:
         pickle.dump(hutssf_dataset, f)
-
-      #todo: metadata for dataset
   else:
     hutssf_dataset = pd.read_pickle(path_to_datasets + 'hutssf/hutssf.pkl')
   return hutssf_dataset
@@ -779,8 +761,6 @@ def load_massalign_ds():
 
       with open('/' + massalign_path + '/massalign.pkl', 'wb') as f:
         pickle.dump(massalign_dataset, f)
-
-      #todo: metadata for dataset
   else:
     massalign_dataset = pd.read_pickle(path_to_datasets + 'massalign/massalign.pkl')
   return massalign_dataset
@@ -849,8 +829,6 @@ def load_metaeval_ds():
 
       with open('/' + metaeval_path + '/metaeval.pkl', 'wb') as f:
         pickle.dump(metaeval_dataset, f)
-
-      #todo: metadata for dataset
   else:
     metaeval_dataset = pd.read_pickle(path_to_datasets + 'metaeval/metaeval.pkl')
   return metaeval_dataset
@@ -912,8 +890,6 @@ def load_mturksf_ds():
 
       with open('/' + mturksf_path + '/mturksf.pkl', 'wb') as f:
         pickle.dump(mturksf_dataset, f)
-
-      #todo: metadata for dataset
   else:
     mturksf_dataset = pd.read_pickle(path_to_datasets + 'mturksf/mturksf.pkl')
   return mturksf_dataset
@@ -985,8 +961,6 @@ def load_nnseval_ds():
 
       with open('/' + nnseval_path + '/nnseval.pkl', 'wb') as f:
         pickle.dump(nnseval_dataset, f)
-
-      #todo: metadata for dataset
   else:
     nnseval_dataset = pd.read_pickle(path_to_datasets + 'nnseval/nnseval.pkl')
   return nnseval_dataset
@@ -1091,8 +1065,6 @@ def load_onestopenglish_ds():
 
         with open('/' + onestopenglish_path + '/onestopenglish.pkl', 'wb') as f:
           pickle.dump(onestopenglish_dataset, f)
-
-        #todo: metadata for dataset
   else:
     onestopenglish_dataset = pd.read_pickle(path_to_datasets + 'onestopenglish/onestopenglish.pkl')
   return onestopenglish_dataset
@@ -1163,8 +1135,6 @@ def load_pwkp_ds():
 
       with open(pwkp_path + '/pwkp.pkl', 'wb') as f:
         pickle.dump(pwkp_dataset, f)
-
-      #todo: metadata for dataset
   else:
     pwkp_dataset = pd.read_pickle(path_to_datasets + 'pwkp/pwkp.pkl')
   
@@ -1310,8 +1280,6 @@ def load_semeval07_ds():
 
         with open('/' + semeval07_path + '/semeval07.pkl', 'wb') as f:
           pickle.dump(semeval07_dataset, f)
-
-        #todo: metadata for dataset
   else:
     semeval07_dataset = pd.read_pickle(path_to_datasets + 'semeval07/semeval07.pkl')
 
@@ -1377,8 +1345,6 @@ def load_simpa_ds():
 
       with open('/' + simpa_path + '/simpa.pkl', 'wb') as f:
         pickle.dump(simpa_dataset, f)
-
-      #todo: metadata for dataset
   else:
     simpa_dataset = pd.read_pickle(path_to_datasets + 'simpa/simpa.pkl')
 
@@ -1459,8 +1425,6 @@ def load_simpeval_ds():
 
       with open('/' + simpeval_path + '/simpeval.pkl', 'wb') as f:
         pickle.dump(simpeval_dataset, f)
-
-      #todo: metadata for dataset
   else:
     simpeval_dataset = pd.read_pickle(path_to_datasets + 'simpeval/simpeval.pkl')
   return simpeval_dataset
@@ -1517,8 +1481,6 @@ def load_sscorpus_ds():
 
       with open('/' + sscorpus_path + '/sscorpus.pkl', 'wb') as f:
         pickle.dump(sscorpus_dataset, f)
-
-      #todo: metadata for dataset
   else:
     sscorpus_dataset = pd.read_pickle(path_to_datasets + 'sscorpus/sscorpus.pkl')
   return sscorpus_dataset
@@ -1601,8 +1563,6 @@ def load_turkcorpus_ds():
 
       with open('/' + turkcorpus_path + '/turkcorpus.pkl', 'wb') as f:
         pickle.dump(turkcorpus_dataset, f)
-
-        #todo: metadata for dataset
   else:
     turkcorpus_dataset = pd.read_pickle(path_to_datasets + 'turkcorpus/turkcorpus.pkl')
   return turkcorpus_dataset
@@ -1650,8 +1610,6 @@ def load_wikiauto_ds():
 
       with open('/' + wikiauto_path + '/wikiauto.pkl', 'wb') as f:
         pickle.dump(wikiauto_dataset, f)
-
-        #todo: metadata for dataset
   else:
     wikiauto_dataset = pd.read_pickle(path_to_datasets + 'wikiauto/wikiauto.pkl')
   return wikiauto_dataset
@@ -1744,8 +1702,6 @@ def load_wikimanual_ds():
 
       with open('/' + wikimanual_path + '/wikimanual.pkl', 'wb') as f:
         pickle.dump(wikimanual_dataset, f)
-
-      #todo: metadata for dataset
   else:
     wikimanual_dataset = pd.read_pickle(path_to_datasets + 'wikimanual/wikimanual.pkl')
   return wikimanual_dataset
@@ -1802,8 +1758,6 @@ def load_wikisplit_ds():
 
       with open('/' + wikisplit_path + '/wikisplit.pkl', 'wb') as f:
         pickle.dump(wikisplit_dataset, f)
-
-      #todo: metadata for dataset
   else:
     wikisplit_dataset = pd.read_pickle(path_to_datasets + 'wikisplit/wikisplit.pkl')
 
@@ -1866,8 +1820,6 @@ def load_wikipediav1_ds():
 
       with open('/' + wikipediav1_path + '/wikipediav1.pkl', 'wb') as f:
         pickle.dump(wikipediav1_dataset, f)
-
-      #todo: metadata for dataset
   else:
     wikipediav1_dataset = pd.read_pickle(path_to_datasets + 'wikipediav1/wikipediav1.pkl')
 
@@ -2010,8 +1962,6 @@ def load_wikipediav2_ds():
 
       with open('/' + wikipediav2_path + '/wikipediav2.pkl', 'wb') as f:
         pickle.dump(wikipediav2_dataset, f)
-
-      #todo: metadata for dataset
   else:
     wikipediav2_dataset = pd.read_pickle(path_to_datasets + 'wikipediav2/wikipediav2.pkl')
 

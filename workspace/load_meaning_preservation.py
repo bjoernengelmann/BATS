@@ -1,17 +1,7 @@
-from math import floor
-import os
 import pandas as pd
 import glob
-import numpy as np
 import pickle
-import urllib.request
-import requests
-import tarfile
-import zipfile
-import en_core_web_sm
-import gzip
-from bs4 import BeautifulSoup
-import py7zr
+
 
 path_to_datasets = '/workspace/datasets/'
 
