@@ -38,7 +38,7 @@ def load_asset_ds():
       clone = 'git clone ' + asset_link
       os.system(clone)
 
-      asset_files = sorted(glob.glob(f"/{asset_path}/asset/human_ratings/human_ratings-"))
+      asset_files = sorted(glob.glob(f"/{asset_path}/asset/dataset/*"))
 
       asset_test_orig = load_list_file([path for path in asset_files if ".test.orig" in path][0])
       asset_valid_orig = load_list_file([path for path in asset_files if ".valid.orig" in path][0])
@@ -56,10 +56,10 @@ def load_asset_ds():
       for j in range(len(asset_test_simps)):
         for i in range(len(asset_valid_orig)):
           src_ids.append(i + len(asset_test_orig))
+
       simp = []
       origin = []
       duplicated = []
-      meaningPreservationScore = []
 
       simp_ids = range(0, (len(asset_test_orig + asset_valid_orig)) * len(asset_test_simps)) 
 
@@ -79,7 +79,7 @@ def load_asset_ds():
         else: 
           duplicated.append(False)
 
-      full_data = {'ds_id': 'ASSET', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': labels, 'origin': origin, 'granularity': 'sentence', 'duplicated': duplicated, 'meaningPreservationScore': meaningPreservationScore}
+      full_data = {'ds_id': 'ASSET', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'label': labels, 'origin': origin, 'granularity': 'sentence', 'duplicated': duplicated}
       asset_dataset = pd.DataFrame(data=full_data)
 
       with open('/' + asset_path + '/asset.pkl', 'wb') as f:
