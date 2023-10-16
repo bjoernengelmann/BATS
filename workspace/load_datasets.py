@@ -971,7 +971,7 @@ def load_onestopenglish_ds():
 
   if not os.path.isfile(path_to_datasets + 'onestopenglish/onestopenglish.pkl'): 
     onestopenglish_path = path_to_datasets + 'onestopenglish'
-    onestopenglish_link = 'https://zenodo.org/record/1219041/files/nishkalavallabhi/OneStopEnglishCorpus-bea2018.zip?download=1'
+    onestopenglish_link = 'https://zenodo.org/records/1219041/files/nishkalavallabhi/OneStopEnglishCorpus-bea2018.zip?download=1'
 
     if not os.path.isdir(onestopenglish_path):
       os.mkdir(onestopenglish_path)
