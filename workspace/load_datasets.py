@@ -1984,3 +1984,10 @@ def load_rnd_st_ds():
 
   return sub_sample
 
+
+def add_global_index(df):
+  df['index'] = df.apply(lambda row: f"{row['ds_id']}__{row['src_id']}__{row['simp_id']}", axis=1)
+  with open("/workspace/datasets/final_combined2.pkl", "wb") as out_f:
+        pickle.dump(df, out_f)
+
+  return df
