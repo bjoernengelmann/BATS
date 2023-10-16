@@ -967,104 +967,97 @@ def load_nnseval_ds():
 
 def load_onestopenglish_ds():
   # OneStopEnglish dataset
-  # https://zenodo.org/record/1219041
+  # https://github.com/nishkalavallabhi/OneStopEnglishCorpus/
 
   if not os.path.isfile(path_to_datasets + 'onestopenglish/onestopenglish.pkl'): 
     onestopenglish_path = path_to_datasets + 'onestopenglish'
-    onestopenglish_link = 'https://zenodo.org/records/1219041/files/nishkalavallabhi/OneStopEnglishCorpus-bea2018.zip?download=1'
+    onestopenglish_link = 'https://github.com/nishkalavallabhi/OneStopEnglishCorpus/'
 
     if not os.path.isdir(onestopenglish_path):
       os.mkdir(onestopenglish_path)
-      os.mkdir(onestopenglish_path + '/data')
-
-      response = requests.get(onestopenglish_link, stream=True)
+      os.chdir(onestopenglish_path)
+      clone = 'git clone ' + onestopenglish_link
+      os.system(clone)
       
-      if response.status_code == 200:
-        with open(onestopenglish_path + '/data.zip', 'wb') as f:
-            f.write(response.raw.read())
+      onestopenglish_files = sorted(glob.glob(f"{onestopenglish_path}/OneStopEnglishCorpus/Texts-Together-OneCSVperFile/*"))
 
-        with zipfile.ZipFile(onestopenglish_path + '/data.zip', 'r') as f:
-          f.extractall(onestopenglish_path)
-      
-        onestopenglish_files = sorted(glob.glob(f"{onestopenglish_path}/nishkalavallabhi-OneStopEnglishCorpus-089be0f/Texts-Together-OneCSVperFile/*"))
+      src_ids = []
+      src = []
+      simp_ids = []
+      simp = []
+      topics = []
+      origin = []
+      duplicated = []
+      curr_src_id = -1
 
-        src_ids = []
-        src = []
-        simp_ids = []
-        simp = []
-        topics = []
-        origin = []
-        duplicated = []
-        curr_src_id = -1
+      for onestopenglish_file in onestopenglish_files:
+        onestopenglish_simp_df = pd.read_csv(onestopenglish_file, encoding='latin1', header=0)
+        onestopenglish_simp_df.dropna(inplace=True)
+        onestopenglish_simp_df = onestopenglish_simp_df.reset_index()
 
-        for onestopenglish_file in onestopenglish_files:
-          onestopenglish_simp_df = pd.read_csv(onestopenglish_file, encoding='latin1', header=0)
-          onestopenglish_simp_df.dropna(inplace=True)
-          onestopenglish_simp_df = onestopenglish_simp_df.reset_index()
+        topic = onestopenglish_file[len(onestopenglish_path) + 76:-4]
 
-          topic = onestopenglish_file[len(onestopenglish_path) + 76:-4]
+        if 'Intermediate' in onestopenglish_simp_df.columns:
+          intermediate = 'Intermediate'
+        else:
+          intermediate = 'Intermediate '
 
-          if 'Intermediate' in onestopenglish_simp_df.columns:
-            intermediate = 'Intermediate'
+        for index, row in onestopenglish_simp_df.iterrows():
+          ticks = 0
+          if row['Advanced'] != row[intermediate]:
+            duplicated.append(False)
           else:
-            intermediate = 'Intermediate '
+            duplicated.append(True)
+          
+          src_ids.append(curr_src_id + 1)
+          ticks = ticks + 0.5
+          src.append(row['Advanced'])
 
-          for index, row in onestopenglish_simp_df.iterrows():
-            ticks = 0
-            if row['Advanced'] != row[intermediate]:
-              duplicated.append(False)
-            else:
-              duplicated.append(True)
-            
-            src_ids.append(curr_src_id + 1)
-            ticks = ticks + 0.5
-            src.append(row['Advanced'])
+          simp_ids.append(len(simp_ids))
+          simp.append(row[intermediate])
 
-            simp_ids.append(len(simp_ids))
-            simp.append(row[intermediate])
+          topics.append(topic)
+          origin.append('advanced-intermediate')
 
-            topics.append(topic)
-            origin.append('advanced-intermediate')
+          curr_simp_id = len(simp_ids)
+          
+          if row['Advanced'] != row['Elementary']:
+            duplicated.append(False)
+          else:
+            duplicated.append(True)
+          
+          src_ids.append(curr_src_id + 1)
+          ticks = ticks + 0.5
+          src.append(row['Advanced'])
 
-            curr_simp_id = len(simp_ids)
-            
-            if row['Advanced'] != row['Elementary']:
-              duplicated.append(False)
-            else:
-              duplicated.append(True)
-            
-            src_ids.append(curr_src_id + 1)
-            ticks = ticks + 0.5
-            src.append(row['Advanced'])
+          simp_ids.append(curr_simp_id)
+          simp.append(row['Elementary'])
 
-            simp_ids.append(curr_simp_id)
-            simp.append(row['Elementary'])
+          topics.append(topic)
+          origin.append('advanced-elementary')
 
-            topics.append(topic)
-            origin.append('advanced-elementary')
+          if row[intermediate] != row['Elementary']:
+            duplicated.append(False)
+          else:
+            duplicated.append(True)
+          
+          src_ids.append(curr_src_id + 2)
+          ticks = ticks + 1
+          src.append(row[intermediate])
+          
+          simp_ids.append(curr_simp_id)
+          simp.append(row['Elementary'])
 
-            if row[intermediate] != row['Elementary']:
-              duplicated.append(False)
-            else:
-              duplicated.append(True)
-            
-            src_ids.append(curr_src_id + 2)
-            ticks = ticks + 1
-            src.append(row[intermediate])
-            
-            simp_ids.append(curr_simp_id)
-            simp.append(row['Elementary'])
+          topics.append(topic)
+          origin.append('intermediate-elementary')
 
-            topics.append(topic)
-            origin.append('intermediate-elementary')
+          curr_src_id = curr_src_id + floor(ticks)
 
-            curr_src_id = curr_src_id + floor(ticks)
+      full_data = {'ds_id': 'OneStopEnglish', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'origin': origin, 'topic': topics, 'granularity': 'sentence', 'duplicated': duplicated}
+      onestopenglish_dataset = pd.DataFrame(data = full_data)
 
-        full_data = {'ds_id': 'OneStopEnglish', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'origin': origin, 'topic': topics, 'granularity': 'sentence', 'duplicated': duplicated}
-        onestopenglish_dataset = pd.DataFrame(data = full_data)
-
-        with open('/' + onestopenglish_path + '/onestopenglish.pkl', 'wb') as f:
-          pickle.dump(onestopenglish_dataset, f)
+      with open('/' + onestopenglish_path + '/onestopenglish.pkl', 'wb') as f:
+        pickle.dump(onestopenglish_dataset, f)
   else:
     onestopenglish_dataset = pd.read_pickle(path_to_datasets + 'onestopenglish/onestopenglish.pkl')
   return onestopenglish_dataset
