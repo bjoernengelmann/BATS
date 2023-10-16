@@ -732,6 +732,9 @@ def make_perc_past_perfect_lf(thresh, label=SIMPLE):
 
 # Fabian: average number of words before the main verb~\cite{textevaluator}
 def avg_num_words_before_main_verb(x, thresh, label):
+  for sentence in x.simp_doc.sents:
+    if not "ROOT" in [token.dep_ for token in sentence]:
+      return ABSTAIN
   num_w = np.mean([[token.dep_ for token in sentence].index("ROOT") for sentence in x.simp_doc.sents])
   if label == SIMPLE:
       if num_w <= thresh:
