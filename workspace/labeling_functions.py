@@ -1950,17 +1950,17 @@ def lf_no_grammatical_errors(x):
   return ABSTAIN
 
 # christin: fewer modifiers~\cite{DBLP:conf/acl/NarayanG14}
-@labeling_function(pre=[spacy_nlp], name="fewer_modifiers")
-def lf_fewer_modifiers(x):
-  mods = ['advmod', 'amod', 'nmod', 'npadvmod', 'nummod', 'quantmod']
+#@labeling_function(pre=[spacy_nlp], name="fewer_modifiers")
+#def lf_fewer_modifiers(x):
+#  mods = ['advmod', 'amod', 'nmod', 'npadvmod', 'nummod', 'quantmod']
 
-  deps_source = [token.dep_ for token in x.source_tokens_data if token.dep_ in mods]
-  deps_simp = [token.dep_ for token in x.simp_tokens_data if token.dep_ in mods]
+#  deps_source = [token.dep_ for token in x.source_tokens_data if token.dep_ in mods]
+#  deps_simp = [token.dep_ for token in x.simp_tokens_data if token.dep_ in mods]
 
-  if len(deps_simp) < len(deps_source):
-    return SIMPLE
+#  if len(deps_simp) < len(deps_source):
+#    return SIMPLE
 
-  return ABSTAIN
+#  return ABSTAIN
 
 # christin: few NOT FEWER modifiers
 def few_modifiers(x, few_mod_threshold, label):
