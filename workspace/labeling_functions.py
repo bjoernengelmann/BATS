@@ -87,7 +87,7 @@ def entities_in_list_of_tokens(l_tokens):
     if a.ent_iob_ == "B":
       s = a.text
       t = i
-      while len(l_tokens)>t and l_tokens[t+1].ent_iob_ == "I":
+      while len(l_tokens)>t+1 and l_tokens[t+1].ent_iob_ == "I":
         s = s+" "+l_tokens[t+1].text
         t += 1
       entities.append(s)
@@ -843,6 +843,8 @@ def entity_token_ratio_paragraph(x, thresh, label):
     for paragraph in x.simp_paragraph_tokens_data:
       s_tokens = [token for token in paragraph]
       num_ents = [token.ent_iob_ for token in paragraph].count("B")
+      if len(s_tokens) == 0:
+        return ABSTAIN
       ratio = num_ents/len(s_tokens)
       ratios.append(ratio)
     avg_ratios = sum(ratios)/len(ratios)
@@ -2109,7 +2111,7 @@ def get_all_lfs():
 
 
   
-
+  # [lf_fewer_modifiers] temp out
 
 
   all_lfs = word_cnt_lfs_simple + word_cnt_lfs_complex + infrequent_words_lfs_simple + infrequent_words_lfs_complex + entity_token_ratio_text_lfs + \
@@ -2120,7 +2122,7 @@ def get_all_lfs():
             unique_entity_total_entity_ratio_sentence_lfs + unique_entity_total_entity_ratio_text_lfs + average_entities_paragraph_lfs + average_entities_sentence_lfs + \
             unique_entities_text_lfs + entity_token_ratio_paragraph_lfs + entity_token_ratio_sentence_lfs + lfs_low_length_sents_max + lfs_low_length_sents_avg + lfs_low_sents_num + \
             [lf_no_conjunctions] + [lf_no_conditional] + [lf_no_apposition] + [lf_no_grammatical_errors] + distance_appearance_same_entities_paragraph_lfs + \
-            [lf_fewer_modifiers] + lfs_few_modifiers + distance_appearance_same_entities_sentence_lfs + avarage_distance_appearance_same_entities_sentence_lfs + \
+            lfs_few_modifiers + distance_appearance_same_entities_sentence_lfs + avarage_distance_appearance_same_entities_sentence_lfs + \
             lfs_few_noun_phrases + avg_image_lfs_simple + avg_image_lfs_complex + med_image_lfs_simple + med_image_lfs_complex +avarage_distance_entities_sentence_consec_lfs +\
             avarage_distance_entities_sentence_same_lfs+ avarage_distance_entities_paragraph_consec_lfs + avarage_distance_entities_paragraph_same_lfs + \
             avg_depth_of_syntactic_tree_lfs + avg_depth_of_syntactic_tree_complex + avg_num_punctuation_text_lfs + avg_num_punctuation_text_lfs_complex + \
