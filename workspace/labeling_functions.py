@@ -1534,6 +1534,10 @@ def make_distance_appearance_same_entities_sentence_lf(thresh_distance, thresh_n
 
 def avarage_distance_entities(x, thresh, scope, same_or_consecutive, label=SIMPLE):
 
+  return ABSTAIN
+
+  #local variable 'e' referenced before assignment
+
   thresh = 1
   # scope "sent" or else
   sel = same_or_consecutive # consec or else
@@ -1557,6 +1561,7 @@ def avarage_distance_entities(x, thresh, scope, same_or_consecutive, label=SIMPL
             curr_ent += " "+tok2.text
           else:
             break
+        #local variable 'e' referenced before assignment
         curr_par_ents_positions.append({"text":curr_ent, "beg": i, "end": i+e})
     ent_list.append(curr_par_ents_positions)
 
