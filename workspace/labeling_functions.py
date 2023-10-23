@@ -112,7 +112,6 @@ def spacy_nlp(x):
   nlp.add_pipe("syllables", after="tagger")
   x.pipeline_components = nlp.pipe_names
   x.simp_text = x.simplified_snt
-  x.source_text = x.source_snt
 
   # simplified
   doc = nlp(x.simplified_snt)
@@ -126,18 +125,6 @@ def spacy_nlp(x):
   x.simp_doc = doc
   x.simp_entities = [e.text for e in doc.ents]
 
-  # source
-  doc = nlp(x.source_snt)
-  x.source_syllables = [token._.syllables for token in doc]
-  x.source_syllables_cnt = [token._.syllables_count for token in doc]
-  x.source_tokens = [token.text for token in doc]
-  x.source_tokens_data = [token for token in doc] #token.text, token.lemma_, token.pos_, token.tag_, token.dep_, token.shape_, token.is_alpha, token.is_stop
-  # list of pos tags: https://melaniewalsh.github.io/Intro-Cultural-Analytics/05-Text-Analysis/13-POS-Keywords.html
-  x.source_words = [token.text for token in doc if token.pos_ != 'PUNCT']
-  x.source_sentences = [s.text for s in doc.sents]
-  x.source_doc = doc
-  x.source_entities = [e.text for e in doc.ents]
-
   return x
 
 @preprocessor(memoize=True)
@@ -146,7 +133,6 @@ def spacy_nlp_paragraph(x):
   nlp.add_pipe("syllables", after="tagger")
   x.pipeline_components = nlp.pipe_names
   x.simp_text = x.simplified_snt
-  x.source_text = x.source_snt
 
   # simplified
   doc = nlp(x.simplified_snt)
@@ -160,18 +146,6 @@ def spacy_nlp_paragraph(x):
   x.simp_doc = doc
   x.simp_entities = [e.text for e in doc.ents]
   x.simp_paragraph_tokens_data = paragraph_sep(doc)
-  # source
-  doc = nlp(x.source_snt)
-  x.source_syllables = [token._.syllables for token in doc]
-  x.source_syllables_cnt = [token._.syllables_count for token in doc]
-  x.source_tokens = [token.text for token in doc]
-  x.source_tokens_data = [token for token in doc] #token.text, token.lemma_, token.pos_, token.tag_, token.dep_, token.shape_, token.is_alpha, token.is_stop
-  # list of pos tags: https://melaniewalsh.github.io/Intro-Cultural-Analytics/05-Text-Analysis/13-POS-Keywords.html
-  x.source_words = [token.text for token in doc if token.pos_ != 'PUNCT']
-  x.source_sentences = [s.text for s in doc.sents]
-  x.source_doc = doc
-  x.source_entities = [e.text for e in doc.ents]
-  x.source_paragraph_tokens_data = paragraph_sep(doc)
 
   return x
 
@@ -179,7 +153,6 @@ def spacy_nlp_paragraph(x):
 def spacy_universal_embeddings(x):
   sent_encoder = spacy_universal_sentence_encoder.load_model('en_use_lg')
   x.simp_universal_doc = sent_encoder(x.simplified_snt)
-  x.source_universal_doc = sent_encoder(x.source_snt)
 
   return x
 
@@ -1758,67 +1731,6 @@ def lf_no_passive_voice(x):
   else:
     return SIMPLE
 
-# christin: average Levenshtein distance between original and simplified~\cite{DBLP:conf/acl/NarayanG14}
-def avg_Levenshtein(x, lev_threshold, label):
-  matched_sentences_source_to_simp = []
-  matched_sentences_simp_to_source = []
-
-  max_sent_len = -1
-  for source_id in range(len(x.source_sentences)):
-    curr_sent_len = len(x.source_sentences[source_id])
-    if curr_sent_len > max_sent_len:
-      max_sent_len = curr_sent_len
-
-    max_match = -1
-    min_lev = len(x.source_text)
-    for simp_id in range(len(x.simp_sentences)):
-      curr_lev = distance(x.source_sentences[source_id], x.simp_sentences[simp_id])
-
-      if curr_lev < min_lev:
-        min_lev = curr_lev
-        max_match = simp_id
-
-    if max_match > -1:
-      matched_sentences_source_to_simp.append(min_lev)
-
-  for simp_id in range(len(x.simp_sentences)):
-    curr_sent_len = len(x.simp_sentences[simp_id])
-    if curr_sent_len > max_sent_len:
-      max_sent_len = curr_sent_len
-
-    max_match = -1
-    min_lev = len(x.simp_text)
-    for source_id in range(len(x.source_sentences)):
-      curr_lev = distance(x.simp_sentences[simp_id], x.source_sentences[source_id])
-
-      if curr_lev < min_lev:
-        min_lev = curr_lev
-        max_match = simp_id
-
-    if max_match > -1:
-      matched_sentences_simp_to_source.append(min_lev)
-
-  avg_lev = sum(matched_sentences_source_to_simp + matched_sentences_simp_to_source)/(len(matched_sentences_source_to_simp) + len(matched_sentences_simp_to_source))
-
-  if label == SIMPLE:
-    if avg_lev <= lev_threshold * max_sent_len:
-      return label
-    else:
-      return ABSTAIN
-  else:
-    if avg_lev > lev_threshold * max_sent_len:
-      return label
-    else:
-      return ABSTAIN
-
-def low_avg_Levenshtein(lev_threshold, label):
-  return LabelingFunction(
-      name=f"low_avg_Levenshtein_threshold={lev_threshold}",
-      f=avg_Levenshtein,
-      resources=dict(lev_threshold=lev_threshold, label=label),
-      pre=[spacy_nlp]
-  )
-
 # christin: low sentence length (words)~\cite{arfe}, especially for children or non-native speakers~\cite{DBLP:conf/coling/StajnerH18}
 def length_sents_max_thres(x, length_sent_threshold, label):
   num_words = []
@@ -1900,15 +1812,22 @@ def low_sents_num_thres(sent_num_threshold, label):
       pre=[spacy_nlp]
   )
 
-# christin: no conjunctions for people with language problems~\cite{arfe}
-@labeling_function(pre=[spacy_nlp], name="no_conjunctions")
-def lf_no_conjunctions(x):
+# christin: no (few) conjunctions for people with language problems~\cite{arfe}
+def few_conjunctions(x, few_con_threshold, label):
   conj_pos = [token.pos_ for token in x.simp_doc if token.pos_ in ['CONJ', 'CCONJ', 'SCONJ']]
 
-  if len(conj_pos) > 0:
-    return ABSTAIN
-  else:
+  if len(conj_pos) <= few_con_threshold:
     return SIMPLE
+  else:
+    return ABSTAIN
+
+def few_conjunctions_thres(few_con_threshold, label):
+  return LabelingFunction(
+      name=f"few_conjunctions_thres={few_con_threshold}",
+      f=few_conjunctions,
+      resources=dict(few_mod_threshold=few_con_threshold, label=label),
+      pre=[spacy_nlp]
+  )
 
 # christin: no conditional (if-then) clauses~\cite{arfe}
 @labeling_function(pre=[spacy_nlp], name="no_conditional")
@@ -1945,30 +1864,25 @@ def lf_no_apposition(x):
 
   return SIMPLE
 
-# christin grammatical correctness~\cite{DBLP:journals/tacl/XuCN15}
-@labeling_function(pre=[spacy_nlp], name="no_grammatical_errors")
-def lf_no_grammatical_errors(x):
+# christin grammatical correctness~\cite{DBLP:journals/tacl/XuCN15} (few errors)
+def few_gram_errors(x, few_gram_errors_thres, label):
   matches_us = tool_us.check(x.simp_text)
-  matches_gb = tool_gb.check(x.simp_text)
+  matches_gb = tool_gb.check(x.simp_text) 
 
-  if len(matches_us) == 0 or len(matches_gb) == 0:
+  if len(matches_us) <= few_gram_errors_thres or len(matches_gb) <= few_gram_errors_thres:
     return SIMPLE
+  else:
+    return ABSTAIN
 
-  return ABSTAIN
+def few_gram_errors_thres(few_gram_errors_thres, label):
+  return LabelingFunction(
+      name=f"few_gram_errors_thres={few_gram_errors_thres}",
+      f=few_gram_errors,
+      resources=dict(few_gram_errors_thres=few_gram_errors_thres, label=label),
+      pre=[spacy_nlp]
+  )
 
 # christin: fewer modifiers~\cite{DBLP:conf/acl/NarayanG14}
-#@labeling_function(pre=[spacy_nlp], name="fewer_modifiers")
-#def lf_fewer_modifiers(x):
-#  mods = ['advmod', 'amod', 'nmod', 'npadvmod', 'nummod', 'quantmod']
-
-#  deps_source = [token.dep_ for token in x.source_tokens_data if token.dep_ in mods]
-#  deps_simp = [token.dep_ for token in x.simp_tokens_data if token.dep_ in mods]
-
-#  if len(deps_simp) < len(deps_source):
-#    return SIMPLE
-
-#  return ABSTAIN
-
 # christin: few NOT FEWER modifiers
 def few_modifiers(x, few_mod_threshold, label):
   mods = ['advmod', 'amod', 'nmod', 'npadvmod', 'nummod', 'quantmod']
@@ -2024,82 +1938,84 @@ def get_all_lfs():
 
   word_cnt_lfs_simple = [make_word_cnt_lf(w_cnt, label=SIMPLE) for w_cnt in range(3,15)]
   word_cnt_lfs_complex = [make_word_cnt_lf(w_cnt, label=NOT_SIMPLE) for w_cnt in range(15,30)]
-  avg_concreteness_lfs_simple = [make_avg_conreteness_lf(threshold, label=SIMPLE) for threshold in np.round(np.linspace(2.5,4.5,5), 3)]
-  avg_concreteness_lfs_complex = [make_avg_conreteness_lf(threshold, label=NOT_SIMPLE) for threshold in np.round(np.linspace(1.5,2.5,5), 3)]
-  max_concreteness_lfs_simple = [make_max_conreteness_lf(threshold, label=SIMPLE) for threshold in np.round(np.linspace(3.5,4.5,5), 3)]
-  max_concreteness_lfs_complex = [make_max_conreteness_lf(threshold, label=NOT_SIMPLE) for threshold in np.round(np.linspace(1.5,2.5,5), 3)]
-  median_concreteness_lfs_simple = [make_median_conreteness_lf(threshold, label=SIMPLE) for threshold in np.round(np.linspace(2.5,4.5,5), 3)]
-  median_concreteness_lfs_complex = [make_median_conreteness_lf(threshold, label=NOT_SIMPLE) for threshold in np.round(np.linspace(1.5,2.5,5), 3)]
-  content_word_cnt_lfs_simple = [make_content_words_ratio_lf(ratio_threshold, label=SIMPLE) for ratio_threshold in np.round(np.linspace(0.01,0.3,10), 3)]
-  content_word_cnt_lfs_complex = [make_content_words_ratio_lf(ratio_threshold, label=NOT_SIMPLE) for ratio_threshold in np.round(np.linspace(0.2,0.8,10), 3)]
+  avg_concreteness_lfs_simple = [make_avg_conreteness_lf(threshold, label=SIMPLE) for threshold in [2.5, 2.75, 3, 3.5, 4, 4.5]]
+  avg_concreteness_lfs_complex = [make_avg_conreteness_lf(threshold, label=NOT_SIMPLE) for threshold in [1.5, 1.75, 2, 2.125, 2.25, 2.375, 2.5]]
+  max_concreteness_lfs_simple = [make_max_conreteness_lf(threshold, label=SIMPLE) for threshold in [2.5, 2.75, 3, 3.5, 4, 4.5]]
+  max_concreteness_lfs_complex = [make_max_conreteness_lf(threshold, label=NOT_SIMPLE) for threshold in [1.5, 1.75, 2, 2.125, 2.25, 2.375, 2.5]]
+  median_concreteness_lfs_simple = [make_median_conreteness_lf(threshold, label=SIMPLE) for threshold in [2.5, 2.75, 3, 3.5, 4, 4.5]]
+  median_concreteness_lfs_complex = [make_median_conreteness_lf(threshold, label=NOT_SIMPLE) for threshold in [1.5, 1.75, 2, 2.125, 2.25, 2.375, 2.5]]
+  content_word_cnt_lfs_simple = [make_content_words_ratio_lf(ratio_threshold, label=SIMPLE) for ratio_threshold in [0.01, 0.025, 0.05, 0.075, 0.1, 0.15, 0.2, 0.25, 0.3]]
+  content_word_cnt_lfs_complex = [make_content_words_ratio_lf(ratio_threshold, label=NOT_SIMPLE) for ratio_threshold in [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]]
   infrequent_words_lfs_simple = [make_infrequent_words_lf(p[0], p[1], label=SIMPLE) for p in [(a,b) for a in range(1,3) for b in animals]]
   infrequent_words_lfs_complex = [make_infrequent_words_lf(p[0], p[1], label=NOT_SIMPLE) for p in [(a,b) for a in range(2,6) for b in animals]]
-  avg_aoa_lfs_simple = [make_avg_age_of_acquisition_lf(age, label=SIMPLE) for age in range(4,12)]
-  avg_aoa_lfs_complex = [make_avg_age_of_acquisition_lf(age, label=NOT_SIMPLE) for age in range(8,18)]
-  max_aoa_lfs_simple = [make_max_age_of_acquisition_lf(age, label=SIMPLE) for age in range(6,14)]
-  max_aoa_lfs_complex = [make_max_age_of_acquisition_lf(age, label=NOT_SIMPLE) for age in range(10,20)]
-  median_aoa_lfs_simple = [make_median_age_of_acquisition_lf(age, label=SIMPLE) for age in range(4,12)]
-  median_aoa_lfs_complex = [make_median_age_of_acquisition_lf(age, label=NOT_SIMPLE) for age in range(8,18)]
-  avg_image_lfs_simple = [make_avg_imageability_lf(imageability_threshold, label=SIMPLE) for imageability_threshold in [4.0, 4.2]]
-  avg_image_lfs_complex = [make_avg_imageability_lf(imageability_threshold, label=NOT_SIMPLE) for imageability_threshold in [2.5,2.7]]
-  med_image_lfs_simple = [make_med_imageability_lf(imageability_threshold, label=SIMPLE) for imageability_threshold in [4.0, 4.2]]
-  med_image_lfs_complex = [make_med_imageability_lf(imageability_threshold, label=NOT_SIMPLE) for imageability_threshold in [2.5,2.7]]
-  entity_token_ratio_text_lfs = [make_entity_token_ratio_text_lf(thresh, label=SIMPLE) for thresh in [0, 0.02, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5]]
-  entity_token_ratio_text_lfs_complex = [make_entity_token_ratio_text_lf(thresh, label=NOT_SIMPLE) for thresh in [0.6, 0.7, 0.8, 0.9, 1]]
-  entity_token_ratio_sentence_lfs = [make_entity_token_ratio_sentence_lf(thresh, label=SIMPLE) for thresh in [0, 0.02, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5]]
+  avg_aoa_lfs_simple = [make_avg_age_of_acquisition_lf(age, label=SIMPLE) for age in [4, 4.25, 4.5, 4.75, 5, 5.25, 5.5, 5.75, 6, 7, 8, 9, 10]]
+  avg_aoa_lfs_complex = [make_avg_age_of_acquisition_lf(age, label=NOT_SIMPLE) for age in range(8, 13)]
+  max_aoa_lfs_simple = [make_max_age_of_acquisition_lf(age, label=SIMPLE) for age in range(6, 14)]
+  max_aoa_lfs_complex = [make_max_age_of_acquisition_lf(age, label=NOT_SIMPLE) for age in range(10, 20)]
+  median_aoa_lfs_simple = [make_median_age_of_acquisition_lf(age, label=SIMPLE) for age in [4, 4.25, 4.5, 4.75, 5, 5.25, 5.5, 5.75, 6, 7, 8, 9, 10, 11, 12]]
+  median_aoa_lfs_complex = [make_median_age_of_acquisition_lf(age, label=NOT_SIMPLE) for age in range(8, 13)]
+  avg_image_lfs_simple = [make_avg_imageability_lf(imageability_threshold, label=SIMPLE) for imageability_threshold in [3.5, 3.75, 4.0, 4.25, 4.5]]
+  avg_image_lfs_complex = [make_avg_imageability_lf(imageability_threshold, label=NOT_SIMPLE) for imageability_threshold in [2.5 , 2.75, 3]]
+  med_image_lfs_simple = [make_med_imageability_lf(imageability_threshold, label=SIMPLE) for imageability_threshold in [3.5, 3.75, 4.0, 4.25, 4.5]]
+  med_image_lfs_complex = [make_med_imageability_lf(imageability_threshold, label=NOT_SIMPLE) for imageability_threshold in [2.5 , 2.75, 3]]
+  entity_token_ratio_text_lfs = [make_entity_token_ratio_text_lf(thresh, label=SIMPLE) for thresh in [0, 0.025, 0.05, 0.75, 0.1, 0.125, 0.15, 0.175, 0.2]]
+  entity_token_ratio_text_lfs_complex = [make_entity_token_ratio_text_lf(thresh, label=NOT_SIMPLE) for thresh in [0.2, 0.3, 0.4, 0.5]]
+  entity_token_ratio_sentence_lfs = [make_entity_token_ratio_sentence_lf(thresh, label=SIMPLE) for thresh in [0, 0.0125, 0.025, 0.0375, 0.05, 0.075, 0.1, 0.15, 0.2, 0.25, 0.3, 0.4, 0.5]]
   entity_token_ratio_sentence_lfs_complex = [make_entity_token_ratio_sentence_lf(thresh, label=NOT_SIMPLE) for thresh in [0.6, 0.7, 0.8, 0.9, 1]]
-  entity_token_ratio_paragraph_lfs = [make_entity_token_ratio_paragraph_lf(thresh, label=SIMPLE) for thresh in [0, 0.02, 0.05, 0.1, 0.2, 0.3]]
+  entity_token_ratio_paragraph_lfs = [make_entity_token_ratio_paragraph_lf(thresh, label=SIMPLE) for thresh in [0, 0.025, 0.05, 0.075, 0.1, 0.15, 0.2, 0.25, 0.3]]
   entity_token_ratio_paragraph_lfs_complex = [make_entity_token_ratio_paragraph_lf(thresh, label=NOT_SIMPLE) for thresh in [0.4,0.5, 0.6, 0.7, 0.8, 0.9, 1]]
   num_unique_lemmas_lfs = [make_num_unique_lemmas_lf(thresh, label=SIMPLE) for thresh in [5, 10, 15, 20, 25]]
   num_unique_lemmas_complex = [make_num_unique_lemmas_lf(thresh, label=NOT_SIMPLE) for thresh in [30, 35, 40, 45, 50]]
-  num_unique_lemmas_norm_lfs = [make_num_unique_lemmas_norm_lf(thresh, label=SIMPLE) for thresh in [0.5, 0.6, 0.7, 0.8, 0.9]]
+  num_unique_lemmas_norm_lfs = [make_num_unique_lemmas_norm_lf(thresh, label=SIMPLE) for thresh in [0.5, 0.6, 0.7, 0.75, 0.8, 0.85, 0.9]]
   num_unique_lemmas_norm_complex = [make_num_unique_lemmas_norm_lf(thresh, label=NOT_SIMPLE) for thresh in [0.5, 0.6, 0.7, 0.8, 0.9]]
-  avg_depth_of_syntactic_tree_lfs = [make_depth_of_syntactic_tree_lf(thresh, label=SIMPLE) for thresh in [1, 2, 3, 4]]
-  avg_depth_of_syntactic_tree_complex = [make_depth_of_syntactic_tree_lf(thresh, label=NOT_SIMPLE) for thresh in [5, 6, 7, 8, 9, 10, 11, 12]]
+  avg_depth_of_syntactic_tree_lfs = [make_depth_of_syntactic_tree_lf(thresh, label=SIMPLE) for thresh in [1, 2, 3, 4, 5]]
+  avg_depth_of_syntactic_tree_complex = [make_depth_of_syntactic_tree_lf(thresh, label=NOT_SIMPLE) for thresh in [10, 11, 12]]
   avg_num_punctuation_text_lfs = [make_avg_num_punctuation_text_lf(thresh, label=SIMPLE) for thresh in [1, 1.2, 1.5, 2, 2.5]]
   avg_num_punctuation_text_lfs_complex = [make_avg_num_punctuation_text_lf(thresh, label=NOT_SIMPLE) for thresh in [2.5, 3, 4]]
   unique_entities_text_lfs = [make_unique_entities_text_lf(thresh, label=SIMPLE) for thresh in [0, 1, 2, 3]]
   unique_entities_text_lfs_complex = [make_unique_entities_text_lf(thresh, label=NOT_SIMPLE) for thresh in [4, 5, 6, 7, 8, 9, 10]]
-  average_entities_sentence_lfs = [make_average_entities_sentence_lf(thresh, label=SIMPLE) for thresh in [0.2, 0.5, 1, 2, 3]]
+  average_entities_sentence_lfs = [make_average_entities_sentence_lf(thresh, label=SIMPLE) for thresh in [0.2, 0.5, 0.75, 1, 1.5, 2, 2.5, 3]]
   average_entities_sentence_lfs_complex = [make_average_entities_sentence_lf(thresh, label=NOT_SIMPLE) for thresh in [4, 5, 6, 7, 8, 9, 10]]
-  average_entities_paragraph_lfs = [make_average_entities_paragraph_lf(thresh, label=SIMPLE) for thresh in [0, 1, 2, 3, 4]]
+  average_entities_paragraph_lfs = [make_average_entities_paragraph_lf(thresh, label=SIMPLE) for thresh in [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4]]
   average_entities_paragraph_lfs_complex = [make_average_entities_paragraph_lf(thresh, label=NOT_SIMPLE) for thresh in [ 3, 4, 5, 6, 7, 8, 9, 10]]
   unique_entity_total_entity_ratio_text_lfs = [make_unique_entity_total_entity_ratio_text_lf(thresh, label=SIMPLE) for thresh in [0, 0.01, 0.02, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]]
-  unique_entity_total_entity_ratio_text_lfs_complex = [make_unique_entity_total_entity_ratio_text_lf(thresh, label=NOT_SIMPLE) for thresh in [0.9, 1]]
+  unique_entity_total_entity_ratio_text_lfs_complex = [make_unique_entity_total_entity_ratio_text_lf(thresh, label=NOT_SIMPLE) for thresh in [0.8, 0.85, 0.9, 0.95, 1]]
   unique_entity_total_entity_ratio_sentence_lfs = [make_unique_entity_total_entity_ratio_sentence_lf(thresh, label=SIMPLE) for thresh in [0, 0.02, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6]]
   unique_entity_total_entity_ratio_sentence_lfs_complex = [make_unique_entity_total_entity_ratio_sentence_lf(thresh, label=NOT_SIMPLE) for thresh in [0.6, 0.7, 0.8, 0.9, 1]]
   unique_entity_total_entity_ratio_paragraph_lfs = [make_unique_entity_total_entity_ratio_paragraph_lf(thresh, label=SIMPLE) for thresh in [0, 0.02, 0.05, 0.1, 0.2, 0.3, 0.4,0.5, 0.6,]]
   unique_entity_total_entity_ratio_paragraph_lfs_complex = [make_unique_entity_total_entity_ratio_paragraph_lf(thresh, label=NOT_SIMPLE) for thresh in [ 0.7, 0.8, 0.9, 1]]
   no_relative_clauses_lfs = [make_no_relative_clauses_lf(thresh, label=SIMPLE) for thresh in [0, 1, 2, 3]]
   no_relative_sub_clauses_lfs = [make_no_relative_sub_clauses_lf(thresh, label=SIMPLE) for thresh in [0, 1, 2, 3]]
-  few_anaphors_lfs = [make_few_anaphors_lf(thresh, label=SIMPLE) for thresh in [0, 1]]
-  distance_appearance_same_entities_paragraph_lfs = [make_distance_appearance_same_entities_paragraph_lf(thresh_distance, thresh_number, label=SIMPLE) for thresh_distance in [1, 2, 3] for thresh_number in [1,2,3]]
+  few_anaphors_lfs = [make_few_anaphors_lf(thresh, label=SIMPLE) for thresh in [0, 1, 2, 3]]
+  distance_appearance_same_entities_paragraph_lfs = [make_distance_appearance_same_entities_paragraph_lf(thresh_distance, thresh_number, label=SIMPLE) for thresh_distance in [1, 2, 3] for thresh_number in [0, 1,2,3]]
   avarage_distance_appearance_same_entities_paragraph_lfs = [make_average_distance_appearance_same_entities_paragraph_lf(thresh, label=SIMPLE) for thresh in [0.2, 0.5, 1, 2, 3, 4 ]]
   avarage_distance_appearance_same_entities_sentence_lfs = [make_average_distance_appearance_same_entities_sentence_lf(thresh, label=SIMPLE) for thresh in [ 0.2, 0.5, 1, 2, 3, 4, 5 ]]
-  distance_appearance_same_entities_sentence_lfs = [make_distance_appearance_same_entities_sentence_lf(thresh_distance, thresh_number, label=SIMPLE) for thresh_distance in [1, 2, 3] for thresh_number in [1,2,3]]
+  distance_appearance_same_entities_sentence_lfs = [make_distance_appearance_same_entities_sentence_lf(thresh_distance, thresh_number, label=SIMPLE) for thresh_distance in [1, 2, 3] for thresh_number in [0, 1,2,3]]
   avarage_distance_entities_sentence_consec_lfs = [make_avarage_distance_entities_lf(thresh, scope="sent", same_or_consecutive="consec", label=SIMPLE) for thresh in [1,2,4,6,10]]
   avarage_distance_entities_sentence_same_lfs = [make_avarage_distance_entities_lf(thresh, scope="sent", same_or_consecutive="same", label=SIMPLE) for thresh in [1,2,4,6, 10]]
   avarage_distance_entities_paragraph_consec_lfs = [make_avarage_distance_entities_lf(thresh, scope="para", same_or_consecutive="consec", label=SIMPLE) for thresh in [2,4,8,16,32]]
   avarage_distance_entities_paragraph_same_lfs = [make_avarage_distance_entities_lf(thresh, scope="para", same_or_consecutive="same", label=SIMPLE) for thresh in [2,4,8,16,32]]
-  lfs_proportions_of_long_words_syllables_simple = [low_proportion_of_long_words_syllables(long_length, proportion, label=SIMPLE) for long_length in (2, 3, 4) for proportion in (0.05, 0.1, 0.15, 0.2, 0.25)]
-  lfs_proportions_of_long_words_letters_simple = [low_proportion_of_long_words_letters(long_length, proportion, label=SIMPLE) for long_length in (5, 6, 7, 8, 9) for proportion in (0.05, 0.1, 0.15, 0.2, 0.25)]
+  lfs_proportions_of_long_words_syllables_simple = [low_proportion_of_long_words_syllables(long_length, proportion, label=SIMPLE) for long_length in (2, 3, 4) for proportion in (0.01, 0.025, 0.05, 0.075, 0.1, 0.15, 0.2, 0.225, 0.25)]
+  lfs_proportions_of_long_words_letters_simple = [low_proportion_of_long_words_letters(long_length, proportion, label=SIMPLE) for long_length in (5, 6, 7, 8, 9) for proportion in (0.01, 0.025, 0.05, 0.075, 0.1, 0.15, 0.2, 0.225, 0.25)]
   lfs_low_fkg_simple = [low_Flesch_Kincaid_grade_level(fkg_threshold, label=SIMPLE) for fkg_threshold in (5, 6, 7, 8, 9)]
   lfs_high_fkre_simple = [high_Flesch_Kincaid_reading_ease(fkre_threshold, label=SIMPLE) for fkre_threshold in (100, 90, 80, 70, 60)]
   lfs_avg_Levenshtein = [low_avg_Levenshtein(lev_threshold, label=SIMPLE) for lev_threshold in (0.1, 0.2, 0.3, 0.4, 0.5)]
-  lfs_low_length_sents_max = [low_length_sents_max_thres(length_sent_threshold, label=SIMPLE) for length_sent_threshold in (10, 15, 20)]
-  lfs_low_length_sents_avg = [low_length_sents_avg_thres(length_sent_threshold, label=SIMPLE) for length_sent_threshold in (10, 15, 20, 25)]
-  lfs_low_sents_num = [low_sents_num_thres(sent_num_threshold, label=SIMPLE) for sent_num_threshold in (1, 2, 3, 4, 5)]
-  lfs_few_modifiers = [few_modifiers_thres(few_mod_threshold, label=SIMPLE) for few_mod_threshold in (0, 1, 2, 3, 4, 5)]
-  lfs_few_noun_phrases = [few_noun_phrases_thres(noun_phrase_thres, label=SIMPLE) for noun_phrase_thres in (0, 1, 2, 3, 4, 5)]
-  ratio_academic_word_list_lfs = [make_ratio_academic_word_list_lf(thresh, label=SIMPLE) for thresh in [0, 0.01, 0.02, 0.03, 0.05, 0.08, 0.13]]
+  lfs_low_length_sents_max = [low_length_sents_max_thres(length_sent_threshold, label=SIMPLE) for length_sent_threshold in (10, 12, 15, 17, 20)]
+  lfs_low_length_sents_avg = [low_length_sents_avg_thres(length_sent_threshold, label=SIMPLE) for length_sent_threshold in (10, 12, 15, 17, 20, 22, 25)]
+  lfs_low_sents_num = [low_sents_num_thres(sent_num_threshold, label=SIMPLE) for sent_num_threshold in (1, 2, 3, 4, 5, 6, 7, 8)]
+  lfs_few_modifiers = [few_modifiers_thres(few_mod_threshold, label=SIMPLE) for few_mod_threshold in (0, 1, 2, 3, 4, 5, 6, 7, 8)]
+  lfs_few_noun_phrases = [few_noun_phrases_thres(noun_phrase_thres, label=SIMPLE) for noun_phrase_thres in (0, 1, 2, 3, 4, 5, 6, 7, 8)]
+  lfs_few_conjunctions = [few_conjunctions(few_con_threshold, label=SIMPLE) for few_con_threshold in [0, 1, 2, 3, 4]]
+  lfs_few_gram_errors = [few_gram_errors(thresh, label=SIMPLE) for thresh in [0, 1, 2]]
+  ratio_academic_word_list_lfs = [make_ratio_academic_word_list_lf(thresh, label=SIMPLE) for thresh in [0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.1, 0.13]]
   ratio_academic_word_list_complex_lfs = [make_ratio_academic_word_list_lf(thresh, label=NOT_SIMPLE) for thresh in [0.14, 0.19, 0.25]]
-  avg_num_words_before_main_verb_lfs = [make_avg_num_words_before_main_verb_lf(thresh, label=SIMPLE) for thresh in [1, 2, 3, 4, 6, 8]]
+  avg_num_words_before_main_verb_lfs = [make_avg_num_words_before_main_verb_lf(thresh, label=SIMPLE) for thresh in [1, 2, 3, 4, 5, 6, 7, 8, 9]]
   avg_num_words_before_main_verb_complex_lfs = [make_avg_num_words_before_main_verb_lf(thresh, label=NOT_SIMPLE) for thresh in [10, 12, 15]]
-  perc_past_perfect_lfs = [make_perc_past_perfect_lf(thresh, label=SIMPLE) for thresh in [0, 0.1, 0.2, 0.4, 0.6, 0.8]]
+  perc_past_perfect_lfs = [make_perc_past_perfect_lf(thresh, label=SIMPLE) for thresh in [0, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]]
   perc_past_perfect_complex_lfs = [make_perc_past_perfect_lf(thresh, label=NOT_SIMPLE) for thresh in [0.6, 0.8, 1]]
   num_past_perfect_lfs = [make_num_past_perfect_lf(thresh, label=SIMPLE) for thresh in [0, 1, 2, 3, 4]]
   num_past_perfect_complex_lfs = [make_num_past_perfect_lf(thresh, label=NOT_SIMPLE) for thresh in [5, 6, 7, 8, 12, 15]]
-  perc_past_tense_lfs = [make_perc_past_tense_lf(thresh, label=SIMPLE) for thresh in [0, 0.1, 0.2, 0.4, 0.6, 0.8]]
+  perc_past_tense_lfs = [make_perc_past_tense_lf(thresh, label=SIMPLE) for thresh in [0, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]]
   perc_past_tense_complex_lfs = [make_perc_past_tense_lf(thresh, label=NOT_SIMPLE) for thresh in [0.6, 0.8, 1]]
   num_past_tense_lfs = [make_num_past_tense_lf(thresh, label=SIMPLE) for thresh in [0, 1, 2, 3, 4]]
   num_past_tense_complex_lfs = [make_num_past_tense_lf(thresh, label=NOT_SIMPLE) for thresh in [5, 6, 7, 8, 12, 15]]
@@ -2107,11 +2023,11 @@ def get_all_lfs():
   freq_third_person_singular_pronouns_lfs_complex = [make_freq_third_person_singular_pronouns_lf(thresh, label=NOT_SIMPLE) for thresh in [1, 2, 3, 4, 5]]
   freq_negations_lfs = [make_freq_negations_lf(thresh, label=SIMPLE) for thresh in [0, 1, 2]]
   freq_negations_lfs_complex = [make_freq_negations_lf(thresh, label=NOT_SIMPLE) for thresh in [1, 2, 3, 4, 5]]
-  freq_nominalisations_lfs = [make_freq_nominalisations_lf(thresh, label=SIMPLE) for thresh in [0, 1, 2]]
+  freq_nominalisations_lfs = [make_freq_nominalisations_lf(thresh, label=SIMPLE) for thresh in [0, 1, 2, 3, 4]]
   freq_nominalisations_lfs_complex = [make_freq_nominalisations_lf(thresh, label=NOT_SIMPLE) for thresh in [1, 2, 3, 4, 5]]
-  perc_more_than_8_characters_lfs = [make_perc_more_than_8_characters_lf(thresh, label=SIMPLE) for thresh in [0, 0.02, 0.05, 0.1, 0.2, 0.3]]
+  perc_more_than_8_characters_lfs = [make_perc_more_than_8_characters_lf(thresh, label=SIMPLE) for thresh in [0, 0.02, 0.05, 0.075, 0.1, 0.125, 0.15, 0.175, 0.2, 0.3]]
   perc_more_than_8_characters_complex_lfs = [make_perc_more_than_8_characters_lf(thresh, label=NOT_SIMPLE) for thresh in [0.25, 0.3, 4]]
-  perc_vocab_initial_forLang_learn_lfs = [make_perc_vocab_initial_forLang_learn_lf(thresh, label=SIMPLE) for thresh in [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]]
+  perc_vocab_initial_forLang_learn_lfs = [make_perc_vocab_initial_forLang_learn_lf(thresh, label=SIMPLE) for thresh in [0.3, 0.4, 0.425, 0.45, 0.475, 0.5, 0.6, 0.7, 0.8, 0.9, 1]]
   perc_vocab_initial_forLang_learn_lfs_complex = [make_perc_vocab_initial_forLang_learn_lf(thresh, label=NOT_SIMPLE) for thresh in [0.6, 0.7, 0.8, 0.9, 1]]
 
 
@@ -2126,7 +2042,7 @@ def get_all_lfs():
             max_concreteness_lfs_complex + avg_concreteness_lfs_simple + avg_concreteness_lfs_complex + unique_entity_total_entity_ratio_paragraph_lfs + \
             unique_entity_total_entity_ratio_sentence_lfs + unique_entity_total_entity_ratio_text_lfs + average_entities_paragraph_lfs + average_entities_sentence_lfs + \
             unique_entities_text_lfs + entity_token_ratio_paragraph_lfs + entity_token_ratio_sentence_lfs + lfs_low_length_sents_max + lfs_low_length_sents_avg + lfs_low_sents_num + \
-            [lf_no_conjunctions] + [lf_no_conditional] + [lf_no_apposition] + [lf_no_grammatical_errors] + distance_appearance_same_entities_paragraph_lfs + \
+            [lf_no_conditional] + [lf_no_apposition] + distance_appearance_same_entities_paragraph_lfs + \
             lfs_few_modifiers + distance_appearance_same_entities_sentence_lfs + avarage_distance_appearance_same_entities_sentence_lfs + \
             lfs_few_noun_phrases + avg_image_lfs_simple + avg_image_lfs_complex + med_image_lfs_simple + med_image_lfs_complex +avarage_distance_entities_sentence_consec_lfs +\
             avarage_distance_entities_sentence_same_lfs+ avarage_distance_entities_paragraph_consec_lfs + avarage_distance_entities_paragraph_same_lfs + \
@@ -2140,5 +2056,5 @@ def get_all_lfs():
             num_past_perfect_lfs + num_past_perfect_complex_lfs + perc_past_tense_lfs + perc_past_tense_complex_lfs + num_past_tense_lfs + num_past_tense_complex_lfs +\
             freq_third_person_singular_pronouns_lfs + freq_third_person_singular_pronouns_lfs_complex + freq_negations_lfs + freq_negations_lfs_complex +\
             freq_nominalisations_lfs + freq_nominalisations_lfs_complex + perc_more_than_8_characters_lfs + perc_more_than_8_characters_complex_lfs +\
-            perc_vocab_initial_forLang_learn_lfs + perc_vocab_initial_forLang_learn_lfs_complex
+            perc_vocab_initial_forLang_learn_lfs + perc_vocab_initial_forLang_learn_lfs_complex + lfs_few_conjunctions + lfs_few_gram_errors
   return all_lfs
