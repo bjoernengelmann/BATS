@@ -107,10 +107,10 @@ def load_simpeval_ds():
   # https://github.com/Yao-Dou/LENS/
 
     simpeval_path = path_to_datasets + 'simpeval'
-    simpeval_files = sorted(glob.glob(f"{simpeval_path}/LENS/data/*"))
-
     src_simp = {}
 
+    # only the non-simpeval-part of the dataset contains meaning preservation ratings, 
+    # the other part does only contain ratings on the simplification
     for f in ['simpDA_2022.csv', 'simplikert_2022.csv']:
         simpeval_df = pd.read_csv(simpeval_path + '/LENS/data/' + f, encoding='latin1', header=0)
 
@@ -123,27 +123,10 @@ def load_simpeval_ds():
             if comb not in src_simp:
                 src_simp[comb] = []
             
-            src_simp[comb].append(row['Answer.adequacy'])
-
-    for f in ['simpeval_2022.csv', 'simpeval_past.csv']:
-        simpeval_df = pd.read_csv(simpeval_path + '/LENS/data/' + f, encoding='latin1', header=0)
-
-        input_col = 'original'
-
-        if 'processed_generation' in simpeval_df.columns:
-            simplified_col = 'processed_generation'
-        else:
-            simplified_col = 'generation'
-
-        for index, row in simpeval_df.iterrows():
-            
-            comb = str(row[input_col]) + '$$$$$' + str(row[simplified_col])
-            if comb not in src_simp:
-                src_simp[comb] = []
-
-            for col in simpeval_df.columns:
-                if len(col) == 8 and col[:7] == 'rating_':
-                    src_simp[comb].append(row[col])
+            if f == 'simpDA_2022.csv':
+                src_simp[comb].append(row['Answer.adequacy'])
+            else:
+                src_simp[comb].append((row['Answer.adequacy'] - 1) * 25) # 5 point likert scale from 1 to 5 -> 0...100
 
     src = []
     simp = []
