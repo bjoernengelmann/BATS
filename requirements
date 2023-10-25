@@ -19,4 +19,5 @@ bert-score==0.3.13
 beautifulsoup4==4.12.2
 qanom==0.0.33
 itables==1.6.2
+lxml==4.9.3
 

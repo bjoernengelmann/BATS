@@ -1368,6 +1368,8 @@ def load_simpeval_ds():
       origin = []
       duplicated = []
 
+      all_combs = set()
+
       for simpeval_file in simpeval_files:
         simpeval_df = pd.read_csv(simpeval_file, encoding='latin1', header=0)
     
@@ -1382,36 +1384,40 @@ def load_simpeval_ds():
           simplified_col = 'generation'
 
         for index, row in simpeval_df.iterrows():
+          comb = str(row[input_col]) + '$$$$$' + str(row[simplified_col])
 
-          if len(src_ids) == 0 or src[-1] != row[input_col]:
-            if len(src_ids) == 0:
-              src_ids.append(0)
-            else:
-              src_ids.append(src_ids[-1] + 1)
-            src.append(str(row[input_col]))
+          if comb not in all_combs:
+            all_combs.add(comb)
 
-            simp_ids.append(len(simp_ids))
-            simp.append(str(row[simplified_col]))
+            if len(src_ids) == 0 or src[-1] != row[input_col]:
+              if len(src_ids) == 0:
+                src_ids.append(0)
+              else:
+                src_ids.append(src_ids[-1] + 1)
+              src.append(str(row[input_col]))
 
-            origin.append(str(simpeval_file[len(simpeval_path + '/LENS/data/'):-4]))
+              simp_ids.append(len(simp_ids))
+              simp.append(str(row[simplified_col]))
 
-            if row[input_col] != row[simplified_col]:
-              duplicated.append(False)
-            else:
-              duplicated.append(True)
-          elif src[-1] == row[input_col] and simp[-1] != row[simplified_col]:
-            src_ids.append(src_ids[-1])
-            src.append(str(row[input_col]))
+              origin.append(str(simpeval_file[len(simpeval_path + '/LENS/data/'):-4]))
 
-            simp_ids.append(len(simp_ids))
-            simp.append(str(row[simplified_col]))
+              if row[input_col] != row[simplified_col]:
+                duplicated.append(False)
+              else:
+                duplicated.append(True)
+            elif src[-1] == row[input_col] and simp[-1] != row[simplified_col]:
+              src_ids.append(src_ids[-1])
+              src.append(str(row[input_col]))
 
-            origin.append(str(simpeval_file[len(simpeval_path + '/LENS/data/'):-4]))
-          
-            if row[input_col] != row[simplified_col]:
-              duplicated.append(False)
-            else:
-              duplicated.append(True)
+              simp_ids.append(len(simp_ids))
+              simp.append(str(row[simplified_col]))
+
+              origin.append(str(simpeval_file[len(simpeval_path + '/LENS/data/'):-4]))
+            
+              if row[input_col] != row[simplified_col]:
+                duplicated.append(False)
+              else:
+                duplicated.append(True)
 
       full_data = {'ds_id': 'SimpEval_22', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'origin': origin, 'granularity': 'sentence', 'duplicated': duplicated}
       simpeval_dataset = pd.DataFrame(data = full_data)
