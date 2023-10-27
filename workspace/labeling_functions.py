@@ -2005,8 +2005,8 @@ def get_all_lfs():
   lfs_low_sents_num = [low_sents_num_thres(sent_num_threshold, label=SIMPLE) for sent_num_threshold in (1, 2, 3, 4, 5, 6, 7, 8)]
   lfs_few_modifiers = [few_modifiers_thres(few_mod_threshold, label=SIMPLE) for few_mod_threshold in (0, 1, 2, 3, 4, 5, 6, 7, 8)]
   lfs_few_noun_phrases = [few_noun_phrases_thres(noun_phrase_thres, label=SIMPLE) for noun_phrase_thres in (0, 1, 2, 3, 4, 5, 6, 7, 8)]
-  lfs_few_conjunctions = [few_conjunctions(few_con_threshold, label=SIMPLE) for few_con_threshold in [0, 1, 2, 3, 4]]
-  lfs_few_gram_errors = [few_gram_errors(thresh, label=SIMPLE) for thresh in [0, 1, 2]]
+  #lfs_few_conjunctions = [few_conjunctions(few_con_threshold, label=SIMPLE) for few_con_threshold in [0, 1, 2, 3, 4]]
+  #lfs_few_gram_errors = [few_gram_errors(thresh, label=SIMPLE) for thresh in [0, 1, 2]]
   ratio_academic_word_list_lfs = [make_ratio_academic_word_list_lf(thresh, label=SIMPLE) for thresh in [0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.1, 0.13]]
   ratio_academic_word_list_complex_lfs = [make_ratio_academic_word_list_lf(thresh, label=NOT_SIMPLE) for thresh in [0.14, 0.19, 0.25]]
   avg_num_words_before_main_verb_lfs = [make_avg_num_words_before_main_verb_lf(thresh, label=SIMPLE) for thresh in [1, 2, 3, 4, 5, 6, 7, 8, 9]]
@@ -2033,7 +2033,9 @@ def get_all_lfs():
 
   
   # [lf_fewer_modifiers] temp out
+  # lfs_few_conjunctions  doesnt work
   #lfs_avg_Levenshtein out because its not ref free
+  #lfs_few_gram_errors doesnt work
 
 
   all_lfs = word_cnt_lfs_simple + word_cnt_lfs_complex + infrequent_words_lfs_simple + infrequent_words_lfs_complex + entity_token_ratio_text_lfs + \
@@ -2057,5 +2059,5 @@ def get_all_lfs():
             num_past_perfect_lfs + num_past_perfect_complex_lfs + perc_past_tense_lfs + perc_past_tense_complex_lfs + num_past_tense_lfs + num_past_tense_complex_lfs +\
             freq_third_person_singular_pronouns_lfs + freq_third_person_singular_pronouns_lfs_complex + freq_negations_lfs + freq_negations_lfs_complex +\
             freq_nominalisations_lfs + freq_nominalisations_lfs_complex + perc_more_than_8_characters_lfs + perc_more_than_8_characters_complex_lfs +\
-            perc_vocab_initial_forLang_learn_lfs + perc_vocab_initial_forLang_learn_lfs_complex + lfs_few_conjunctions + lfs_few_gram_errors
+            perc_vocab_initial_forLang_learn_lfs + perc_vocab_initial_forLang_learn_lfs_complex 
   return all_lfs
