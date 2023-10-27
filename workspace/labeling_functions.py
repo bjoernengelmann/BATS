@@ -1999,7 +1999,7 @@ def get_all_lfs():
   lfs_proportions_of_long_words_letters_simple = [low_proportion_of_long_words_letters(long_length, proportion, label=SIMPLE) for long_length in (5, 6, 7, 8, 9) for proportion in (0.01, 0.025, 0.05, 0.075, 0.1, 0.15, 0.2, 0.225, 0.25)]
   lfs_low_fkg_simple = [low_Flesch_Kincaid_grade_level(fkg_threshold, label=SIMPLE) for fkg_threshold in (5, 6, 7, 8, 9)]
   lfs_high_fkre_simple = [high_Flesch_Kincaid_reading_ease(fkre_threshold, label=SIMPLE) for fkre_threshold in (100, 90, 80, 70, 60)]
-  lfs_avg_Levenshtein = [low_avg_Levenshtein(lev_threshold, label=SIMPLE) for lev_threshold in (0.1, 0.2, 0.3, 0.4, 0.5)]
+  #lfs_avg_Levenshtein = [low_avg_Levenshtein(lev_threshold, label=SIMPLE) for lev_threshold in (0.1, 0.2, 0.3, 0.4, 0.5)]
   lfs_low_length_sents_max = [low_length_sents_max_thres(length_sent_threshold, label=SIMPLE) for length_sent_threshold in (10, 12, 15, 17, 20)]
   lfs_low_length_sents_avg = [low_length_sents_avg_thres(length_sent_threshold, label=SIMPLE) for length_sent_threshold in (10, 12, 15, 17, 20, 22, 25)]
   lfs_low_sents_num = [low_sents_num_thres(sent_num_threshold, label=SIMPLE) for sent_num_threshold in (1, 2, 3, 4, 5, 6, 7, 8)]
@@ -2033,11 +2033,12 @@ def get_all_lfs():
 
   
   # [lf_fewer_modifiers] temp out
+  #lfs_avg_Levenshtein out because its not ref free
 
 
   all_lfs = word_cnt_lfs_simple + word_cnt_lfs_complex + infrequent_words_lfs_simple + infrequent_words_lfs_complex + entity_token_ratio_text_lfs + \
             entity_token_ratio_text_lfs_complex + lfs_proportions_of_long_words_syllables_simple + lfs_proportions_of_long_words_letters_simple + lfs_low_fkg_simple + \
-            lfs_high_fkre_simple + [lf_no_passive_voice] + lfs_avg_Levenshtein + median_aoa_lfs_simple + median_aoa_lfs_complex + max_aoa_lfs_simple + \
+            lfs_high_fkre_simple + [lf_no_passive_voice]  + median_aoa_lfs_simple + median_aoa_lfs_complex + max_aoa_lfs_simple + \
             max_aoa_lfs_complex + avg_aoa_lfs_simple + avg_aoa_lfs_complex + median_concreteness_lfs_complex + max_concreteness_lfs_simple + \
             max_concreteness_lfs_complex + avg_concreteness_lfs_simple + avg_concreteness_lfs_complex + unique_entity_total_entity_ratio_paragraph_lfs + \
             unique_entity_total_entity_ratio_sentence_lfs + unique_entity_total_entity_ratio_text_lfs + average_entities_paragraph_lfs + average_entities_sentence_lfs + \
