@@ -1616,7 +1616,7 @@ def load_wikiauto_ds():
 def load_wikimanual_ds():
   # Wiki-Manual dataset, aligned, non-duplicates
   # https://github.com/chaojiang06/wiki-auto
-  # and https://www.dropbox.com/sh/ohqaw41v48c7e5p/AACdl4UPKtu7CMMa-CJhz4G7a/wiki-manual/train.tsv?dl=0 (to download manually)
+  # and https://www.dropbox.com/sh/ohqaw41v48c7e5p/AACdl4UPKtu7CMMa-CJhz4G7a/wiki-manual/train.tsv?dl=0 (to download manually and put into datasets folder)
 
   if not os.path.isfile(path_to_datasets + 'wikimanual/wikimanual.pkl'):
     wikimanual_path = path_to_datasets + 'wikimanual'
@@ -1986,7 +1986,7 @@ def load_rnd_st_ds():
 
 def add_global_index(df):
   df['index'] = df.apply(lambda row: f"{row['ds_id']}__{row['src_id']}__{row['simp_id']}", axis=1)
-  with open("/workspace/datasets/final_combined2.pkl", "wb") as out_f:
+  with open("/workspace/datasets/final_combined_with_index.pkl", "wb") as out_f:
         pickle.dump(df, out_f)
 
   return df
