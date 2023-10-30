@@ -482,6 +482,9 @@ def make_med_imageability_lf(imageability_threshold, label=SIMPLE):
 
 # frequency of nominalisations~\cite{textevaluator}, implemented with~\citet{klein2020qanom}
 def freq_nominalisations(x, thresh, label):
+
+  return ABSTAIN
+
   countElements = len(nom_detector(x.simplified_snt, threshold=0.75, return_probability=False))
   
   if label == SIMPLE:
@@ -1246,6 +1249,8 @@ def make_no_relative_sub_clauses_lf(thresh, label=SIMPLE):
 
 # Fabian: no anaphors for people with language problems~\cite{arfe}
 def few_anaphors(x, thresh, label):
+
+  return ABSTAIN
 
   with warnings.catch_warnings():
     warnings.simplefilter("ignore")
