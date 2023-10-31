@@ -170,6 +170,7 @@ def words_per_sentence(x, w_cnt, label):
         return label
       else:
         return ABSTAIN
+      
 # bjoern: few words per sentence~\cite{simpa}
 def make_word_cnt_lf(w_cnt, label=SIMPLE):
 
@@ -309,7 +310,6 @@ def infrequent_words(x, infrequent_threshold, animal, label):
   animal_threshold = word_frequency(animal, 'en')
   infrequent_cnt = len([word for word in x.simp_tokens if word_frequency(word, 'en') < animal_threshold])
 
-
   if label == SIMPLE:
       if infrequent_cnt <= infrequent_threshold:
         return label
@@ -325,6 +325,31 @@ def make_infrequent_words_lf(infrequent_threshold, animal, label=SIMPLE):
 
     return LabelingFunction(
         name=f"lf_infrequent_words_cnt={infrequent_threshold}_{animal}_{label_map[label]}",
+        f=infrequent_words,
+        resources=dict(infrequent_threshold=infrequent_threshold, animal=animal, label=label),
+        pre=[spacy_nlp]
+    )
+
+# bjoern (and C) : few infrequent words~\cite{DBLP:conf/coling/StajnerH18} (per sentence)
+def infrequent_words_per_sentence(x, infrequent_threshold, animal, label):
+  animal_threshold = word_frequency(animal, 'en')
+  infrequent_cnt = len([word for word in x.simp_tokens if word_frequency(word, 'en') < animal_threshold])/len(x.simp_sentences)
+
+  if label == SIMPLE:
+      if infrequent_cnt <= infrequent_threshold:
+        return label
+      else:
+        return ABSTAIN
+  else:
+    if infrequent_cnt > infrequent_threshold:
+      return label
+    else:
+      return ABSTAIN
+
+def make_infrequent_words_per_sentence_lf(infrequent_threshold, animal, label=SIMPLE):
+
+    return LabelingFunction(
+        name=f"lf_infrequent_words_per_sentence={infrequent_threshold}_{animal}_{label_map[label]}",
         f=infrequent_words,
         resources=dict(infrequent_threshold=infrequent_threshold, animal=animal, label=label),
         pre=[spacy_nlp]
@@ -1953,6 +1978,8 @@ def get_all_lfs():
   content_word_cnt_lfs_complex = [make_content_words_ratio_lf(ratio_threshold, label=NOT_SIMPLE) for ratio_threshold in [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]]
   infrequent_words_lfs_simple = [make_infrequent_words_lf(p[0], p[1], label=SIMPLE) for p in [(a,b) for a in range(1,3) for b in animals]]
   infrequent_words_lfs_complex = [make_infrequent_words_lf(p[0], p[1], label=NOT_SIMPLE) for p in [(a,b) for a in range(2,6) for b in animals]]
+  infrequent_words_per_sentence_lfs_simple = [make_infrequent_words_per_sentence_lf(p[0], p[1], label=SIMPLE) for p in [(a,b) for a in range(1,3) for b in animals]]
+  infrequent_words_per_sentence_lfs_complex = [make_infrequent_words_per_sentence_lf(p[0], p[1], label=NOT_SIMPLE) for p in [(a,b) for a in range(2,6) for b in animals]]
   avg_aoa_lfs_simple = [make_avg_age_of_acquisition_lf(age, label=SIMPLE) for age in [4, 4.25, 4.5, 4.75, 5, 5.25, 5.5, 5.75, 6, 7, 8, 9, 10]]
   avg_aoa_lfs_complex = [make_avg_age_of_acquisition_lf(age, label=NOT_SIMPLE) for age in range(8, 13)]
   max_aoa_lfs_simple = [make_max_age_of_acquisition_lf(age, label=SIMPLE) for age in range(6, 14)]
@@ -2064,5 +2091,5 @@ def get_all_lfs():
             num_past_perfect_lfs + num_past_perfect_complex_lfs + perc_past_tense_lfs + perc_past_tense_complex_lfs + num_past_tense_lfs + num_past_tense_complex_lfs +\
             freq_third_person_singular_pronouns_lfs + freq_third_person_singular_pronouns_lfs_complex + freq_negations_lfs + freq_negations_lfs_complex +\
             freq_nominalisations_lfs + freq_nominalisations_lfs_complex + perc_more_than_8_characters_lfs + perc_more_than_8_characters_complex_lfs +\
-            perc_vocab_initial_forLang_learn_lfs + perc_vocab_initial_forLang_learn_lfs_complex 
+            perc_vocab_initial_forLang_learn_lfs + perc_vocab_initial_forLang_learn_lfs_complex + infrequent_words_per_sentence_lfs_simple + infrequent_words_per_sentence_lfs_complex
   return all_lfs
