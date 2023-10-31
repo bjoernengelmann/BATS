@@ -1090,7 +1090,7 @@ def unique_entity_total_entity_ratio_text(x, thresh, label):
   if len(x.simp_entities)>0:
     ratio = len(set(x.simp_entities))/len(x.simp_entities)
   else:
-    ratio = 1
+    ratio = 0
 
   if label == SIMPLE:
       if ratio <= thresh:
@@ -1131,14 +1131,14 @@ def unique_entity_total_entity_ratio_sentence(x, thresh, label):
     for sentence in x.simp_doc.sents:
       entities = entities_in_list_of_tokens(sentence)
       if len(entities) == 0:
-        ratios.append(1)
+        ratios.append(0)
       else:
         ratios.append(len(set(entities))/len(entities))
 
     if len(ratios) > 0:
       avg_ratios = sum(ratios)/len(ratios)
     else:
-      avg_ratios = 1
+      return ABSTAIN
 
     if label == SIMPLE:
         if avg_ratios <= thresh:
@@ -1810,7 +1810,7 @@ def length_sents_max_thres(x, length_sent_threshold, label):
 
 def low_length_sents_max_thres(length_sent_threshold, label):
   return LabelingFunction(
-      name=f"low_num_sents_max_thres={length_sent_threshold}",
+      name=f"low_num_words_in_sents_max_thres={length_sent_threshold}",
       f=length_sents_max_thres,
       resources=dict(length_sent_threshold=length_sent_threshold, label=label),
       pre=[spacy_nlp]
@@ -1839,7 +1839,7 @@ def length_sents_avg_thres(x, length_sent_threshold, label):
 
 def low_length_sents_avg_thres(length_sent_threshold, label):
   return LabelingFunction(
-      name=f"low_num_sents_avg_thres={length_sent_threshold}",
+      name=f"low_num_words_in_sents_avg_thres={length_sent_threshold}",
       f=length_sents_avg_thres,
       resources=dict(length_sent_threshold=length_sent_threshold, label=label),
       pre=[spacy_nlp]
