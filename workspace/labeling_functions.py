@@ -1761,6 +1761,32 @@ def lf_no_passive_voice(x):
   else:
     return SIMPLE
 
+
+# C: no passive voice~\cite{arfe} (percentage passive voice)
+def percentage_passive_voice(x, passive_threshold, label):
+  for sent in x.simp_sentences:
+    passive_result = passivepy.match_text(sent, full_passive=True, truncated_passive=True)
+    found_passive = passive_result.passive_sents_percentage
+
+  if label == SIMPLE:
+    if found_passive <= passive_threshold:
+      return label
+    else:
+      return ABSTAIN
+  else:
+    if found_passive > passive_threshold:
+      return label
+    else:
+      return ABSTAIN
+
+def lf_percentage_passive_voice(passive_threshold, label):
+  return LabelingFunction(
+      name=f"percentage_passive_voice={passive_threshold}_{label}",
+      f=percentage_passive_voice,
+      resources=dict(passive_threshold=passive_threshold, label=label), pre=[spacy_nlp]
+  )
+
+
 # christin: low sentence length (words)~\cite{arfe}, especially for children or non-native speakers~\cite{DBLP:conf/coling/StajnerH18}
 def length_sents_max_thres(x, length_sent_threshold, label):
   num_words = []
@@ -2063,7 +2089,8 @@ def get_all_lfs():
   perc_more_than_8_characters_complex_lfs = [make_perc_more_than_8_characters_lf(thresh, label=NOT_SIMPLE) for thresh in [0.25, 0.3, 4]]
   perc_vocab_initial_forLang_learn_lfs = [make_perc_vocab_initial_forLang_learn_lf(thresh, label=SIMPLE) for thresh in [0.3, 0.4, 0.425, 0.45, 0.475, 0.5, 0.6, 0.7, 0.8, 0.9, 1]]
   perc_vocab_initial_forLang_learn_lfs_complex = [make_perc_vocab_initial_forLang_learn_lf(thresh, label=NOT_SIMPLE) for thresh in [0.6, 0.7, 0.8, 0.9, 1]]
-
+  lfs_percentage_passive_voice_simple = [lf_percentage_passive_voice(thresh, label=SIMPLE) for thresh in [0.1, 0.2, 0.3]]
+  lfs_percentage_passive_voice_complex = [lf_percentage_passive_voice(thresh, label=NOT_SIMPLE) for thresh in [0.5, 0.6, 0.7, 0.8, 0.9, 1]]
 
   
   # [lf_fewer_modifiers] temp out
@@ -2094,5 +2121,5 @@ def get_all_lfs():
             freq_third_person_singular_pronouns_lfs + freq_third_person_singular_pronouns_lfs_complex + freq_negations_lfs + freq_negations_lfs_complex +\
             freq_nominalisations_lfs + freq_nominalisations_lfs_complex + perc_more_than_8_characters_lfs + perc_more_than_8_characters_complex_lfs +\
             perc_vocab_initial_forLang_learn_lfs + perc_vocab_initial_forLang_learn_lfs_complex + infrequent_words_per_sentence_lfs_simple + infrequent_words_per_sentence_lfs_complex +\
-            lfs_low_fkg_complex
+            lfs_low_fkg_complex + lfs_high_fkre_complex + lfs_percentage_passive_voice_simple + lfs_percentage_passive_voice_complex
   return all_lfs
