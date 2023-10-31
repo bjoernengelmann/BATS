@@ -1719,7 +1719,7 @@ def Flesch_Kincaid_grade_level(x, fkg_threshold, label):
 
 def low_Flesch_Kincaid_grade_level(fkg_threshold, label):
   return LabelingFunction(
-      name=f"low_fkg_threshold={fkg_threshold}",
+      name=f"low_fkg_threshold={fkg_threshold}_{label}",
       f=Flesch_Kincaid_grade_level,
       resources=dict(fkg_threshold=fkg_threshold, label=label), pre=[spacy_nlp]
   )
@@ -1742,7 +1742,7 @@ def Flesch_Kincaid_reading_ease(x, fkre_threshold, label):
 
 def high_Flesch_Kincaid_reading_ease(fkre_threshold, label):
   return LabelingFunction(
-      name=f"high_fkre_threshold={fkre_threshold}",
+      name=f"high_fkre_threshold={fkre_threshold}_{label}",
       f=Flesch_Kincaid_reading_ease,
       resources=dict(fkre_threshold=fkre_threshold, label=label), pre=[spacy_nlp]
   )
@@ -2030,7 +2030,9 @@ def get_all_lfs():
   lfs_proportions_of_long_words_syllables_simple = [low_proportion_of_long_words_syllables(long_length, proportion, label=SIMPLE) for long_length in (2, 3, 4) for proportion in (0.01, 0.025, 0.05, 0.075, 0.1, 0.15, 0.2, 0.225, 0.25)]
   lfs_proportions_of_long_words_letters_simple = [low_proportion_of_long_words_letters(long_length, proportion, label=SIMPLE) for long_length in (5, 6, 7, 8, 9) for proportion in (0.01, 0.025, 0.05, 0.075, 0.1, 0.15, 0.2, 0.225, 0.25)]
   lfs_low_fkg_simple = [low_Flesch_Kincaid_grade_level(fkg_threshold, label=SIMPLE) for fkg_threshold in (5, 6, 7, 8, 9)]
+  lfs_low_fkg_complex = [low_Flesch_Kincaid_grade_level(fkg_threshold, label=NOT_SIMPLE) for fkg_threshold in (10, 11, 12, 13)]
   lfs_high_fkre_simple = [high_Flesch_Kincaid_reading_ease(fkre_threshold, label=SIMPLE) for fkre_threshold in (100, 90, 80, 70, 60)]
+  lfs_high_fkre_complex = [high_Flesch_Kincaid_reading_ease(fkre_threshold, label=NOT_SIMPLE) for fkre_threshold in (50, 40, 30, 20)]
   #lfs_avg_Levenshtein = [low_avg_Levenshtein(lev_threshold, label=SIMPLE) for lev_threshold in (0.1, 0.2, 0.3, 0.4, 0.5)]
   lfs_low_length_sents_max = [low_length_sents_max_thres(length_sent_threshold, label=SIMPLE) for length_sent_threshold in (10, 12, 15, 17, 20)]
   lfs_low_length_sents_avg = [low_length_sents_avg_thres(length_sent_threshold, label=SIMPLE) for length_sent_threshold in (10, 12, 15, 17, 20, 22, 25)]
@@ -2091,5 +2093,6 @@ def get_all_lfs():
             num_past_perfect_lfs + num_past_perfect_complex_lfs + perc_past_tense_lfs + perc_past_tense_complex_lfs + num_past_tense_lfs + num_past_tense_complex_lfs +\
             freq_third_person_singular_pronouns_lfs + freq_third_person_singular_pronouns_lfs_complex + freq_negations_lfs + freq_negations_lfs_complex +\
             freq_nominalisations_lfs + freq_nominalisations_lfs_complex + perc_more_than_8_characters_lfs + perc_more_than_8_characters_complex_lfs +\
-            perc_vocab_initial_forLang_learn_lfs + perc_vocab_initial_forLang_learn_lfs_complex + infrequent_words_per_sentence_lfs_simple + infrequent_words_per_sentence_lfs_complex
+            perc_vocab_initial_forLang_learn_lfs + perc_vocab_initial_forLang_learn_lfs_complex + infrequent_words_per_sentence_lfs_simple + infrequent_words_per_sentence_lfs_complex +\
+            lfs_low_fkg_complex
   return all_lfs
