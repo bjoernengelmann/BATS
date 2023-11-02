@@ -475,6 +475,35 @@ def make_avg_imageability_lf(imageability_threshold, label=SIMPLE):
         pre=[spacy_nlp]
     )
 
+#bjoern: high imageability~\cite{simpa} min
+def min_imageability(x, imageability_threshold, label):
+    im_vals = []
+    for c_token in x.simp_tokens:
+      if c_token in imageability_dic.keys():
+        im_vals.append(imageability_dic[c_token])
+
+    min_im = np.min(np.array(im_vals))
+
+    if label == SIMPLE:
+      if min_im >= imageability_threshold:
+        return label
+      else:
+        return ABSTAIN
+    else:
+      if min_im < imageability_threshold:
+        return label
+      else:
+        return ABSTAIN
+
+# bjoern: high imageability~\cite{simpa} min
+def make_min_imageability_lf(imageability_threshold, label=SIMPLE):
+    return LabelingFunction(
+        name=f"lf_min_imageability={imageability_threshold}_{label_map[label]}",
+        f=min_imageability,
+        resources=dict(imageability_threshold=imageability_threshold, label=label),
+        pre=[spacy_nlp]
+    )
+
 # bjoern: high imageability~\cite{simpa} median
 def med_imageability(x, imageability_threshold, label):
     im_vals = []
@@ -2205,7 +2234,9 @@ def get_all_lfs():
   lfs_low_modifier_ratio_thres_simple = [low_modifier_ratio_thres(thresh, label=SIMPLE) for thresh in [0.01, 0.025, 0.05, 0.1, 0.15]]
   lfs_low_modifier_ratio_thres_complex = [low_modifier_ratio_thres(thresh, label=NOT_SIMPLE) for thresh in [0.5, 0.6, 0.07, 0.8, 0.9]]
   lfs_few_noun_phrases_ratio_thres_simple = [few_noun_phrases_ratio_thres(thresh, label=SIMPLE) for thresh in [0.01, 0.025, 0.05, 0.1, 0.15]]
-  lfs_low_mnoun_phrases_ratio_thres_complex = [few_noun_phrases_ratio_thres(thresh, label=NOT_SIMPLE) for thresh in [0.5, 0.6, 0.07, 0.8, 0.9]]
+  lfs_few_noun_phrases_ratio_thres_complex = [few_noun_phrases_ratio_thres(thresh, label=NOT_SIMPLE) for thresh in [0.5, 0.6, 0.07, 0.8, 0.9]]
+  lfs_make_min_imageability_lf_simple = [make_min_imageability_lf(thresh, label=NOT_SIMPLE) for thresh in [3.5, 3.75, 4.0, 4.25, 4.5]]
+  lfs_make_min_imageability_lf_complex = [make_min_imageability_lf(thresh, label=NOT_SIMPLE) for thresh in [2.5 , 2.75, 3]]
 
   # [lf_fewer_modifiers] temp out
   # lfs_few_conjunctions  doesnt work
@@ -2237,5 +2268,6 @@ def get_all_lfs():
             perc_vocab_initial_forLang_learn_lfs + perc_vocab_initial_forLang_learn_lfs_complex + infrequent_words_per_sentence_lfs_simple + infrequent_words_per_sentence_lfs_complex +\
             lfs_low_fkg_complex + lfs_high_fkre_complex + lfs_percentage_passive_voice_simple + lfs_percentage_passive_voice_complex + lfs_percentage_conditional_simple +\
             lfs_percentage_conditional_complex + lfs_percentage_appositions_simple + lfs_percentage_appositions_complex + lfs_low_modifier_ratio_thres_simple +\
-            lfs_low_modifier_ratio_thres_complex + lfs_few_noun_phrases_ratio_thres_simple + lfs_few_noun_phrases_ratio_thres_complex
+            lfs_low_modifier_ratio_thres_complex + lfs_few_noun_phrases_ratio_thres_simple + lfs_few_noun_phrases_ratio_thres_complex + lfs_make_min_imageability_lf_simple +\
+            lfs_make_min_imageability_lf_complex
   return all_lfs
