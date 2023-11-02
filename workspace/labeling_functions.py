@@ -1107,7 +1107,7 @@ def make_unique_entities_text_lf(thresh, label=SIMPLE):
 
 # Fabian : low number of unique entities in text~\cite{DBLP:conf/dsai/StajnerNI20} (ratio)
 def unique_entities_text_ratio(x, thresh, label):
-  num_unique_ents = len(set(x.simp_entities))/len(x.simp_token)
+  num_unique_ents = len(set(x.simp_entities))/len(x.simp_tokens)
   if label == SIMPLE:
       if num_unique_ents <= thresh:
         return label
