@@ -664,6 +664,36 @@ def make_freq_third_person_singular_pronouns_lf(thresh, label=SIMPLE):
         pre=[spacy_nlp]
     )
 
+# Fabian: frequency of third person singular pronouns~\cite{textevaluator} (ratio)
+def freq_third_person_singular_pronouns_ratio(x, thresh, label):
+  countElements = 0
+  for token in x.simp_doc:
+    if  token.pos_ == "PRON" and token.morph.get("Person") == ["3"] and token.morph.get("Number") == ['Sing']:
+        
+        countElements+=1
+
+  countElements = countElements/len(x.simp_tokens)
+
+  if label == SIMPLE:
+      if countElements <= thresh:
+        return label
+      else:
+        return ABSTAIN
+  else:
+    if countElements > thresh:
+      return label
+    else:
+      return ABSTAIN
+  
+def make_freq_third_person_singular_pronouns_ratio_lf(thresh, label=SIMPLE):
+
+    return LabelingFunction(
+        name=f"freq_third_person_singular_pronouns_ratio_label={label}_thresh={thresh}",
+        f=freq_third_person_singular_pronouns_ratio,
+        resources=dict(thresh=thresh, label=label),
+        pre=[spacy_nlp]
+    )
+
 
 # Fabian: frequency of past tense aspect verbs~\cite{textevaluator}
 def num_past_tense(x, thresh, label):
@@ -2323,6 +2353,8 @@ def get_all_lfs():
   lfs_make_low_relative_clauses_ratio_lf_complex = [make_low_relative_clauses_ratio_lf(thresh, label=NOT_SIMPLE) for thresh in [0.5, 0.6, 0.07, 0.8, 0.9]]
   lfs_make_low_relative_sub_clauses_ratio_lf_simple = [make_low_relative_sub_clauses_ratio_lf(thresh, label=SIMPLE) for thresh in [0.01, 0.025, 0.05, 0.1, 0.15]]
   lfs_make_low_relative_sub_clauses_ratio_lf_complex = [make_low_relative_sub_clauses_ratio_lf(thresh, label=NOT_SIMPLE) for thresh in [0.5, 0.6, 0.07, 0.8, 0.9]]
+  lfs_make_freq_third_person_singular_pronouns_ratio_lf_simple = [make_freq_third_person_singular_pronouns_ratio_lf(thresh, label=SIMPLE) for thresh in [0.01, 0.025, 0.05, 0.1, 0.15]]
+  lfs_make_freq_third_person_singular_pronouns_ratio_lf_complex = [make_freq_third_person_singular_pronouns_ratio_lf(thresh, label=NOT_SIMPLE) for thresh in [0.5, 0.6, 0.07, 0.8, 0.9]]
 
   # [lf_fewer_modifiers] temp out
   # lfs_few_conjunctions  doesnt work
@@ -2357,5 +2389,5 @@ def get_all_lfs():
             lfs_low_modifier_ratio_thres_complex + lfs_few_noun_phrases_ratio_thres_simple + lfs_few_noun_phrases_ratio_thres_complex + lfs_make_min_imageability_lf_simple +\
             lfs_make_min_imageability_lf_complex + lfs_make_unique_entities_text_ratio_lf_simple + lfs_make_unique_entities_text_ratio_lf_complex +\
             lfs_make_low_relative_clauses_ratio_lf_simple + lfs_make_low_relative_clauses_ratio_lf_complex + lfs_make_low_relative_sub_clauses_ratio_lf_simple +\
-            lfs_make_low_relative_sub_clauses_ratio_lf_complex
+            lfs_make_low_relative_sub_clauses_ratio_lf_complex + lfs_make_freq_third_person_singular_pronouns_ratio_lf_simple + lfs_make_freq_third_person_singular_pronouns_ratio_lf_complex
   return all_lfs
