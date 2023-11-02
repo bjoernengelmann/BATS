@@ -1723,7 +1723,7 @@ def avarage_distance_entities(x, thresh, scope, same_or_consecutive, label=SIMPL
             curr_ent += " "+tok2.text
           else:
             break
-        curr_par_ents_positions.append({"text":curr_ent, "beg": i, "end": i+e})
+        curr_par_ents_positions.append({"text":curr_ent, "beg": i, "end": i+end})
     ent_list.append(curr_par_ents_positions)
 
 
