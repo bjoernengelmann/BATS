@@ -350,7 +350,7 @@ def make_infrequent_words_per_sentence_lf(infrequent_threshold, animal, label=SI
 
     return LabelingFunction(
         name=f"lf_infrequent_words_per_sentence={infrequent_threshold}_{animal}_{label_map[label]}",
-        f=infrequent_words,
+        f=infrequent_words_per_sentence,
         resources=dict(infrequent_threshold=infrequent_threshold, animal=animal, label=label),
         pre=[spacy_nlp]
     )
@@ -1766,7 +1766,7 @@ def lf_no_passive_voice(x):
 def percentage_passive_voice(x, passive_threshold, label):
   for sent in x.simp_sentences:
     passive_result = passivepy.match_text(sent, full_passive=True, truncated_passive=True)
-    found_passive = passive_result.passive_sents_percentage
+    found_passive = passive_result.passive_percentages[0]
 
   if label == SIMPLE:
     if found_passive <= passive_threshold:
@@ -1910,6 +1910,37 @@ def lf_no_conditional(x):
             return ABSTAIN
 
   return SIMPLE
+
+# christin: no conditional (if-then) clauses~\cite{arfe} (percentage conditionals)
+def percentage_conditional(x, conditional_threshold, label):
+  s_t = [sw.lower() for sw in x.simp_tokens]
+
+  all_found = 0
+  for con_words in [['if'], ['unless'], ['providing'], ['supposing'], ['suppose'], ['without'], ['provided', 'that'], ['as', 'long', 'as'], ['on', 'condition', 'that'], ['but', 'for']]:
+    sequence_length = len(con_words)
+    for i in range(len(s_t) - sequence_length + 1):
+      if s_t[i:i + sequence_length] == con_words:
+        all_found += 1
+
+  all_found = all_found/len(s_t)
+
+  if label == SIMPLE:
+    if all_found <= conditional_threshold:
+      return label
+    else:
+      return ABSTAIN
+  else:
+    if all_found > conditional_threshold:
+      return label
+    else:
+      return ABSTAIN
+
+def lf_percentage_conditional(conditional_threshold, label):
+  return LabelingFunction(
+      name=f"percentage_conditional={conditional_threshold}_{label}",
+      f=percentage_conditional,
+      resources=dict(conditional_threshold=conditional_threshold, label=label), pre=[spacy_nlp]
+  )
 
 # christin: no appositions~\cite{DBLP:conf/acl/NarayanG14}
 @labeling_function(pre=[spacy_nlp], name="no_apposition")
@@ -2091,8 +2122,9 @@ def get_all_lfs():
   perc_vocab_initial_forLang_learn_lfs_complex = [make_perc_vocab_initial_forLang_learn_lf(thresh, label=NOT_SIMPLE) for thresh in [0.6, 0.7, 0.8, 0.9, 1]]
   lfs_percentage_passive_voice_simple = [lf_percentage_passive_voice(thresh, label=SIMPLE) for thresh in [0.1, 0.2, 0.3]]
   lfs_percentage_passive_voice_complex = [lf_percentage_passive_voice(thresh, label=NOT_SIMPLE) for thresh in [0.5, 0.6, 0.7, 0.8, 0.9, 1]]
+  lfs_percentage_conditional_simple = [lf_percentage_conditional(thresh, label=SIMPLE) for thresh in [0.01, 0.025, 0.05, 0.1, 0.15]]
+  lfs_percentage_conditional_complex = [lf_percentage_conditional(thresh, label=NOT_SIMPLE) for thresh in [0.6, 0.07, 0.8, 0.9]]
 
-  
   # [lf_fewer_modifiers] temp out
   # lfs_few_conjunctions  doesnt work
   #lfs_avg_Levenshtein out because its not ref free
@@ -2121,5 +2153,6 @@ def get_all_lfs():
             freq_third_person_singular_pronouns_lfs + freq_third_person_singular_pronouns_lfs_complex + freq_negations_lfs + freq_negations_lfs_complex +\
             freq_nominalisations_lfs + freq_nominalisations_lfs_complex + perc_more_than_8_characters_lfs + perc_more_than_8_characters_complex_lfs +\
             perc_vocab_initial_forLang_learn_lfs + perc_vocab_initial_forLang_learn_lfs_complex + infrequent_words_per_sentence_lfs_simple + infrequent_words_per_sentence_lfs_complex +\
-            lfs_low_fkg_complex + lfs_high_fkre_complex + lfs_percentage_passive_voice_simple + lfs_percentage_passive_voice_complex
+            lfs_low_fkg_complex + lfs_high_fkre_complex + lfs_percentage_passive_voice_simple + lfs_percentage_passive_voice_complex + lfs_percentage_conditional_simple +\
+            lfs_percentage_conditional_complex
   return all_lfs
