@@ -1349,6 +1349,38 @@ def make_no_relative_sub_clauses_lf(thresh, label=SIMPLE):
         pre=[spacy_nlp_paragraph]
     )
 
+# Fabian: few relative-sub-clauses for people with poor language skills~\cite{arfe} (ratio)
+def low_relative_sub_clauses_ratio(x, thresh, label):
+  rel_pron = ["which", "that", "whose", "whoever", "whomever", "who", "whom"]
+
+  true_relative_sub_clauses = []
+  for i, tok in enumerate(x.simp_tokens_data):
+    if tok.pos_ == "PRON" and tok.text.lower() in rel_pron:
+      if i>0 and not x.simp_tokens_data[i-1].is_sent_end:
+        true_relative_sub_clauses.append(tok)
+
+  num_rel_pronouns = len(true_relative_sub_clauses)/len(x.simp_tokens)
+
+  if label == SIMPLE:
+      if num_rel_pronouns <= thresh:
+        return label
+      else:
+        return ABSTAIN
+  else:
+    if num_rel_pronouns > thresh:
+      return label
+    else:
+      return ABSTAIN
+
+def make_low_relative_sub_clauses_ratio_lf(thresh, label=SIMPLE):
+
+    return LabelingFunction(
+        name=f"low_relative_sub_clauses_ratio_label={label}_thresh={thresh}",
+        f=low_relative_sub_clauses_ratio,
+        resources=dict(thresh=thresh, label=label),
+        pre=[spacy_nlp_paragraph]
+    )
+
 # Fabian: no anaphors for people with language problems~\cite{arfe}
 def few_anaphors(x, thresh, label):
 
@@ -2289,6 +2321,8 @@ def get_all_lfs():
   lfs_make_unique_entities_text_ratio_lf_complex = [make_unique_entities_text_ratio_lf(thresh, label=NOT_SIMPLE) for thresh in [0.5, 0.6, 0.07, 0.8, 0.9]]
   lfs_make_low_relative_clauses_ratio_lf_simple = [make_low_relative_clauses_ratio_lf(thresh, label=SIMPLE) for thresh in [0.01, 0.025, 0.05, 0.1, 0.15]]
   lfs_make_low_relative_clauses_ratio_lf_complex = [make_low_relative_clauses_ratio_lf(thresh, label=NOT_SIMPLE) for thresh in [0.5, 0.6, 0.07, 0.8, 0.9]]
+  lfs_make_low_relative_sub_clauses_ratio_lf_simple = [make_low_relative_sub_clauses_ratio_lf(thresh, label=SIMPLE) for thresh in [0.01, 0.025, 0.05, 0.1, 0.15]]
+  lfs_make_low_relative_sub_clauses_ratio_lf_complex = [make_low_relative_sub_clauses_ratio_lf(thresh, label=NOT_SIMPLE) for thresh in [0.5, 0.6, 0.07, 0.8, 0.9]]
 
   # [lf_fewer_modifiers] temp out
   # lfs_few_conjunctions  doesnt work
@@ -2322,5 +2356,6 @@ def get_all_lfs():
             lfs_percentage_conditional_complex + lfs_percentage_appositions_simple + lfs_percentage_appositions_complex + lfs_low_modifier_ratio_thres_simple +\
             lfs_low_modifier_ratio_thres_complex + lfs_few_noun_phrases_ratio_thres_simple + lfs_few_noun_phrases_ratio_thres_complex + lfs_make_min_imageability_lf_simple +\
             lfs_make_min_imageability_lf_complex + lfs_make_unique_entities_text_ratio_lf_simple + lfs_make_unique_entities_text_ratio_lf_complex +\
-            lfs_make_low_relative_clauses_ratio_lf_simple + lfs_make_low_relative_clauses_ratio_lf_complex
+            lfs_make_low_relative_clauses_ratio_lf_simple + lfs_make_low_relative_clauses_ratio_lf_complex + lfs_make_low_relative_sub_clauses_ratio_lf_simple +\
+            lfs_make_low_relative_sub_clauses_ratio_lf_complex
   return all_lfs
