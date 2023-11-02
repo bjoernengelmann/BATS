@@ -1951,6 +1951,35 @@ def lf_no_apposition(x):
 
   return SIMPLE
 
+# christin: no appositions~\cite{DBLP:conf/acl/NarayanG14} (percentage conditionals)
+def percentage_appositions(x, apposition_threshold, label):
+  deps = [token.dep_ for token in x.simp_tokens_data]
+
+  found = 0
+  for d in deps:
+    if d == 'appos':
+      found = found + 1
+    
+  found = found/len(deps)
+
+  if label == SIMPLE:
+    if found <= apposition_threshold:
+      return label
+    else:
+      return ABSTAIN
+  else:
+    if found > apposition_threshold:
+      return label
+    else:
+      return ABSTAIN
+
+def lf_percentage_appositions(apposition_threshold, label):
+  return LabelingFunction(
+      name=f"percentage_appositions={apposition_threshold}_{label}",
+      f=percentage_appositions,
+      resources=dict(apposition_threshold=apposition_threshold, label=label), pre=[spacy_nlp]
+  )
+
 # christin grammatical correctness~\cite{DBLP:journals/tacl/XuCN15} (few errors)
 def few_gram_errors(x, few_gram_errors_thres, label):
   matches_us = tool_us.check(x.simp_text)
@@ -2123,7 +2152,9 @@ def get_all_lfs():
   lfs_percentage_passive_voice_simple = [lf_percentage_passive_voice(thresh, label=SIMPLE) for thresh in [0.1, 0.2, 0.3]]
   lfs_percentage_passive_voice_complex = [lf_percentage_passive_voice(thresh, label=NOT_SIMPLE) for thresh in [0.5, 0.6, 0.7, 0.8, 0.9, 1]]
   lfs_percentage_conditional_simple = [lf_percentage_conditional(thresh, label=SIMPLE) for thresh in [0.01, 0.025, 0.05, 0.1, 0.15]]
-  lfs_percentage_conditional_complex = [lf_percentage_conditional(thresh, label=NOT_SIMPLE) for thresh in [0.6, 0.07, 0.8, 0.9]]
+  lfs_percentage_conditional_complex = [lf_percentage_conditional(thresh, label=NOT_SIMPLE) for thresh in [0.5, 0.6, 0.07, 0.8, 0.9]]
+  lfs_percentage_appositions_simple = [lf_percentage_appositions(thresh, label=SIMPLE) for thresh in [0.01, 0.025, 0.05, 0.1, 0.15]]
+  lfs_percentage_appositions_complex = [lf_percentage_appositions(thresh, label=NOT_SIMPLE) for thresh in [0.5, 0.6, 0.07, 0.8, 0.9]]
 
   # [lf_fewer_modifiers] temp out
   # lfs_few_conjunctions  doesnt work
@@ -2154,5 +2185,5 @@ def get_all_lfs():
             freq_nominalisations_lfs + freq_nominalisations_lfs_complex + perc_more_than_8_characters_lfs + perc_more_than_8_characters_complex_lfs +\
             perc_vocab_initial_forLang_learn_lfs + perc_vocab_initial_forLang_learn_lfs_complex + infrequent_words_per_sentence_lfs_simple + infrequent_words_per_sentence_lfs_complex +\
             lfs_low_fkg_complex + lfs_high_fkre_complex + lfs_percentage_passive_voice_simple + lfs_percentage_passive_voice_complex + lfs_percentage_conditional_simple +\
-            lfs_percentage_conditional_complex
+            lfs_percentage_conditional_complex + lfs_percentage_appositions_simple + lfs_percentage_appositions_complex
   return all_lfs
