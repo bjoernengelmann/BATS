@@ -1344,12 +1344,12 @@ def distance_appearance_same_entities_paragraph(x, thresh_distance, thresh_numbe
           break
 
   if label == SIMPLE:
-      if ent_count < thresh_number:
+      if ent_count <= thresh_number:
         return label
       else:
         return ABSTAIN
   else:
-    if ent_count >= thresh_number:
+    if ent_count > thresh_number:
       return label
     else:
       return ABSTAIN
@@ -1462,7 +1462,6 @@ def avarage_distance_appearance_same_entities_sentence(x, thresh, label=SIMPLE):
   else:
     avg_dist = 0
 
-
   if label == SIMPLE:
       if avg_dist <= thresh:
         return label
@@ -1485,8 +1484,6 @@ def make_average_distance_appearance_same_entities_sentence_lf(thresh, label=SIM
 
 # Fabian: low number of cases with max distance sentence between 2 appearances of same entity~\cite{DBLP:conf/dsai/StajnerNI20}
 def distance_appearance_same_entities_sentence(x, thresh_distance, thresh_number, label=SIMPLE):
-  count_num_appearances_max_or_higher = 0
-
   list_of_par_entities = []
   for paragraph in x.simp_doc.sents:
     curr_par_ents = []
@@ -1514,12 +1511,12 @@ def distance_appearance_same_entities_sentence(x, thresh_distance, thresh_number
           break
 
   if label == SIMPLE:
-      if ent_count < thresh_number:
+      if ent_count <= thresh_number:
         return label
       else:
         return ABSTAIN
   else:
-    if ent_count >= thresh_number:
+    if ent_count > thresh_number:
       return label
     else:
       return ABSTAIN
@@ -2074,6 +2071,29 @@ def few_noun_phrases_thres(noun_phrase_thres, label):
       pre=[spacy_nlp]
   )
 
+# christin: few noun phrases for people with poor language skills~\cite{arfe} (ratio)
+def few_noun_phrases_ratio(x, noun_phrase_thres, label):
+  noun_phrases = [chunk.text for chunk in x.simp_doc.noun_chunks]
+  ratio = len(noun_phrases)/len(x.simp_tokens)
+
+  if label == SIMPLE:
+    if ratio <= noun_phrase_thres:
+      return label
+    else:
+      return ABSTAIN
+  else:
+    if ratio > noun_phrase_thres:
+      return label
+    else:
+      return ABSTAIN
+
+def few_noun_phrases_ratio_thres(noun_phrase_thres, label):
+  return LabelingFunction(
+      name=f"few_noun_phrases_ratio_thres={noun_phrase_thres}",
+      f=few_noun_phrases_ratio,
+      resources=dict(noun_phrase_thres=noun_phrase_thres, label=label),
+      pre=[spacy_nlp]
+  )
 
 def get_all_lfs():
   
@@ -2184,6 +2204,8 @@ def get_all_lfs():
   lfs_percentage_appositions_complex = [lf_percentage_appositions(thresh, label=NOT_SIMPLE) for thresh in [0.5, 0.6, 0.07, 0.8, 0.9]]
   lfs_low_modifier_ratio_thres_simple = [low_modifier_ratio_thres(thresh, label=SIMPLE) for thresh in [0.01, 0.025, 0.05, 0.1, 0.15]]
   lfs_low_modifier_ratio_thres_complex = [low_modifier_ratio_thres(thresh, label=NOT_SIMPLE) for thresh in [0.5, 0.6, 0.07, 0.8, 0.9]]
+  lfs_few_noun_phrases_ratio_thres_simple = [few_noun_phrases_ratio_thres(thresh, label=SIMPLE) for thresh in [0.01, 0.025, 0.05, 0.1, 0.15]]
+  lfs_low_mnoun_phrases_ratio_thres_complex = [few_noun_phrases_ratio_thres(thresh, label=NOT_SIMPLE) for thresh in [0.5, 0.6, 0.07, 0.8, 0.9]]
 
   # [lf_fewer_modifiers] temp out
   # lfs_few_conjunctions  doesnt work
@@ -2215,5 +2237,5 @@ def get_all_lfs():
             perc_vocab_initial_forLang_learn_lfs + perc_vocab_initial_forLang_learn_lfs_complex + infrequent_words_per_sentence_lfs_simple + infrequent_words_per_sentence_lfs_complex +\
             lfs_low_fkg_complex + lfs_high_fkre_complex + lfs_percentage_passive_voice_simple + lfs_percentage_passive_voice_complex + lfs_percentage_conditional_simple +\
             lfs_percentage_conditional_complex + lfs_percentage_appositions_simple + lfs_percentage_appositions_complex + lfs_low_modifier_ratio_thres_simple +\
-            lfs_low_modifier_ratio_thres_complex
+            lfs_low_modifier_ratio_thres_complex + lfs_few_noun_phrases_ratio_thres_simple + lfs_few_noun_phrases_ratio_thres_complex
   return all_lfs
