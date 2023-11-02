@@ -299,7 +299,7 @@ def content_words_ratio(x, ratio_threshold, label):
 def make_content_words_ratio_lf(ratio_threshold, label=SIMPLE):
 
     return LabelingFunction(
-        name=f"lf_content_ratio_={ratio_threshold}_{label_map[label]}",
+        name=f"lf_content_ratio_thresh={ratio_threshold}_label={label_map[label]}",
         f=content_words_ratio,
         resources=dict(ratio_threshold=ratio_threshold, label=label),
         pre=[spacy_nlp]
@@ -1046,6 +1046,29 @@ def make_unique_entities_text_lf(thresh, label=SIMPLE):
     return LabelingFunction(
         name=f"unique_entities_text_label={label}_thresh={thresh}",
         f=unique_entities_text,
+        resources=dict(thresh=thresh, label=label),
+        pre=[spacy_nlp]
+    )
+
+# Fabian : low number of unique entities in text~\cite{DBLP:conf/dsai/StajnerNI20} (ratio)
+def unique_entities_text_ratio(x, thresh, label):
+  num_unique_ents = len(set(x.simp_entities))/len(x.simp_token)
+  if label == SIMPLE:
+      if num_unique_ents <= thresh:
+        return label
+      else:
+        return ABSTAIN
+  else:
+    if num_unique_ents > thresh:
+      return label
+    else:
+      return ABSTAIN
+
+def make_unique_entities_text_ratio_lf(thresh, label=SIMPLE):
+
+    return LabelingFunction(
+        name=f"unique_entities_text_ratio_label={label}_thresh={thresh}",
+        f=unique_entities_text_ratio,
         resources=dict(thresh=thresh, label=label),
         pre=[spacy_nlp]
     )
@@ -2235,8 +2258,10 @@ def get_all_lfs():
   lfs_low_modifier_ratio_thres_complex = [low_modifier_ratio_thres(thresh, label=NOT_SIMPLE) for thresh in [0.5, 0.6, 0.07, 0.8, 0.9]]
   lfs_few_noun_phrases_ratio_thres_simple = [few_noun_phrases_ratio_thres(thresh, label=SIMPLE) for thresh in [0.01, 0.025, 0.05, 0.1, 0.15]]
   lfs_few_noun_phrases_ratio_thres_complex = [few_noun_phrases_ratio_thres(thresh, label=NOT_SIMPLE) for thresh in [0.5, 0.6, 0.07, 0.8, 0.9]]
-  lfs_make_min_imageability_lf_simple = [make_min_imageability_lf(thresh, label=NOT_SIMPLE) for thresh in [3.5, 3.75, 4.0, 4.25, 4.5]]
+  lfs_make_min_imageability_lf_simple = [make_min_imageability_lf(thresh, label=SIMPLE) for thresh in [3.5, 3.75, 4.0, 4.25, 4.5]]
   lfs_make_min_imageability_lf_complex = [make_min_imageability_lf(thresh, label=NOT_SIMPLE) for thresh in [2.5 , 2.75, 3]]
+  lfs_make_unique_entities_text_ratio_lf_simple = [make_unique_entities_text_ratio_lf(thresh, label=SIMPLE) for thresh in [0.01, 0.025, 0.05, 0.1, 0.15]]
+  lfs_make_unique_entities_text_ratio_lf_complex = [make_unique_entities_text_ratio_lf(thresh, label=NOT_SIMPLE) for thresh in [0.5, 0.6, 0.07, 0.8, 0.9]]
 
   # [lf_fewer_modifiers] temp out
   # lfs_few_conjunctions  doesnt work
@@ -2261,7 +2286,7 @@ def get_all_lfs():
             entity_token_ratio_paragraph_lfs_complex + unique_entities_text_lfs_complex + average_entities_sentence_lfs_complex + average_entities_paragraph_lfs_complex +\
             unique_entity_total_entity_ratio_text_lfs_complex + unique_entity_total_entity_ratio_sentence_lfs_complex+ unique_entity_total_entity_ratio_paragraph_lfs_complex +\
             no_relative_clauses_lfs + no_relative_sub_clauses_lfs + few_anaphors_lfs + avarage_distance_appearance_same_entities_paragraph_lfs + \
-            avg_num_words_before_main_verb_lfs + avg_num_words_before_main_verb_complex_lfs +perc_past_perfect_lfs + perc_past_perfect_complex_lfs +\
+            avg_num_words_before_main_verb_lfs + avg_num_words_before_main_verb_complex_lfs + perc_past_perfect_lfs + perc_past_perfect_complex_lfs +\
             num_past_perfect_lfs + num_past_perfect_complex_lfs + perc_past_tense_lfs + perc_past_tense_complex_lfs + num_past_tense_lfs + num_past_tense_complex_lfs +\
             freq_third_person_singular_pronouns_lfs + freq_third_person_singular_pronouns_lfs_complex + freq_negations_lfs + freq_negations_lfs_complex +\
             freq_nominalisations_lfs + freq_nominalisations_lfs_complex + perc_more_than_8_characters_lfs + perc_more_than_8_characters_complex_lfs +\
@@ -2269,5 +2294,5 @@ def get_all_lfs():
             lfs_low_fkg_complex + lfs_high_fkre_complex + lfs_percentage_passive_voice_simple + lfs_percentage_passive_voice_complex + lfs_percentage_conditional_simple +\
             lfs_percentage_conditional_complex + lfs_percentage_appositions_simple + lfs_percentage_appositions_complex + lfs_low_modifier_ratio_thres_simple +\
             lfs_low_modifier_ratio_thres_complex + lfs_few_noun_phrases_ratio_thres_simple + lfs_few_noun_phrases_ratio_thres_complex + lfs_make_min_imageability_lf_simple +\
-            lfs_make_min_imageability_lf_complex
+            lfs_make_min_imageability_lf_complex + lfs_make_unique_entities_text_ratio_lf_simple + lfs_make_unique_entities_text_ratio_lf_complex
   return all_lfs
