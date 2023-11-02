@@ -1929,32 +1929,34 @@ def load_wikipediav2_ds():
                 all_doc_src[curr_topic] = txt
 
       for i in range(len(all_src)):
-        if all_src[i] != all_simp[i]:
-          duplicated.append(False)
-        else: 
-          duplicated.append(True)
+        if len(all_src[i].strip()) > 0 and len(all_simp[i].strip()) > 0:
+          if all_src[i] != all_simp[i]:
+            duplicated.append(False)
+          else: 
+            duplicated.append(True)
 
-        src_ids.append(len(src_ids))
-        src.append(all_src[i])
-        simp_ids.append(len(simp_ids))
-        simp.append(all_simp[i])
-        topics.append(all_topics[i])
-        granularities.append('sentence')
+          src_ids.append(len(src_ids))
+          src.append(all_src[i])
+          simp_ids.append(len(simp_ids))
+          simp.append(all_simp[i])
+          topics.append(all_topics[i])
+          granularities.append('sentence')
       
       for topic in all_doc_src:
         if topic in all_doc_simp:
           src_hlp = all_doc_src[topic]
           simp_hlp = all_doc_simp[topic]
-          if src_hlp != simp_hlp:
-            duplicated.append(False)
-          else: 
-            duplicated.append(True)
-          src_ids.append(len(src_ids))
-          src.append(src_hlp)
-          simp_ids.append(len(simp_ids))
-          simp.append(simp_hlp)
-          topics.append(topic)
-          granularities.append('document')
+          if len(src_hlp.strip()) > 0 and len(simp_hlp.strip()) > 0:
+            if src_hlp != simp_hlp:
+              duplicated.append(False)
+            else: 
+              duplicated.append(True)
+            src_ids.append(len(src_ids))
+            src.append(src_hlp)
+            simp_ids.append(len(simp_ids))
+            simp.append(simp_hlp)
+            topics.append(topic)
+            granularities.append('document')
       
       full_data = {'ds_id': 'Wikipedia_v2', 'src': src, 'src_id': src_ids, 'simp': simp, 'simp_id': simp_ids, 'topics': topics, 'granularity': granularities, 'duplicated': duplicated}
       wikipediav2_dataset = pd.DataFrame(data=full_data)
