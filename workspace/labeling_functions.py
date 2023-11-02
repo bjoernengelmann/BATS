@@ -1697,7 +1697,7 @@ def make_distance_appearance_same_entities_sentence_lf(thresh_distance, thresh_n
 # Fabian: high average distance (in sentences, paragraphs) between consecutive entities ~\cite{DBLP:conf/dsai/StajnerNI20}
 
 def avarage_distance_entities(x, thresh, scope, same_or_consecutive, label=SIMPLE):
-
+  return ABSTAIN
   thresh = 1
   # scope "sent" or else
   sel = same_or_consecutive # consec or else
