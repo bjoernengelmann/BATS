@@ -1716,6 +1716,7 @@ def avarage_distance_entities(x, thresh, scope, same_or_consecutive, label=SIMPL
       curr_ent = ""
       if token.ent_iob_ == "B":
         curr_ent += token.text
+        end = 0
         for e, tok2 in enumerate(paragraph[i+1:len(paragraph)]):
           if tok2.ent_iob_ == "I":
             end = e
