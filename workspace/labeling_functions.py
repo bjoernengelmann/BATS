@@ -2024,6 +2024,33 @@ def few_modifiers_thres(few_mod_threshold, label):
       pre=[spacy_nlp]
   )
 
+# christin: fewer modifiers~\cite{DBLP:conf/acl/NarayanG14} (ratio)
+# christin: few NOT FEWER modifiers
+def low_modifier_ratio(x, few_mod_threshold, label):
+  mods = ['advmod', 'amod', 'nmod', 'npadvmod', 'nummod', 'quantmod']
+
+  deps_simp = [token.dep_ for token in x.simp_tokens_data if token.dep_ in mods]
+  ratio = len(deps_simp)/len(x.simp_tokens_data)
+
+  if label == SIMPLE:
+    if ratio <= few_mod_threshold:
+      return label
+    else:
+      return ABSTAIN
+  else:
+    if ratio > few_mod_threshold:
+      return label
+    else:
+      return ABSTAIN
+
+def low_modifier_ratio_thres(few_mod_threshold, label):
+  return LabelingFunction(
+      name=f"low_modifier_ratio_thres={few_mod_threshold}",
+      f=low_modifier_ratio,
+      resources=dict(few_mod_threshold=few_mod_threshold, label=label),
+      pre=[spacy_nlp]
+  )
+
 # christin: few noun phrases for people with poor language skills~\cite{arfe}
 def few_noun_phrases(x, noun_phrase_thres, label):
   noun_phrases = [chunk.text for chunk in x.simp_doc.noun_chunks]
@@ -2155,6 +2182,8 @@ def get_all_lfs():
   lfs_percentage_conditional_complex = [lf_percentage_conditional(thresh, label=NOT_SIMPLE) for thresh in [0.5, 0.6, 0.07, 0.8, 0.9]]
   lfs_percentage_appositions_simple = [lf_percentage_appositions(thresh, label=SIMPLE) for thresh in [0.01, 0.025, 0.05, 0.1, 0.15]]
   lfs_percentage_appositions_complex = [lf_percentage_appositions(thresh, label=NOT_SIMPLE) for thresh in [0.5, 0.6, 0.07, 0.8, 0.9]]
+  lfs_low_modifier_ratio_thres_simple = [low_modifier_ratio_thres(thresh, label=SIMPLE) for thresh in [0.01, 0.025, 0.05, 0.1, 0.15]]
+  lfs_low_modifier_ratio_thres_complex = [low_modifier_ratio_thres(thresh, label=NOT_SIMPLE) for thresh in [0.5, 0.6, 0.07, 0.8, 0.9]]
 
   # [lf_fewer_modifiers] temp out
   # lfs_few_conjunctions  doesnt work
@@ -2185,5 +2214,6 @@ def get_all_lfs():
             freq_nominalisations_lfs + freq_nominalisations_lfs_complex + perc_more_than_8_characters_lfs + perc_more_than_8_characters_complex_lfs +\
             perc_vocab_initial_forLang_learn_lfs + perc_vocab_initial_forLang_learn_lfs_complex + infrequent_words_per_sentence_lfs_simple + infrequent_words_per_sentence_lfs_complex +\
             lfs_low_fkg_complex + lfs_high_fkre_complex + lfs_percentage_passive_voice_simple + lfs_percentage_passive_voice_complex + lfs_percentage_conditional_simple +\
-            lfs_percentage_conditional_complex + lfs_percentage_appositions_simple + lfs_percentage_appositions_complex
+            lfs_percentage_conditional_complex + lfs_percentage_appositions_simple + lfs_percentage_appositions_complex + lfs_low_modifier_ratio_thres_simple +\
+            lfs_low_modifier_ratio_thres_complex
   return all_lfs
