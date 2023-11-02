@@ -1718,14 +1718,13 @@ def avarage_distance_entities(x, thresh, scope, same_or_consecutive, label=SIMPL
         curr_ent += token.text
         for e, tok2 in enumerate(paragraph[i+1:len(paragraph)]):
           if tok2.ent_iob_ == "I":
+            end = e
             curr_ent += " "+tok2.text
           else:
             break
-        #local variable 'e' referenced before assignment
-        if not "e" in locals():
-          e = 0
         curr_par_ents_positions.append({"text":curr_ent, "beg": i, "end": i+e})
     ent_list.append(curr_par_ents_positions)
+
 
 
   if sel == "consec":
