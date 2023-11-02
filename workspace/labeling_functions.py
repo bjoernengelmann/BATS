@@ -1267,7 +1267,6 @@ def make_unique_entity_total_entity_ratio_paragraph_lf(thresh, label=SIMPLE):
 # Fabian: few relative-clauses for people with poor language skills~\cite{arfe}
 def no_relative_clauses(x, thresh, label):
   rel_pron = ["which", "that", "whose", "whoever", "whomever", "who", "whom"]
-  all_tokens = [(a.text, a.text.lower() in rel_pron, a.pos_) for a in x.simp_tokens_data]
   all_pron_tokens = [(a.text, a.text.lower() in rel_pron, a.pos_) for a in x.simp_tokens_data if a.pos_ == "PRON"]
   num_rel_pronouns = len([a for a in all_pron_tokens if a[1]])
 
@@ -1287,6 +1286,32 @@ def make_no_relative_clauses_lf(thresh, label=SIMPLE):
     return LabelingFunction(
         name=f"no_relative_clauses_label={label}_thresh={thresh}",
         f=no_relative_clauses,
+        resources=dict(thresh=thresh, label=label),
+        pre=[spacy_nlp_paragraph]
+    )
+
+# Fabian: few relative-clauses for people with poor language skills~\cite{arfe}
+def low_relative_clauses_ratio(x, thresh, label):
+  rel_pron = ["which", "that", "whose", "whoever", "whomever", "who", "whom"]
+  all_pron_tokens = [(a.text, a.text.lower() in rel_pron, a.pos_) for a in x.simp_tokens_data if a.pos_ == "PRON"]
+  num_rel_pronouns = len([a for a in all_pron_tokens if a[1]])/len(x.simp_tokens)
+
+  if label == SIMPLE:
+      if num_rel_pronouns <= thresh:
+        return label
+      else:
+        return ABSTAIN
+  else:
+    if num_rel_pronouns > thresh:
+      return label
+    else:
+      return ABSTAIN
+
+def make_low_relative_clauses_ratio_lf(thresh, label=SIMPLE):
+
+    return LabelingFunction(
+        name=f"low_relative_clauses_ratio_label={label}_thresh={thresh}",
+        f=low_relative_clauses_ratio,
         resources=dict(thresh=thresh, label=label),
         pre=[spacy_nlp_paragraph]
     )
@@ -2262,6 +2287,8 @@ def get_all_lfs():
   lfs_make_min_imageability_lf_complex = [make_min_imageability_lf(thresh, label=NOT_SIMPLE) for thresh in [2.5 , 2.75, 3]]
   lfs_make_unique_entities_text_ratio_lf_simple = [make_unique_entities_text_ratio_lf(thresh, label=SIMPLE) for thresh in [0.01, 0.025, 0.05, 0.1, 0.15]]
   lfs_make_unique_entities_text_ratio_lf_complex = [make_unique_entities_text_ratio_lf(thresh, label=NOT_SIMPLE) for thresh in [0.5, 0.6, 0.07, 0.8, 0.9]]
+  lfs_make_low_relative_clauses_ratio_lf_simple = [make_low_relative_clauses_ratio_lf(thresh, label=SIMPLE) for thresh in [0.01, 0.025, 0.05, 0.1, 0.15]]
+  lfs_make_low_relative_clauses_ratio_lf_complex = [make_low_relative_clauses_ratio_lf(thresh, label=NOT_SIMPLE) for thresh in [0.5, 0.6, 0.07, 0.8, 0.9]]
 
   # [lf_fewer_modifiers] temp out
   # lfs_few_conjunctions  doesnt work
@@ -2294,5 +2321,6 @@ def get_all_lfs():
             lfs_low_fkg_complex + lfs_high_fkre_complex + lfs_percentage_passive_voice_simple + lfs_percentage_passive_voice_complex + lfs_percentage_conditional_simple +\
             lfs_percentage_conditional_complex + lfs_percentage_appositions_simple + lfs_percentage_appositions_complex + lfs_low_modifier_ratio_thres_simple +\
             lfs_low_modifier_ratio_thres_complex + lfs_few_noun_phrases_ratio_thres_simple + lfs_few_noun_phrases_ratio_thres_complex + lfs_make_min_imageability_lf_simple +\
-            lfs_make_min_imageability_lf_complex + lfs_make_unique_entities_text_ratio_lf_simple + lfs_make_unique_entities_text_ratio_lf_complex
+            lfs_make_min_imageability_lf_complex + lfs_make_unique_entities_text_ratio_lf_simple + lfs_make_unique_entities_text_ratio_lf_complex +\
+            lfs_make_low_relative_clauses_ratio_lf_simple + lfs_make_low_relative_clauses_ratio_lf_complex
   return all_lfs
