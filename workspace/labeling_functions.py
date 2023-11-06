@@ -23,9 +23,6 @@ from Levenshtein import distance
 import language_tool_python
 passivepy = PassivePy.PassivePyAnalyzer(spacy_model = "en_core_web_sm")
 
-from qanom.nominalization_detector import NominalizationDetector
-nom_detector = NominalizationDetector()
-
 ABSTAIN = -1
 SIMPLE = 0
 NOT_SIMPLE = 1
@@ -533,33 +530,6 @@ def make_med_imageability_lf(imageability_threshold, label=SIMPLE):
         resources=dict(imageability_threshold=imageability_threshold, label=label),
         pre=[spacy_nlp]
     )
-
-# frequency of nominalisations~\cite{textevaluator}, implemented with~\citet{klein2020qanom}
-def freq_nominalisations(x, thresh, label):
-
-  return ABSTAIN
-
-  countElements = len(nom_detector(x.simplified_snt, threshold=0.75, return_probability=False))
-  
-  if label == SIMPLE:
-      if countElements <= thresh:
-        return label
-      else:
-        return ABSTAIN
-  else:
-    if countElements > thresh:
-      return label
-    else:
-      return ABSTAIN
-
-def make_freq_nominalisations_lf(thresh, label=SIMPLE):
-
-    return LabelingFunction(
-        name=f"freq_nominalisations_label={label}_thresh={thresh}",
-        f=freq_nominalisations,
-        resources=dict(thresh=thresh, label=label),
-        pre=[spacy_nlp]
-    ) 
 
 # Fabian : high percentage of vocabulary learned in initial stages of foreign language learning~\cite{tanaka} $\rightarrow$ language proficiency test
 def perc_vocab_initial_forLang_learn(x, thresh, label):
@@ -1436,47 +1406,6 @@ def make_low_relative_sub_clauses_ratio_lf(thresh, label=SIMPLE):
         pre=[spacy_nlp_paragraph]
     )
 
-# Fabian: no anaphors for people with language problems~\cite{arfe}
-def few_anaphors(x, thresh, label):
-
-  return ABSTAIN
-
-  with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    prediction = predictor.predict(document=x.simp_doc.text)  # get prediction
-    a_counter = 0
-    for c in prediction['clusters']:
-      c_test = True
-      for i in c:
-        span_words = [a.text for a in x.simp_doc[i[0]:i[1]+1]]
-        span_pos = [a.pos_ for a in x.simp_doc[i[0]:i[1]+1]]
-        pos_test = len([b for b in span_pos if b in ["NOUN", "PRON", "PROPN"]])
-        if pos_test == 0:
-          c_test = False
-      if c_test:
-        a_counter += 1
-
-
-    if label == SIMPLE:
-        if a_counter <= thresh:
-          return label
-        else:
-          return ABSTAIN
-    else:
-      if a_counter > thresh:
-        return label
-      else:
-        return ABSTAIN
-
-def make_few_anaphors_lf(thresh, label=SIMPLE):
-
-    return LabelingFunction(
-        name=f"few_anaphors_label={label}_thresh={thresh}",
-        f=few_anaphors,
-        resources=dict(thresh=thresh, label=label),
-        pre=[spacy_nlp_paragraph]
-    )
-
 # Fabian: low number of cases with max distance paragraph between 2 appearances of same entity~\cite{DBLP:conf/dsai/StajnerNI20}
 def distance_appearance_same_entities_paragraph(x, thresh_distance, thresh_number, label=SIMPLE):
   count_num_appearances_max_or_higher = 0
@@ -1695,13 +1624,10 @@ def make_distance_appearance_same_entities_sentence_lf(thresh_distance, thresh_n
     )
 
 # Fabian: high average distance (in sentences, paragraphs) between consecutive entities ~\cite{DBLP:conf/dsai/StajnerNI20}
-
 def avarage_distance_entities(x, thresh, scope, same_or_consecutive, label=SIMPLE):
-  return ABSTAIN
   thresh = 1
   # scope "sent" or else
   sel = same_or_consecutive # consec or else
-
 
   if scope == "sent":
     choice = x.simp_doc.sents
@@ -1725,8 +1651,6 @@ def avarage_distance_entities(x, thresh, scope, same_or_consecutive, label=SIMPL
             break
         curr_par_ents_positions.append({"text":curr_ent, "beg": i, "end": i+end})
     ent_list.append(curr_par_ents_positions)
-
-
 
   if sel == "consec":
     total_distances = []
@@ -2377,7 +2301,7 @@ def get_all_lfs():
   unique_entity_total_entity_ratio_paragraph_lfs_complex = [make_unique_entity_total_entity_ratio_paragraph_lf(thresh, label=NOT_SIMPLE) for thresh in [ 0.7, 0.8, 0.9, 1]]
   no_relative_clauses_lfs = [make_no_relative_clauses_lf(thresh, label=SIMPLE) for thresh in [0, 1, 2, 3]]
   no_relative_sub_clauses_lfs = [make_no_relative_sub_clauses_lf(thresh, label=SIMPLE) for thresh in [0, 1, 2, 3]]
-  few_anaphors_lfs = [make_few_anaphors_lf(thresh, label=SIMPLE) for thresh in [0, 1, 2, 3]]
+
   distance_appearance_same_entities_paragraph_lfs = [make_distance_appearance_same_entities_paragraph_lf(thresh_distance, thresh_number, label=SIMPLE) for thresh_distance in [1, 2, 3] for thresh_number in [0, 1,2,3]]
   avarage_distance_appearance_same_entities_paragraph_lfs = [make_average_distance_appearance_same_entities_paragraph_lf(thresh, label=SIMPLE) for thresh in [0.2, 0.5, 1, 2, 3, 4 ]]
   avarage_distance_appearance_same_entities_sentence_lfs = [make_average_distance_appearance_same_entities_sentence_lf(thresh, label=SIMPLE) for thresh in [ 0.2, 0.5, 1, 2, 3, 4, 5 ]]
@@ -2422,8 +2346,6 @@ def get_all_lfs():
   freq_third_person_singular_pronouns_lfs_complex = [make_freq_third_person_singular_pronouns_lf(thresh, label=NOT_SIMPLE) for thresh in [1, 2, 3, 4, 5]]
   freq_negations_lfs = [make_freq_negations_lf(thresh, label=SIMPLE) for thresh in [0, 1, 2]]
   freq_negations_lfs_complex = [make_freq_negations_lf(thresh, label=NOT_SIMPLE) for thresh in [1, 2, 3, 4, 5]]
-  freq_nominalisations_lfs = [make_freq_nominalisations_lf(thresh, label=SIMPLE) for thresh in [0, 1, 2, 3, 4]]
-  freq_nominalisations_lfs_complex = [make_freq_nominalisations_lf(thresh, label=NOT_SIMPLE) for thresh in [1, 2, 3, 4, 5]]
   perc_more_than_8_characters_lfs = [make_perc_more_than_8_characters_lf(thresh, label=SIMPLE) for thresh in [0, 0.02, 0.05, 0.075, 0.1, 0.125, 0.15, 0.175, 0.2, 0.3]]
   perc_more_than_8_characters_complex_lfs = [make_perc_more_than_8_characters_lf(thresh, label=NOT_SIMPLE) for thresh in [0.25, 0.3, 4]]
   perc_vocab_initial_forLang_learn_lfs = [make_perc_vocab_initial_forLang_learn_lf(thresh, label=SIMPLE) for thresh in [0.3, 0.4, 0.425, 0.45, 0.475, 0.5, 0.6, 0.7, 0.8, 0.9, 1]]
@@ -2472,11 +2394,11 @@ def get_all_lfs():
             ratio_academic_word_list_complex_lfs + median_concreteness_lfs_simple + content_word_cnt_lfs_simple + content_word_cnt_lfs_complex + entity_token_ratio_sentence_lfs_complex +\
             entity_token_ratio_paragraph_lfs_complex + unique_entities_text_lfs_complex + average_entities_sentence_lfs_complex + average_entities_paragraph_lfs_complex +\
             unique_entity_total_entity_ratio_text_lfs_complex + unique_entity_total_entity_ratio_sentence_lfs_complex+ unique_entity_total_entity_ratio_paragraph_lfs_complex +\
-            no_relative_clauses_lfs + no_relative_sub_clauses_lfs + few_anaphors_lfs + avarage_distance_appearance_same_entities_paragraph_lfs + \
+            no_relative_clauses_lfs + no_relative_sub_clauses_lfs + avarage_distance_appearance_same_entities_paragraph_lfs + \
             avg_num_words_before_main_verb_lfs + avg_num_words_before_main_verb_complex_lfs + perc_past_perfect_lfs + perc_past_perfect_complex_lfs +\
             num_past_perfect_lfs + num_past_perfect_complex_lfs + perc_past_tense_lfs + perc_past_tense_complex_lfs + num_past_tense_lfs + num_past_tense_complex_lfs +\
             freq_third_person_singular_pronouns_lfs + freq_third_person_singular_pronouns_lfs_complex + freq_negations_lfs + freq_negations_lfs_complex +\
-            freq_nominalisations_lfs + freq_nominalisations_lfs_complex + perc_more_than_8_characters_lfs + perc_more_than_8_characters_complex_lfs +\
+            perc_more_than_8_characters_lfs + perc_more_than_8_characters_complex_lfs +\
             perc_vocab_initial_forLang_learn_lfs + perc_vocab_initial_forLang_learn_lfs_complex + infrequent_words_per_sentence_lfs_simple + infrequent_words_per_sentence_lfs_complex +\
             lfs_low_fkg_complex + lfs_high_fkre_complex + lfs_percentage_passive_voice_simple + lfs_percentage_passive_voice_complex + lfs_percentage_conditional_simple +\
             lfs_percentage_conditional_complex + lfs_percentage_appositions_simple + lfs_percentage_appositions_complex + lfs_low_modifier_ratio_thres_simple +\
