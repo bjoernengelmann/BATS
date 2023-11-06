@@ -2177,12 +2177,12 @@ def few_gram_errors(x, few_gram_errors_thres, label):
 
   if label == SIMPLE:
     if len(matches_us) <= few_gram_errors_thres or len(matches_gb) <= few_gram_errors_thres:
-      return SIMPLE
+      return label
     else:
       return ABSTAIN
   else:
     if len(matches_us) > few_gram_errors_thres or len(matches_gb) > few_gram_errors_thres:
-      return NOT_SIMPLE
+      return label
     else:
       return ABSTAIN
 
@@ -2204,12 +2204,12 @@ def few_gram_errors_ratio(x, few_gram_errors_thres, label):
 
   if label == SIMPLE:
     if ratio_us <= few_gram_errors_thres or ratio_gb <= few_gram_errors_thres:
-      return SIMPLE
+      return label
     else:
       return ABSTAIN
   else:
     if ratio_us > few_gram_errors_thres or ratio_gb > few_gram_errors_thres:
-      return NOT_SIMPLE
+      return label
     else:
       return ABSTAIN
 
@@ -2398,8 +2398,8 @@ def get_all_lfs():
   lfs_low_sents_num = [low_sents_num_thres(sent_num_threshold, label=SIMPLE) for sent_num_threshold in (1, 2, 3, 4, 5, 6, 7, 8)]
   lfs_few_modifiers = [few_modifiers_thres(few_mod_threshold, label=NOT_SIMPLE) for few_mod_threshold in (0, 1, 2, 3, 4, 5, 6, 7, 8)]
   lfs_few_noun_phrases = [few_noun_phrases_thres(noun_phrase_thres, label=SIMPLE) for noun_phrase_thres in (0, 1, 2, 3, 4, 5, 6, 7, 8)]
-  lfs_few_conjunctions_simple = [few_conjunctions(few_con_threshold, label=SIMPLE) for few_con_threshold in [0, 1, 2, 3, 4]]
-  lfs_few_conjunctions_complex = [few_conjunctions(few_con_threshold, label=NOT_SIMPLE) for few_con_threshold in [5, 6, 7, 8]]
+  lfs_few_conjunctions_simple = [few_conjunctions_thres(few_con_threshold, label=SIMPLE) for few_con_threshold in [0, 1, 2, 3, 4]]
+  lfs_few_conjunctions_complex = [few_conjunctions_thres(few_con_threshold, label=NOT_SIMPLE) for few_con_threshold in [5, 6, 7, 8]]
 
   lfs_few_gram_errors_simple = [few_gram_errors_thres(thresh, label=SIMPLE) for thresh in [0, 1, 2]]
   lfs_few_gram_errors_complex = [few_gram_errors_thres(thresh, label=NOT_SIMPLE) for thresh in [3, 4, 5]]
