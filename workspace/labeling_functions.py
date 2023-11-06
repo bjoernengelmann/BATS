@@ -580,7 +580,7 @@ def make_perc_more_than_8_characters_lf(thresh, label=SIMPLE):
     )
 
 
-# Fabian: Frequency of negation 
+# Fabian: Frequency of negation~\cite{textevaluator} 
 def freq_negations(x, thresh, label):
   countElements = len([tok for tok in x.simp_doc if tok.dep_ == 'neg'])
 
@@ -605,7 +605,7 @@ def make_freq_negations_lf(thresh, label=SIMPLE):
     )
 
 
-# Fabian: Frequency of negation (ratio)
+# Fabian: Frequency of negation~\cite{textevaluator} (ratio)
 def freq_negations_ratio(x, thresh, label):
   countElements = len([tok for tok in x.simp_doc if tok.dep_ == 'neg'])/len(x.simp_tokens)
 
