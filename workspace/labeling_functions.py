@@ -1750,7 +1750,7 @@ def proportion_of_long_words_syllables(x, proportion, long_length, label):
 
 def low_proportion_of_long_words_syllables(long_length, proportion, label):
   return LabelingFunction(
-      name=f"low_prop_long_words_syllables_long={long_length}_prop={proportion}",
+      name=f"low_prop_long_words_syllables_long={long_length}_prop={proportion}_label={label}",
       f=proportion_of_long_words_syllables,
       resources=dict(proportion=proportion, long_length=long_length,
                      label=label), pre=[spacy_nlp]
