@@ -1893,7 +1893,7 @@ def length_sents_max_thres(x, length_sent_threshold, label):
 
 def low_length_sents_max_thres(length_sent_threshold, label):
   return LabelingFunction(
-      name=f"low_num_words_in_sents_max_thres={length_sent_threshold}_{label}",
+      name=f"low_num_words_in_sents_max_thres={length_sent_threshold}_label={label}",
       f=length_sents_max_thres,
       resources=dict(length_sent_threshold=length_sent_threshold, label=label),
       pre=[spacy_nlp]
@@ -1922,7 +1922,7 @@ def length_sents_avg_thres(x, length_sent_threshold, label):
 
 def low_length_sents_avg_thres(length_sent_threshold, label):
   return LabelingFunction(
-      name=f"low_num_words_in_sents_avg_thres={length_sent_threshold}_{label}",
+      name=f"low_num_words_in_sents_avg_thres={length_sent_threshold}_label={label}",
       f=length_sents_avg_thres,
       resources=dict(length_sent_threshold=length_sent_threshold, label=label),
       pre=[spacy_nlp]
@@ -1945,7 +1945,7 @@ def num_sents_num_thres(x, sent_num_threshold, label):
 
 def low_sents_num_thres(sent_num_threshold, label):
   return LabelingFunction(
-      name=f"num_sents_num_thres={sent_num_threshold}",
+      name=f"num_sents_num_thres={sent_num_threshold}_label={label}",
       f=num_sents_num_thres,
       resources=dict(sent_num_threshold=sent_num_threshold, label=label),
       pre=[spacy_nlp]
