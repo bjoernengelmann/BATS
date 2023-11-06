@@ -1779,7 +1779,7 @@ def proportion_of_long_words_letters(x, proportion, long_length, label):
 
 def low_proportion_of_long_words_letters(long_length, proportion, label):
   return LabelingFunction(
-      name=f"low_prop_long_words_letters_long={long_length}_prop={proportion}",
+      name=f"low_prop_long_words_letters_long={long_length}_prop={proportion}_label={label}",
       f=proportion_of_long_words_letters,
       resources=dict(proportion=proportion, long_length=long_length,
                      label=label), pre=[spacy_nlp]
