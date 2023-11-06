@@ -2114,7 +2114,7 @@ def few_gram_errors(x, few_gram_errors_thres, label):
 
 def few_gram_errors_thres(few_gram_errors_thres, label):
   return LabelingFunction(
-      name=f"few_gram_errors_thres={few_gram_errors_thres}_label{label}",
+      name=f"few_gram_errors_thres={few_gram_errors_thres}_label={label}",
       f=few_gram_errors,
       resources=dict(few_gram_errors_thres=few_gram_errors_thres, label=label),
       pre=[spacy_nlp]
@@ -2144,7 +2144,7 @@ def few_gram_errors_ratio(x, few_gram_errors_thres, label):
 
 def few_gram_errors_thres_ratio(few_gram_errors_thres, label):
   return LabelingFunction(
-      name=f"few_gram_errors_ratio_thres={few_gram_errors_thres}_label{label}",
+      name=f"few_gram_errors_ratio_thres={few_gram_errors_thres}_label={label}",
       f=few_gram_errors_ratio,
       resources=dict(few_gram_errors_thres=few_gram_errors_thres, label=label),
       pre=[spacy_nlp]
@@ -2170,7 +2170,7 @@ def few_modifiers(x, few_mod_threshold, label):
 
 def few_modifiers_thres(few_mod_threshold, label):
   return LabelingFunction(
-      name=f"few_modifiers_thres={few_mod_threshold}",
+      name=f"few_modifiers_thres={few_mod_threshold}_label={label}",
       f=few_modifiers,
       resources=dict(few_mod_threshold=few_mod_threshold, label=label),
       pre=[spacy_nlp]
@@ -2197,7 +2197,7 @@ def low_modifier_ratio(x, few_mod_threshold, label):
 
 def low_modifier_ratio_thres(few_mod_threshold, label):
   return LabelingFunction(
-      name=f"low_modifier_ratio_thres={few_mod_threshold}",
+      name=f"low_modifier_ratio_thres={few_mod_threshold}_label={label}",
       f=low_modifier_ratio,
       resources=dict(few_mod_threshold=few_mod_threshold, label=label),
       pre=[spacy_nlp]
@@ -2220,7 +2220,7 @@ def few_noun_phrases(x, noun_phrase_thres, label):
 
 def few_noun_phrases_thres(noun_phrase_thres, label):
   return LabelingFunction(
-      name=f"few_noun_phrases_thres={noun_phrase_thres}",
+      name=f"few_noun_phrases_thres={noun_phrase_thres}_label={label}",
       f=few_noun_phrases,
       resources=dict(noun_phrase_thres=noun_phrase_thres, label=label),
       pre=[spacy_nlp]
@@ -2244,7 +2244,7 @@ def few_noun_phrases_ratio(x, noun_phrase_thres, label):
 
 def few_noun_phrases_ratio_thres(noun_phrase_thres, label):
   return LabelingFunction(
-      name=f"few_noun_phrases_ratio_thres={noun_phrase_thres}",
+      name=f"few_noun_phrases_ratio_thres={noun_phrase_thres}_label={label}",
       f=few_noun_phrases_ratio,
       resources=dict(noun_phrase_thres=noun_phrase_thres, label=label),
       pre=[spacy_nlp]
