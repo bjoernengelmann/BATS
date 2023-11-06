@@ -2031,16 +2031,47 @@ def low_sents_num_thres(sent_num_threshold, label):
 def few_conjunctions(x, few_con_threshold, label):
   conj_pos = [token.pos_ for token in x.simp_doc if token.pos_ in ['CONJ', 'CCONJ', 'SCONJ']]
 
-  if len(conj_pos) <= few_con_threshold:
-    return SIMPLE
+  if label == SIMPLE:
+    if len(conj_pos) <= few_con_threshold:
+      return label
+    else:
+      return ABSTAIN
   else:
-    return ABSTAIN
+    if len(conj_pos) > few_con_threshold:
+      return label
+    else:
+      return ABSTAIN
 
 def few_conjunctions_thres(few_con_threshold, label):
   return LabelingFunction(
-      name=f"few_conjunctions_thres={few_con_threshold}",
+      name=f"few_conjunctions_thres={few_con_threshold}_label={label}",
       f=few_conjunctions,
-      resources=dict(few_mod_threshold=few_con_threshold, label=label),
+      resources=dict(few_con_threshold=few_con_threshold, label=label),
+      pre=[spacy_nlp]
+  )
+
+# christin: no (few) conjunctions for people with language problems~\cite{arfe} (ratio)
+def few_conjunctions_ratio(x, few_con_threshold, label):
+  conj_pos = [token.pos_ for token in x.simp_doc if token.pos_ in ['CONJ', 'CCONJ', 'SCONJ']]
+
+  ratio = len(conj_pos)/len(x.simp_tokens)
+
+  if label == SIMPLE:
+    if ratio <= few_con_threshold:
+      return label
+    else:
+      return ABSTAIN
+  else:
+    if ratio > few_con_threshold:
+      return label
+    else:
+      return ABSTAIN
+
+def few_conjunctions_thres_ratio(few_con_threshold, label):
+  return LabelingFunction(
+      name=f"few_conjunctions_ratio_thres={few_con_threshold}_label={label}",
+      f=few_conjunctions_ratio,
+      resources=dict(few_con_threshold=few_con_threshold, label=label),
       pre=[spacy_nlp]
   )
 
@@ -2144,15 +2175,48 @@ def few_gram_errors(x, few_gram_errors_thres, label):
   matches_us = tool_us.check(x.simp_text)
   matches_gb = tool_gb.check(x.simp_text) 
 
-  if len(matches_us) <= few_gram_errors_thres or len(matches_gb) <= few_gram_errors_thres:
-    return SIMPLE
+  if label == SIMPLE:
+    if len(matches_us) <= few_gram_errors_thres or len(matches_gb) <= few_gram_errors_thres:
+      return SIMPLE
+    else:
+      return ABSTAIN
   else:
-    return ABSTAIN
+    if len(matches_us) > few_gram_errors_thres or len(matches_gb) > few_gram_errors_thres:
+      return NOT_SIMPLE
+    else:
+      return ABSTAIN
 
 def few_gram_errors_thres(few_gram_errors_thres, label):
   return LabelingFunction(
-      name=f"few_gram_errors_thres={few_gram_errors_thres}",
+      name=f"few_gram_errors_thres={few_gram_errors_thres}_label{label}",
       f=few_gram_errors,
+      resources=dict(few_gram_errors_thres=few_gram_errors_thres, label=label),
+      pre=[spacy_nlp]
+  )
+
+# christin grammatical correctness~\cite{DBLP:journals/tacl/XuCN15} (few errors)
+def few_gram_errors_ratio(x, few_gram_errors_thres, label):
+  matches_us = tool_us.check(x.simp_text)
+  matches_gb = tool_gb.check(x.simp_text) 
+
+  ratio_us = len(matches_us)/len(x.simp_tokens)
+  ratio_gb = len(matches_gb)/len(x.simp_tokens)
+
+  if label == SIMPLE:
+    if ratio_us <= few_gram_errors_thres or ratio_gb <= few_gram_errors_thres:
+      return SIMPLE
+    else:
+      return ABSTAIN
+  else:
+    if ratio_us > few_gram_errors_thres or ratio_gb > few_gram_errors_thres:
+      return NOT_SIMPLE
+    else:
+      return ABSTAIN
+
+def few_gram_errors_thres_ratio(few_gram_errors_thres, label):
+  return LabelingFunction(
+      name=f"few_gram_errors_ratio_thres={few_gram_errors_thres}_label{label}",
+      f=few_gram_errors_ratio,
       resources=dict(few_gram_errors_thres=few_gram_errors_thres, label=label),
       pre=[spacy_nlp]
   )
@@ -2330,12 +2394,18 @@ def get_all_lfs():
   lfs_high_fkre_complex = [high_Flesch_Kincaid_reading_ease(fkre_threshold, label=NOT_SIMPLE) for fkre_threshold in (50, 40, 30, 20)]
   #lfs_avg_Levenshtein = [low_avg_Levenshtein(lev_threshold, label=SIMPLE) for lev_threshold in (0.1, 0.2, 0.3, 0.4, 0.5)]
   lfs_low_length_sents_max = [low_length_sents_max_thres(length_sent_threshold, label=SIMPLE) for length_sent_threshold in (10, 12, 15, 17, 20)]
-  lfs_low_length_sents_avg = [low_length_sents_avg_thres(length_sent_threshold, label=SIMPLE) for length_sent_threshold in (10, 12, 15, 17, 20, 22, 25)]
+  lfs_low_length_sents_avg = [low_length_sents_avg_thres(length_sent_threshold, label=NOT_SIMPLE) for length_sent_threshold in (10, 12, 15, 17, 20, 22, 25)]
   lfs_low_sents_num = [low_sents_num_thres(sent_num_threshold, label=SIMPLE) for sent_num_threshold in (1, 2, 3, 4, 5, 6, 7, 8)]
-  lfs_few_modifiers = [few_modifiers_thres(few_mod_threshold, label=SIMPLE) for few_mod_threshold in (0, 1, 2, 3, 4, 5, 6, 7, 8)]
+  lfs_few_modifiers = [few_modifiers_thres(few_mod_threshold, label=NOT_SIMPLE) for few_mod_threshold in (0, 1, 2, 3, 4, 5, 6, 7, 8)]
   lfs_few_noun_phrases = [few_noun_phrases_thres(noun_phrase_thres, label=SIMPLE) for noun_phrase_thres in (0, 1, 2, 3, 4, 5, 6, 7, 8)]
-  #lfs_few_conjunctions = [few_conjunctions(few_con_threshold, label=SIMPLE) for few_con_threshold in [0, 1, 2, 3, 4]]
-  #lfs_few_gram_errors = [few_gram_errors(thresh, label=SIMPLE) for thresh in [0, 1, 2]]
+  lfs_few_conjunctions_simple = [few_conjunctions(few_con_threshold, label=SIMPLE) for few_con_threshold in [0, 1, 2, 3, 4]]
+  lfs_few_conjunctions_complex = [few_conjunctions(few_con_threshold, label=NOT_SIMPLE) for few_con_threshold in [5, 6, 7, 8]]
+
+  lfs_few_gram_errors_simple = [few_gram_errors_thres(thresh, label=SIMPLE) for thresh in [0, 1, 2]]
+  lfs_few_gram_errors_complex = [few_gram_errors_thres(thresh, label=NOT_SIMPLE) for thresh in [3, 4, 5]]
+  lfs_few_gram_errors_thres_ratio_simple = [few_gram_errors_thres_ratio(thresh, label=SIMPLE) for thresh in [0.01, 0.1, 0.2]]
+  lfs_few_gram_errors_thres_ratio_complex= [few_gram_errors_thres_ratio(thresh, label=NOT_SIMPLE) for thresh in [0.5, 0.6, 0.7]]
+
   ratio_academic_word_list_lfs = [make_ratio_academic_word_list_lf(thresh, label=SIMPLE) for thresh in [0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.1, 0.13]]
   ratio_academic_word_list_complex_lfs = [make_ratio_academic_word_list_lf(thresh, label=NOT_SIMPLE) for thresh in [0.14, 0.19, 0.25]]
   avg_num_words_before_main_verb_lfs = [make_avg_num_words_before_main_verb_lf(thresh, label=SIMPLE) for thresh in [1, 2, 3, 4, 5, 6, 7, 8, 9]]
@@ -2380,12 +2450,11 @@ def get_all_lfs():
   lfs_make_freq_third_person_singular_pronouns_ratio_lf_complex = [make_freq_third_person_singular_pronouns_ratio_lf(thresh, label=NOT_SIMPLE) for thresh in [0.5, 0.6, 0.07, 0.8, 0.9]]
   lfs_make_freq_negations_ratio_lf_simple = [make_freq_negations_ratio_lf(thresh, label=SIMPLE) for thresh in [0.01, 0.025, 0.05, 0.1, 0.15]]
   lfs_make_freq_negations_ratio_lf_complex = [make_freq_negations_ratio_lf(thresh, label=NOT_SIMPLE) for thresh in [0.5, 0.6, 0.07, 0.8, 0.9]]
+  lfs_make_few_conjunctions_thres_ratio_simple = [few_conjunctions_thres_ratio(thresh, label=SIMPLE)for thresh in [0.01, 0.025, 0.05, 0.1, 0.15]]
+  lfs_make_few_conjunctions_thres_ratio_complex = [few_conjunctions_thres_ratio(thresh, label=NOT_SIMPLE)for thresh in [0.5, 0.6, 0.07, 0.8, 0.9]]
 
   # [lf_fewer_modifiers] temp out
-  # lfs_few_conjunctions  doesnt work
-  #lfs_avg_Levenshtein out because its not ref free
-  #lfs_few_gram_errors doesnt work
-
+  # lfs_avg_Levenshtein out because its not ref free
 
   all_lfs = word_cnt_lfs_simple + word_cnt_lfs_complex + infrequent_words_lfs_simple + infrequent_words_lfs_complex + entity_token_ratio_text_lfs + \
             entity_token_ratio_text_lfs_complex + lfs_proportions_of_long_words_syllables_simple + lfs_proportions_of_long_words_letters_simple + lfs_low_fkg_simple + \
@@ -2415,5 +2484,7 @@ def get_all_lfs():
             lfs_make_min_imageability_lf_complex + lfs_make_unique_entities_text_ratio_lf_simple + lfs_make_unique_entities_text_ratio_lf_complex +\
             lfs_make_low_relative_clauses_ratio_lf_simple + lfs_make_low_relative_clauses_ratio_lf_complex + lfs_make_low_relative_sub_clauses_ratio_lf_simple +\
             lfs_make_low_relative_sub_clauses_ratio_lf_complex + lfs_make_freq_third_person_singular_pronouns_ratio_lf_simple + lfs_make_freq_third_person_singular_pronouns_ratio_lf_complex +\
-            lfs_make_freq_negations_ratio_lf_simple + lfs_make_freq_negations_ratio_lf_complex
+            lfs_make_freq_negations_ratio_lf_simple + lfs_make_freq_negations_ratio_lf_complex + lfs_few_conjunctions_simple + lfs_few_conjunctions_complex +\
+            lfs_make_few_conjunctions_thres_ratio_simple +lfs_make_few_conjunctions_thres_ratio_complex + lfs_few_gram_errors_simple + lfs_few_gram_errors_complex +\
+            lfs_few_gram_errors_thres_ratio_simple + lfs_few_gram_errors_thres_ratio_complex
   return all_lfs
