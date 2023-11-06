@@ -2096,6 +2096,8 @@ def lf_percentage_appositions(apposition_threshold, label):
 
 # christin grammatical correctness~\cite{DBLP:journals/tacl/XuCN15} (few errors)
 def few_gram_errors(x, few_gram_errors_thres, label):
+  return ABSTAIN
+
   matches_us = tool_us.check(x.simp_text)
   matches_gb = tool_gb.check(x.simp_text) 
 
@@ -2120,6 +2122,9 @@ def few_gram_errors_thres(few_gram_errors_thres, label):
 
 # christin grammatical correctness~\cite{DBLP:journals/tacl/XuCN15} (few errors)
 def few_gram_errors_ratio(x, few_gram_errors_thres, label):
+
+  return ABSTAIN
+
   matches_us = tool_us.check(x.simp_text)
   matches_gb = tool_gb.check(x.simp_text) 
 
