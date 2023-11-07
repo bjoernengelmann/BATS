@@ -2306,15 +2306,14 @@ def get_all_lfs():
   unique_entity_total_entity_ratio_paragraph_lfs = [make_unique_entity_total_entity_ratio_paragraph_lf(thresh, label=SIMPLE) for thresh in [0, 0.02, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]]
   unique_entity_total_entity_ratio_paragraph_lfs_complex = [make_unique_entity_total_entity_ratio_paragraph_lf(thresh, label=NOT_SIMPLE) for thresh in [ 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]]
   no_relative_clauses_lfs = [make_no_relative_clauses_lf(thresh, label=SIMPLE) for thresh in [0, 1, 2, 3]]
-  # no_relative_clauses_lfs_neg missing
+  no_relative_clauses_lfs_complex = [make_no_relative_clauses_lf(thresh, label=NOT_SIMPLE) for thresh in [3, 4, 5, 6, 7]] # new LF
   no_relative_sub_clauses_lfs = [make_no_relative_sub_clauses_lf(thresh, label=SIMPLE) for thresh in [0, 1, 2, 3]]
-  # no_relative_sub_clauses_lfs_neg missing
-
+  no_relative_sub_clauses_lfs_complex = [make_no_relative_sub_clauses_lf(thresh, label=NOT_SIMPLE) for thresh in [3, 4, 5, 6, 7]] # new LF
   distance_appearance_same_entities_paragraph_lfs = [make_distance_appearance_same_entities_paragraph_lf(thresh_distance, thresh_number, label=SIMPLE) for thresh_distance in [1, 2, 3] for thresh_number in [0,1,2,3]]
   avarage_distance_appearance_same_entities_paragraph_lfs = [make_average_distance_appearance_same_entities_paragraph_lf(thresh, label=SIMPLE) for thresh in [0.05, 0.1, 0.15, 0.2, 0.5, 1, 2, 3, 4 ]]
-  # no avarage_distance_appearance_same_entities_paragraph_lfs neg
+  avarage_distance_appearance_same_entities_paragraph_lfs_complex = [make_average_distance_appearance_same_entities_paragraph_lf(thresh, label=NOT_SIMPLE) for thresh in [3, 4, 5, 6, 7, 8]] # new LF
   avarage_distance_appearance_same_entities_sentence_lfs = [make_average_distance_appearance_same_entities_sentence_lf(thresh, label=SIMPLE) for thresh in [ 0.2, 0.5, 1, 2, 3, 4, 5, 6, 7, 8]]
-  # no avarage_distance_appearance_same_entities_paragraph_lfs neg
+  avarage_distance_appearance_same_entities_sentence_lfs_complex = [make_average_distance_appearance_same_entities_sentence_lf(thresh, label=NOT_SIMPLE) for thresh in [3, 4, 5, 6, 7, 8, 9, 10, 11, 12]] # new LF
   # all values < 0.5
   distance_appearance_same_entities_sentence_lfs = [make_distance_appearance_same_entities_sentence_lf(thresh_distance, thresh_number, label=SIMPLE) for thresh_distance in [1, 2, 3] for thresh_number in [0,1,2,3,4]]
   avarage_distance_entities_sentence_consec_lfs = [make_avarage_distance_entities_lf(thresh, scope="sent", same_or_consecutive="consec", label=SIMPLE) for thresh in [1,2,4,6,10]]
@@ -2329,15 +2328,15 @@ def get_all_lfs():
   lfs_high_fkre_complex = [high_Flesch_Kincaid_reading_ease(fkre_threshold, label=NOT_SIMPLE) for fkre_threshold in (50, 40, 30, 20)]
   #lfs_avg_Levenshtein = [low_avg_Levenshtein(lev_threshold, label=SIMPLE) for lev_threshold in (0.1, 0.2, 0.3, 0.4, 0.5)]
   lfs_low_length_sents_max = [low_length_sents_max_thres(length_sent_threshold, label=SIMPLE) for length_sent_threshold in (10, 12, 15, 17, 20, 22, 24, 26, 28)]
-  # lfs_low_length_sents_max_neg missing
-  lfs_low_length_sents_avg = [low_length_sents_avg_thres(length_sent_threshold, label=NOT_SIMPLE) for length_sent_threshold in (10, 12, 15, 17, 20, 22, 25, 27, 30)]
-  # lfs_low_length_sents_avg_neg missing
+  lfs_low_length_sents_max_complex = [low_length_sents_max_thres(length_sent_threshold, label=NOT_SIMPLE) for length_sent_threshold in (20, 22, 24, 26, 28, 30, 35, 40)] # new LF
+  lfs_low_length_sents_avg = [low_length_sents_avg_thres(length_sent_threshold, label=SIMPLE) for length_sent_threshold in (10, 12, 15, 17, 20, 22, 25, 27, 30)]
+  lfs_low_length_sents_avg_complex = [low_length_sents_avg_thres(length_sent_threshold, label=NOT_SIMPLE) for length_sent_threshold in (20, 22, 24, 26, 28, 30, 35, 40)] # new LF
   lfs_low_sents_num = [low_sents_num_thres(sent_num_threshold, label=SIMPLE) for sent_num_threshold in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11)]
-  # lfs_low_sents_num_neg missing
-  lfs_few_modifiers = [few_modifiers_thres(few_mod_threshold, label=NOT_SIMPLE) for few_mod_threshold in (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13)]
-  # lfs_few_modifiers_neg missing
+  lfs_low_sents_num_complex = [low_sents_num_thres(sent_num_threshold, label=NOT_SIMPLE) for sent_num_threshold in (5, 6, 7, 8, 9, 10, 11)] # new LF
+  lfs_few_modifiers = [few_modifiers_thres(few_mod_threshold, label=SIMPLE) for few_mod_threshold in (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13)]
+  lfs_few_modifiers_complex = [few_modifiers_thres(few_mod_threshold, label=NOT_SIMPLE) for few_mod_threshold in (5, 6, 7, 8, 9, 10, 11, 12, 13)] # new LF 
   lfs_few_noun_phrases = [few_noun_phrases_thres(noun_phrase_thres, label=SIMPLE) for noun_phrase_thres in (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13)]
-  # lfs_few_noun_phrases_neg missing
+  lfs_few_noun_phrases_complex = [few_noun_phrases_thres(noun_phrase_thres, label=NOT_SIMPLE) for noun_phrase_thres in (9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20)] # new LF
   # all < 0.5, but implementation is count, not percentage. change?
   lfs_few_conjunctions_simple = [few_conjunctions_thres(few_con_threshold, label=SIMPLE) for few_con_threshold in [0, 1, 2, 3, 4]]
   # thres not optimized
@@ -2430,5 +2429,7 @@ def get_all_lfs():
             lfs_make_low_relative_sub_clauses_ratio_lf_complex + lfs_make_freq_third_person_singular_pronouns_ratio_lf_simple + lfs_make_freq_third_person_singular_pronouns_ratio_lf_complex +\
             lfs_make_freq_negations_ratio_lf_simple + lfs_make_freq_negations_ratio_lf_complex + lfs_few_conjunctions_simple + lfs_few_conjunctions_complex +\
             lfs_make_few_conjunctions_thres_ratio_simple +lfs_make_few_conjunctions_thres_ratio_complex + lfs_few_gram_errors_simple + lfs_few_gram_errors_complex +\
-            lfs_few_gram_errors_thres_ratio_simple + lfs_few_gram_errors_thres_ratio_complex
+            lfs_few_gram_errors_thres_ratio_simple + lfs_few_gram_errors_thres_ratio_complex + no_relative_clauses_lfs_complex + no_relative_sub_clauses_lfs_complex + \
+            avarage_distance_appearance_same_entities_paragraph_lfs_complex + avarage_distance_appearance_same_entities_sentence_lfs_complex + lfs_low_length_sents_max_complex +\
+            lfs_low_length_sents_avg_complex + lfs_low_sents_num_complex + lfs_few_modifiers_complex + lfs_few_noun_phrases_complex
   return all_lfs
