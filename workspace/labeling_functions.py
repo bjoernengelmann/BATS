@@ -545,7 +545,7 @@ def make_med_imageability_lf(imageability_threshold, label=SIMPLE):
 # Fabian : high percentage of vocabulary learned in initial stages of foreign language learning~\cite{tanaka} $\rightarrow$ language proficiency test
 def perc_vocab_initial_forLang_learn(x, thresh, label):
   lemmas = [a.lemma_ for a in x.simp_tokens_data]
-  ratio = len([w for w in lemmas if w.text.lower() in ox5k_a])/len(lemmas)
+  ratio = len([w for w in lemmas if w.lower() in ox5k_a])/len(lemmas)
   if label == SIMPLE:
       if ratio <= thresh:
         return label
