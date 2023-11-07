@@ -58,7 +58,7 @@ def prune_lfs():
 
     for index, row in df_md.iterrows():
         if row['precision'] > 0:
-            if row['total_coverage'] >= 0.02:
+            if row['total_coverage'] >= 0.05:
                 if row['precision'] >= 0.7:
                     decision.append('JA')
                 else: 
