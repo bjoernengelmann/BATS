@@ -16,8 +16,6 @@ from snorkel.labeling import LFAnalysis
 
 import warnings
 
-init_notebook_mode(all_interactive=True)
-
 
 def prune_lfs():
     all_lfs = get_all_lfs()
