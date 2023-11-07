@@ -2281,7 +2281,7 @@ def get_all_lfs():
   med_image_lfs_complex = [make_med_imageability_lf(imageability_threshold, label=NOT_SIMPLE) for imageability_threshold in range(1,5)]
   entity_token_ratio_text_lfs = [make_entity_token_ratio_text_lf(thresh, label=SIMPLE) for thresh in [0, 0.025, 0.05, 0.75, 0.1, 0.125, 0.15, 0.175, 0.2]]
   entity_token_ratio_text_lfs_complex = [make_entity_token_ratio_text_lf(thresh, label=NOT_SIMPLE) for thresh in [0.15, 0.175, 0.2, 0.3, 0.4, 0.5]]
-  entity_token_ratio_sentence_lfs = [make_entity_token_ratio_sentence_lf(thresh, label=SIMPLE) for thresh in [0, 0.0125, 0.025, 0.0375, 0.4, 0.45, 0.05, 0.55, 0.6,0.65,0.7, 0.075, 0.1, 0.15, 0.2, 0.25, 0.3, 0.4, 0.5]]
+  entity_token_ratio_sentence_lfs = [make_entity_token_ratio_sentence_lf(thresh, label=SIMPLE) for thresh in [0, 0.0125, 0.025, 0.0375, 0.04, 0.045, 0.05, 0.055, 0.06, 0.065, 0.07, 0.075, 0.1, 0.15, 0.2, 0.25, 0.3, 0.4, 0.5]]
   entity_token_ratio_sentence_lfs_complex = [make_entity_token_ratio_sentence_lf(thresh, label=NOT_SIMPLE) for thresh in [0.6, 0.7, 0.8, 0.9, 1]]
   entity_token_ratio_paragraph_lfs = [make_entity_token_ratio_paragraph_lf(thresh, label=SIMPLE) for thresh in [0, 0.025, 0.05, 0.075, 0.1, 0.15, 0.2, 0.25, 0.3]]
   entity_token_ratio_paragraph_lfs_complex = [make_entity_token_ratio_paragraph_lf(thresh, label=NOT_SIMPLE) for thresh in [0, 0.025, 0.05, 0.075, 0.1, 0.15, 0.2, 0.25, 0.3]]
