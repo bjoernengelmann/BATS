@@ -2319,12 +2319,12 @@ def get_all_lfs():
   unique_entity_total_entity_ratio_paragraph_lfs = [make_unique_entity_total_entity_ratio_paragraph_lf(thresh, label=SIMPLE) for thresh in [0, 0.02, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]]
   unique_entity_total_entity_ratio_paragraph_lfs_complex = [make_unique_entity_total_entity_ratio_paragraph_lf(thresh, label=NOT_SIMPLE) for thresh in [ 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]]
   no_relative_clauses_lfs = [make_no_relative_clauses_lf(thresh, label=SIMPLE) for thresh in [0, 1, 2, 3]]
-  no_relative_clauses_lfs_complex = [make_no_relative_clauses_lf(thresh, label=NOT_SIMPLE) for thresh in [3, 4, 5, 6, 7]] # new LF
+  no_relative_clauses_lfs_complex = [make_no_relative_clauses_lf(thresh, label=NOT_SIMPLE) for thresh in [3, 4, 5, 6, 7, 8, 9, 10, 11, 12]] # new LF
   no_relative_sub_clauses_lfs = [make_no_relative_sub_clauses_lf(thresh, label=SIMPLE) for thresh in [0, 1, 2, 3]]
-  no_relative_sub_clauses_lfs_complex = [make_no_relative_sub_clauses_lf(thresh, label=NOT_SIMPLE) for thresh in [3, 4, 5, 6, 7]] # new LF
+  no_relative_sub_clauses_lfs_complex = [make_no_relative_sub_clauses_lf(thresh, label=NOT_SIMPLE) for thresh in [3, 4, 5, 6, 7, 8, 9, 10, 11, 12]] # new LF
   distance_appearance_same_entities_paragraph_lfs = [make_distance_appearance_same_entities_paragraph_lf(thresh_distance, thresh_number, label=SIMPLE) for thresh_distance in [1, 2, 3] for thresh_number in [0,1,2,3]]
   avarage_distance_appearance_same_entities_paragraph_lfs = [make_average_distance_appearance_same_entities_paragraph_lf(thresh, label=SIMPLE) for thresh in [0.05, 0.1, 0.15, 0.2, 0.5, 1, 2, 3, 4 ]]
-  avarage_distance_appearance_same_entities_paragraph_lfs_complex = [make_average_distance_appearance_same_entities_paragraph_lf(thresh, label=NOT_SIMPLE) for thresh in [3, 4, 5, 6, 7, 8]] # new LF
+  avarage_distance_appearance_same_entities_paragraph_lfs_complex = [make_average_distance_appearance_same_entities_paragraph_lf(thresh, label=NOT_SIMPLE) for thresh in [2, 2.5, 3, 4, 5, 6, 7, 8]] # new LF
   avarage_distance_appearance_same_entities_sentence_lfs = [make_average_distance_appearance_same_entities_sentence_lf(thresh, label=SIMPLE) for thresh in [ 0.2, 0.5, 1, 2, 3, 4, 5, 6, 7, 8]]
   avarage_distance_appearance_same_entities_sentence_lfs_complex = [make_average_distance_appearance_same_entities_sentence_lf(thresh, label=NOT_SIMPLE) for thresh in [3, 4, 5, 6, 7, 8, 9, 10, 11, 12]] # new LF
   # all values < 0.5
@@ -2341,9 +2341,9 @@ def get_all_lfs():
   lfs_high_fkre_complex = [high_Flesch_Kincaid_reading_ease(fkre_threshold, label=NOT_SIMPLE) for fkre_threshold in (50, 40, 30, 20)]
   #lfs_avg_Levenshtein = [low_avg_Levenshtein(lev_threshold, label=SIMPLE) for lev_threshold in (0.1, 0.2, 0.3, 0.4, 0.5)]
   lfs_low_length_sents_max = [low_length_sents_max_thres(length_sent_threshold, label=SIMPLE) for length_sent_threshold in (10, 12, 15, 17, 20, 22, 24, 26, 28)]
-  lfs_low_length_sents_max_complex = [low_length_sents_max_thres(length_sent_threshold, label=NOT_SIMPLE) for length_sent_threshold in (20, 22, 24, 26, 28, 30, 35, 40)] # new LF
+  lfs_low_length_sents_max_complex = [low_length_sents_max_thres(length_sent_threshold, label=NOT_SIMPLE) for length_sent_threshold in (20, 22, 24, 26, 28, 30, 35, 40, 42, 45, 50)] # new LF
   lfs_low_length_sents_avg = [low_length_sents_avg_thres(length_sent_threshold, label=SIMPLE) for length_sent_threshold in (10, 12, 15, 17, 20, 22, 25, 27, 30)]
-  lfs_low_length_sents_avg_complex = [low_length_sents_avg_thres(length_sent_threshold, label=NOT_SIMPLE) for length_sent_threshold in (20, 22, 24, 26, 28, 30, 35, 40)] # new LF
+  lfs_low_length_sents_avg_complex = [low_length_sents_avg_thres(length_sent_threshold, label=NOT_SIMPLE) for length_sent_threshold in (20, 22, 24, 26, 28, 30, 35, 40, 42, 45, 50)] # new LF
   lfs_low_sents_num = [low_sents_num_thres(sent_num_threshold, label=SIMPLE) for sent_num_threshold in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11)]
   lfs_low_sents_num_complex = [low_sents_num_thres(sent_num_threshold, label=NOT_SIMPLE) for sent_num_threshold in (5, 6, 7, 8, 9, 10, 11)] # new LF
   lfs_few_modifiers = [few_modifiers_thres(few_mod_threshold, label=SIMPLE) for few_mod_threshold in (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13)]
