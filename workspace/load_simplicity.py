@@ -145,6 +145,7 @@ def load_simpeval_ds():
 
     src_simp_simplicity = {}
     src_simp_meaning = {}
+    ds_orig = {}
 
     # only the non-simpeval-part of the dataset contains meaning preservation ratings, 
     # the other part does only contain ratings on the simplification
@@ -168,6 +169,12 @@ def load_simpeval_ds():
                 src_simp_meaning[comb].append((row['Answer.adequacy'] - 1) * 25) # 5 point likert scale from 1 to 5 -> 0...100
                 src_simp_simplicity[comb].append((row['Answer.simplicity'] + 2) * 25) # 5 point likert scale from -2 to 2 -> 0...100
 
+            if comb not in ds_orig:
+                ds_orig[comb] = [f[:-4]]
+            else:
+                if f[:-4] not in ds_orig[comb]:
+                    ds_orig[comb].append(f[:-4])
+
     for f in ['simpeval_2022.csv', 'simpeval_past.csv']:
         simpeval_df = pd.read_csv(simpeval_path + '/LENS/data/' + f, encoding='latin1', header=0)
 
@@ -188,24 +195,32 @@ def load_simpeval_ds():
                 if len(col) == 8 and col[:7] == 'rating_':
                     src_simp_simplicity[comb].append(row[col])
 
+            if comb not in ds_orig:
+                ds_orig[comb] = [f[:-4]]
+            else:
+                if f[:-4] not in ds_orig[comb]:
+                    ds_orig[comb].append(f[:-4])
+
     src = []
     simp = []
     meaning = []
     simplicity = []
     origin = []
+    inner_ds = []
 
     for key in src_simp_simplicity.keys():
         pts = key.split('$$$$$')
         src.append(pts[0])
         simp.append(pts[1])
         origin.append(pts[2])
+        inner_ds.append(ds_orig[key])
         if key in src_simp_meaning:
             meaning.append(sum(src_simp_meaning[key])/len(src_simp_meaning[key]))
         else:
             meaning.append(-1) # means data point does not have a meaning value
         simplicity.append(sum(src_simp_simplicity[key])/len(src_simp_simplicity[key]))
 
-    full_data = {'ds_id': 'SimpEval_22', 'src': src, 'simp': simp, 'simplicityScore': simplicity, 'meaningScore': meaning, 'origin': origin}
+    full_data = {'ds_id': 'SimpEval_22', 'src': src, 'simp': simp, 'simplicityScore': simplicity, 'meaningScore': meaning, 'origin': origin, 'inner_ds': inner_ds}
     simpeval_dataset = pd.DataFrame(data = full_data)
 
     with open('/' + simpeval_path + '/simpeval_mp.pkl', 'wb') as f:
