@@ -182,7 +182,8 @@ def make_word_cnt_lf(w_cnt, label=SIMPLE):
 def avg_conreteness(x, con_threshold, label):
 
     con_list = []
-    for c_token in x.simp_tokens:
+    lemmas = [a.lemma_ for a in x.simp_tokens_data]
+    for c_token in lemmas:
       if c_token in concreteness_dic.keys():
         con_list.append(concreteness_dic[c_token])
 
@@ -213,7 +214,8 @@ def make_avg_conreteness_lf(con_threshold, label=SIMPLE):
 def max_conreteness(x, con_threshold, label):
 
     con_list = []
-    for c_token in x.simp_tokens:
+    lemmas = [a.lemma_ for a in x.simp_tokens_data]
+    for c_token in lemmas:
       if c_token in concreteness_dic.keys():
         con_list.append(concreteness_dic[c_token])
 
@@ -244,7 +246,8 @@ def make_max_conreteness_lf(con_threshold, label=SIMPLE):
 def median_conreteness(x, con_threshold, label):
 
     con_list = []
-    for c_token in x.simp_tokens:
+    lemmas = [a.lemma_ for a in x.simp_tokens_data]
+    for c_token in lemmas:
       if c_token in concreteness_dic.keys():
         con_list.append(concreteness_dic[c_token])
 
@@ -305,7 +308,8 @@ def make_content_words_ratio_lf(ratio_threshold, label=SIMPLE):
 # bjoern : few infrequent words~\cite{DBLP:conf/coling/StajnerH18}
 def infrequent_words(x, infrequent_threshold, animal, label):
   animal_threshold = word_frequency(animal, 'en')
-  infrequent_cnt = len([word for word in x.simp_tokens if word_frequency(word, 'en') < animal_threshold])
+  lemmas = [a.lemma_ for a in x.simp_tokens_data]
+  infrequent_cnt = len([word for word in lemmas if word_frequency(word, 'en') < animal_threshold])
 
   if label == SIMPLE:
       if infrequent_cnt <= infrequent_threshold:
@@ -330,7 +334,8 @@ def make_infrequent_words_lf(infrequent_threshold, animal, label=SIMPLE):
 # bjoern (and C) : few infrequent words~\cite{DBLP:conf/coling/StajnerH18} (per sentence)
 def infrequent_words_per_sentence(x, infrequent_threshold, animal, label):
   animal_threshold = word_frequency(animal, 'en')
-  infrequent_cnt = len([word for word in x.simp_tokens if word_frequency(word, 'en') < animal_threshold])/len(x.simp_sentences)
+  lemmas = [a.lemma_ for a in x.simp_tokens_data]
+  infrequent_cnt = len([word for word in lemmas if word_frequency(word, 'en') < animal_threshold])/len(x.simp_sentences)
 
   if label == SIMPLE:
       if infrequent_cnt <= infrequent_threshold:
@@ -356,7 +361,8 @@ def make_infrequent_words_per_sentence_lf(infrequent_threshold, animal, label=SI
 def avg_age_of_acquisition(x, age, label):
 
     aoas = []
-    for c_token in x.simp_tokens:
+    lemmas = [a.lemma_ for a in x.simp_tokens_data]
+    for c_token in lemmas:
       if c_token in aoa_dic.keys():
         aoas.append(aoa_dic[c_token])
 
@@ -386,7 +392,8 @@ def make_avg_age_of_acquisition_lf(age, label=SIMPLE):
 def max_age_of_acquisition(x, age, label):
 
     aoas = []
-    for c_token in x.simp_tokens:
+    lemmas = [a.lemma_ for a in x.simp_tokens_data]
+    for c_token in lemmas:
       if c_token in aoa_dic.keys():
         aoas.append(aoa_dic[c_token])
 
@@ -416,7 +423,8 @@ def make_max_age_of_acquisition_lf(age, label=SIMPLE):
 def median_age_of_acquisition(x, age, label):
 
     aoas = []
-    for c_token in x.simp_tokens:
+    lemmas = [a.lemma_ for a in x.simp_tokens_data]
+    for c_token in lemmas:
       if c_token in aoa_dic.keys():
         aoas.append(aoa_dic[c_token])
 
@@ -445,7 +453,8 @@ def make_median_age_of_acquisition_lf(age, label=SIMPLE):
 #bjoern :high imageability~\cite{simpa} avg
 def avg_imageability(x, imageability_threshold, label):
     im_vals = []
-    for c_token in x.simp_tokens:
+    lemmas = [a.lemma_ for a in x.simp_tokens_data]
+    for c_token in lemmas:
       if c_token in imageability_dic.keys():
         im_vals.append(imageability_dic[c_token])
 
@@ -475,7 +484,8 @@ def make_avg_imageability_lf(imageability_threshold, label=SIMPLE):
 #bjoern: high imageability~\cite{simpa} min
 def min_imageability(x, imageability_threshold, label):
     im_vals = []
-    for c_token in x.simp_tokens:
+    lemmas = [a.lemma_ for a in x.simp_tokens_data]
+    for c_token in lemmas:
       if c_token in imageability_dic.keys():
         im_vals.append(imageability_dic[c_token])
 
@@ -504,7 +514,8 @@ def make_min_imageability_lf(imageability_threshold, label=SIMPLE):
 # bjoern: high imageability~\cite{simpa} median
 def med_imageability(x, imageability_threshold, label):
     im_vals = []
-    for c_token in x.simp_tokens:
+    lemmas = [a.lemma_ for a in x.simp_tokens_data]
+    for c_token in lemmas:
       if c_token in imageability_dic.keys():
         im_vals.append(imageability_dic[c_token])
 
@@ -533,7 +544,8 @@ def make_med_imageability_lf(imageability_threshold, label=SIMPLE):
 
 # Fabian : high percentage of vocabulary learned in initial stages of foreign language learning~\cite{tanaka} $\rightarrow$ language proficiency test
 def perc_vocab_initial_forLang_learn(x, thresh, label):
-  ratio = len([w for w in x.simp_doc if w.text.lower() in ox5k_a])/len(x.simp_tokens)
+  lemmas = [a.lemma_ for a in x.simp_tokens_data]
+  ratio = len([w for w in lemmas if w.text.lower() in ox5k_a])/len(lemmas)
   if label == SIMPLE:
       if ratio <= thresh:
         return label
@@ -926,7 +938,8 @@ def make_entity_token_ratio_paragraph_lf(thresh, label=SIMPLE):
 
 # Fabian: frequency per thousand words/ratio of all words on Academic Word List \url{https://www.eapfoundation.com/vocab/academic/awllists/}~\cite{textevaluator}
 def ratio_academic_word_list(x, thresh, label):
-  ratio_awl = len([w for w in x.simp_words if w.lower() in academic_word_list])/len(x.simp_words)
+  lemmas = [a.lemma_ for a in x.simp_tokens_data]
+  ratio_awl = len([w for w in lemmas if w.lower() in academic_word_list])/len(lemmas)
   if label == SIMPLE:
       if ratio_awl <= thresh:
         return label
