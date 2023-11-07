@@ -58,17 +58,14 @@ def prune_lfs():
 
     for index, row in df_md.iterrows():
         if row['precision'] > 0:
-            if row['total_coverage'] >= 0.05:
+            if row['total_coverage'] >= 0.02:
                 if row['precision'] >= 0.7:
                     decision.append('JA')
                 else: 
                     if row['precision'] >= 0.5 and row['norm_dist'] >= 0.05:
                         decision.append('JA')
                     else:
-                        if row['precision'] <= 0.3 and row['distance'] >= 0.01:
-                            decision.append('INVERSE')
-                        else:
-                            decision.append('NEIN')
+                        decision.append('NEIN')
             else:
                 if row['precision'] > 0.5 and row['distance'] >= 0.005 and row['total_coverage'] >= 0.02:
                     decision.append('JA')
