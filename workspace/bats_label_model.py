@@ -38,3 +38,10 @@ class BatsModel:
         bin_vec = self.transform_to_bin_vec(text)
         pred = self.predict(bin_vec)
         return pred
+    
+    def set_norm_weights(self):
+        weights = self.label_model.get_weights()
+        self.norm_weights = weights/np.sum(weights)
+
+    def get_lfs(self):
+        return self.all_lfs
