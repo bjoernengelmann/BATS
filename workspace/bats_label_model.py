@@ -16,6 +16,7 @@ class BatsModel:
         self.train_model()
 
         self.all_lfs = prune_lfs()
+        self.set_norm_weights()
 
     def train_model(self):
         self.label_model = LabelModel(cardinality=2, verbose=True)
@@ -45,3 +46,18 @@ class BatsModel:
 
     def get_lfs(self):
         return self.all_lfs
+
+    def calc_naive_score(self, text):
+        weights = self.norm_weights
+        t_bin = self.transform_to_bin_vec(text)
+        
+        s_val = 0
+        ns_val = 0
+
+        for i in range(len(t1_bin[0])):
+            if t1_bin[0][i] == 0:
+                s_val += weights[i]
+            elif t1_bin[0][i] == 1:
+                ns_val += weights[i]
+
+        return ns_val / (s_val + ns_val)
