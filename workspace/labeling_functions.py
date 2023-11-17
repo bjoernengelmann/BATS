@@ -107,18 +107,18 @@ def paragraph_sep(doc):
 def spacy_nlp(x):
   nlp = spacy.load('en_core_web_sm')
   nlp.add_pipe("syllables", after="tagger")
-  x.pipeline_components = nlp.pipe_names
-  x.simp_text = x.simplified_snt
+  #x.pipeline_components = nlp.pipe_names
+  #x.simp_text = x.simplified_snt
 
   # simplified
   doc = nlp(x.simplified_snt)
-  x.simp_syllables = [token._.syllables for token in doc]
-  x.simp_syllables_cnt = [token._.syllables_count for token in doc]
-  x.simp_tokens = [token.text for token in doc]
+  #x.simp_syllables = [token._.syllables for token in doc]
+  #x.simp_syllables_cnt = [token._.syllables_count for token in doc]
+  #x.simp_tokens = [token.text for token in doc]
   x.simp_tokens_data = [token for token in doc] #token.text, token.lemma_, token.pos_, token.tag_, token.dep_, token.shape_, token.is_alpha, token.is_stop
   # list of pos tags: https://melaniewalsh.github.io/Intro-Cultural-Analytics/05-Text-Analysis/13-POS-Keywords.html
   x.simp_words = [token.text for token in doc if token.pos_ != 'PUNCT']
-  x.simp_sentences = [s.text for s in doc.sents]
+  #x.simp_sentences = [s.text for s in doc.sents]
   x.simp_doc = doc
   x.simp_entities = [e.text for e in doc.ents]
 
@@ -128,18 +128,18 @@ def spacy_nlp(x):
 def spacy_nlp_paragraph(x):
   nlp = spacy.load('en_core_web_sm')
   nlp.add_pipe("syllables", after="tagger")
-  x.pipeline_components = nlp.pipe_names
-  x.simp_text = x.simplified_snt
+  #x.pipeline_components = nlp.pipe_names
+  #x.simp_text = x.simplified_snt
 
   # simplified
   doc = nlp(x.simplified_snt)
-  x.simp_syllables = [token._.syllables for token in doc]
-  x.simp_syllables_cnt = [token._.syllables_count for token in doc]
-  x.simp_tokens = [token.text for token in doc]
+  #x.simp_syllables = [token._.syllables for token in doc]
+  #x.simp_syllables_cnt = [token._.syllables_count for token in doc]
+  #x.simp_tokens = [token.text for token in doc]
   x.simp_tokens_data = [token for token in doc] #token.text, token.lemma_, token.pos_, token.tag_, token.dep_, token.shape_, token.is_alpha, token.is_stop
   # list of pos tags: https://melaniewalsh.github.io/Intro-Cultural-Analytics/05-Text-Analysis/13-POS-Keywords.html
   x.simp_words = [token.text for token in doc if token.pos_ != 'PUNCT']
-  x.simp_sentences = [s.text for s in doc.sents]
+  #x.simp_sentences = [s.text for s in doc.sents]
   x.simp_doc = doc
   x.simp_entities = [e.text for e in doc.ents]
   x.simp_paragraph_tokens_data = paragraph_sep(doc)
@@ -619,7 +619,7 @@ def make_freq_negations_lf(thresh, label=SIMPLE):
 
 # Fabian: Frequency of negation~\cite{textevaluator} (ratio)
 def freq_negations_ratio(x, thresh, label):
-  countElements = len([tok for tok in x.simp_doc if tok.dep_ == 'neg'])/len(x.simp_tokens)
+  countElements = len([tok for tok in x.simp_doc if tok.dep_ == 'neg'])/len(x.simp_tokens_data)
 
   if label == SIMPLE:
       if countElements <= thresh:
@@ -679,7 +679,7 @@ def freq_third_person_singular_pronouns_ratio(x, thresh, label):
         
         countElements+=1
 
-  countElements = countElements/len(x.simp_tokens)
+  countElements = countElements/len(x.simp_tokens_data)
 
   if label == SIMPLE:
       if countElements <= thresh:
@@ -826,7 +826,7 @@ def make_avg_num_words_before_main_verb_lf(thresh, label=SIMPLE):
 
 # Fabian: low entity to token ratio per text\cite{DBLP:conf/dsai/StajnerNI20}
 def entity_token_ratio_text(x, thresh, label):
-  ratio = len(x.simp_entities)/len(x.simp_tokens)
+  ratio = len(x.simp_entities)/len(x.simp_tokens_data)
   if label == SIMPLE:
       if ratio <= thresh:
         return label
@@ -850,7 +850,7 @@ def make_entity_token_ratio_text_lf(thresh, label=SIMPLE):
 # Fabian: low entity to token ratio per sentence\cite{DBLP:conf/dsai/StajnerNI20}
 def entity_token_ratio_sentence(x, thresh, label):
   if len(x.simp_sentences)<=1:
-    ratio = len(x.simp_entities)/len(x.simp_tokens)
+    ratio = len(x.simp_entities)/len(x.simp_tokens_data)
     if label == SIMPLE:
         if ratio <= thresh:
           return label
@@ -894,7 +894,7 @@ def make_entity_token_ratio_sentence_lf(thresh, label=SIMPLE):
 # Fabian: low entity to token ratio per paragraph\cite{DBLP:conf/dsai/StajnerNI20}
 def entity_token_ratio_paragraph(x, thresh, label):
   if len(x.simp_paragraph_tokens_data)<=1:
-    ratio = len(x.simp_entities)/len(x.simp_tokens)
+    ratio = len(x.simp_entities)/len(x.simp_tokens_data)
     if label == SIMPLE:
         if ratio <= thresh:
           return label
@@ -1090,7 +1090,7 @@ def make_unique_entities_text_lf(thresh, label=SIMPLE):
 
 # Fabian : low number of unique entities in text~\cite{DBLP:conf/dsai/StajnerNI20} (ratio)
 def unique_entities_text_ratio(x, thresh, label):
-  num_unique_ents = len(set(x.simp_entities))/len(x.simp_tokens)
+  num_unique_ents = len(set(x.simp_entities))/len(x.simp_tokens_data)
   if label == SIMPLE:
       if num_unique_ents <= thresh:
         return label
@@ -1332,7 +1332,7 @@ def make_no_relative_clauses_lf(thresh, label=SIMPLE):
 def low_relative_clauses_ratio(x, thresh, label):
   rel_pron = ["which", "that", "whose", "whoever", "whomever", "who", "whom"]
   all_pron_tokens = [(a.text, a.text.lower() in rel_pron, a.pos_) for a in x.simp_tokens_data if a.pos_ == "PRON"]
-  num_rel_pronouns = len([a for a in all_pron_tokens if a[1]])/len(x.simp_tokens)
+  num_rel_pronouns = len([a for a in all_pron_tokens if a[1]])/len(x.simp_tokens_data)
 
   if label == SIMPLE:
       if num_rel_pronouns <= thresh:
@@ -1397,7 +1397,7 @@ def low_relative_sub_clauses_ratio(x, thresh, label):
       if i>0 and not x.simp_tokens_data[i-1].is_sent_end:
         true_relative_sub_clauses.append(tok)
 
-  num_rel_pronouns = len(true_relative_sub_clauses)/len(x.simp_tokens)
+  num_rel_pronouns = len(true_relative_sub_clauses)/len(x.simp_tokens_data)
 
   if label == SIMPLE:
       if num_rel_pronouns <= thresh:
@@ -1743,7 +1743,7 @@ def make_avarage_distance_entities_lf(thresh, scope, same_or_consecutive, label=
 def proportion_of_long_words_syllables(x, proportion, long_length, label):
   number_of_words = len(x.simp_words)
   number_long_words = 0
-  for ct in x.simp_syllables_cnt:
+  for ct in [token._.syllables_count for token in x.simp_tokens_data]:
     if ct is not None:
       if ct >= long_length:
         number_long_words += 1
@@ -1800,7 +1800,7 @@ def low_proportion_of_long_words_letters(long_length, proportion, label):
 
 # christin: low Flesch-Kincaid Grade Level Index~\cite{DBLP:conf/acl/NarayanG14}
 def Flesch_Kincaid_grade_level(x, fkg_threshold, label):
-  fkg = textstat.flesch_kincaid_grade(x.simp_text)
+  fkg = textstat.flesch_kincaid_grade(x.simplified_snt)
 
   if label == SIMPLE:
     if fkg <= fkg_threshold:
@@ -1823,7 +1823,7 @@ def low_Flesch_Kincaid_grade_level(fkg_threshold, label):
 
 # christin: high Flesch reading ease~\cite{simpa}
 def Flesch_Kincaid_reading_ease(x, fkre_threshold, label):
-  fkre = textstat.flesch_reading_ease(x.simp_text)
+  fkre = textstat.flesch_reading_ease(x.simplified_snt)
 
   if label == SIMPLE:
     if fkre >= fkre_threshold:
@@ -1848,7 +1848,7 @@ def high_Flesch_Kincaid_reading_ease(fkre_threshold, label):
 # christin: no passive voice~\cite{arfe}
 @labeling_function(pre=[spacy_nlp], name="no_passive_voice")
 def lf_no_passive_voice(x):
-  for sent in x.simp_sentences:
+  for sent in [s.text for s in x.simp_doc.sents]:
     passive_result = passivepy.match_text(sent, full_passive=True, truncated_passive=True)
     found = passive_result.binary[0] == 1
 
@@ -1860,7 +1860,7 @@ def lf_no_passive_voice(x):
 
 # C: no passive voice~\cite{arfe} (percentage passive voice)
 def percentage_passive_voice(x, passive_threshold, label):
-  for sent in x.simp_sentences:
+  for sent in [s.text for s in x.simp_doc.sents]:
     passive_result = passivepy.match_text(sent, full_passive=True, truncated_passive=True)
     found_passive = passive_result.passive_percentages[0]
 
@@ -1991,7 +1991,7 @@ def few_conjunctions_thres(few_con_threshold, label):
 def few_conjunctions_ratio(x, few_con_threshold, label):
   conj_pos = [token.pos_ for token in x.simp_doc if token.pos_ in ['CONJ', 'CCONJ', 'SCONJ']]
 
-  ratio = len(conj_pos)/len(x.simp_tokens)
+  ratio = len(conj_pos)/len(x.simp_tokens_data)
 
   if label == SIMPLE:
     if ratio <= few_con_threshold:
@@ -2015,7 +2015,7 @@ def few_conjunctions_thres_ratio(few_con_threshold, label):
 # christin: no conditional (if-then) clauses~\cite{arfe}
 @labeling_function(pre=[spacy_nlp], name="no_conditional")
 def lf_no_conditional(x):
-  s_t = [sw.lower() for sw in x.simp_tokens]
+  s_t = [sw.text.lower() for sw in x.simp_tokens_data]
 
   for con_word in [['if'], ['unless'], ['providing'], ['supposing'], ['suppose'], ['without'], ['provided', 'that'], ['as', 'long', 'as'], ['on', 'condition', 'that'], ['but', 'for']]:
     if con_word[0] in s_t:
@@ -2040,7 +2040,7 @@ def lf_no_conditional(x):
 
 # christin: no conditional (if-then) clauses~\cite{arfe} (percentage conditionals)
 def percentage_conditional(x, conditional_threshold, label):
-  s_t = [sw.lower() for sw in x.simp_tokens]
+  s_t = [sw.text.lower() for sw in x.simp_tokens_data]
 
   all_found = 0
   for con_words in [['if'], ['unless'], ['providing'], ['supposing'], ['suppose'], ['without'], ['provided', 'that'], ['as', 'long', 'as'], ['on', 'condition', 'that'], ['but', 'for']]:
@@ -2111,8 +2111,8 @@ def lf_percentage_appositions(apposition_threshold, label):
 def few_gram_errors(x, few_gram_errors_thres, label):
   return ABSTAIN
 
-  matches_us = tool_us.check(x.simp_text)
-  matches_gb = tool_gb.check(x.simp_text) 
+  matches_us = tool_us.check(x.simplified_snt)
+  matches_gb = tool_gb.check(x.simplified_snt) 
 
   if label == SIMPLE:
     if len(matches_us) <= few_gram_errors_thres or len(matches_gb) <= few_gram_errors_thres:
@@ -2138,11 +2138,11 @@ def few_gram_errors_ratio(x, few_gram_errors_thres, label):
 
   return ABSTAIN
 
-  matches_us = tool_us.check(x.simp_text)
-  matches_gb = tool_gb.check(x.simp_text) 
+  matches_us = tool_us.check(x.simplified_snt)
+  matches_gb = tool_gb.check(x.simplified_snt) 
 
-  ratio_us = len(matches_us)/len(x.simp_tokens)
-  ratio_gb = len(matches_gb)/len(x.simp_tokens)
+  ratio_us = len(matches_us)/len(x.simp_tokens_data)
+  ratio_gb = len(matches_gb)/len(x.simp_tokens_data)
 
   if label == SIMPLE:
     if ratio_us <= few_gram_errors_thres or ratio_gb <= few_gram_errors_thres:
@@ -2242,7 +2242,7 @@ def few_noun_phrases_thres(noun_phrase_thres, label):
 # christin: few noun phrases for people with poor language skills~\cite{arfe} (ratio)
 def few_noun_phrases_ratio(x, noun_phrase_thres, label):
   noun_phrases = [chunk.text for chunk in x.simp_doc.noun_chunks]
-  ratio = len(noun_phrases)/len(x.simp_tokens)
+  ratio = len(noun_phrases)/len(x.simp_tokens_data)
 
   if label == SIMPLE:
     if ratio <= noun_phrase_thres:
