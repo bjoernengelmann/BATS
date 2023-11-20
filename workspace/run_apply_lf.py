@@ -5,6 +5,7 @@ from pruning_lfs import prune_lfs
 import glob
 from tqdm import tqdm
 import pandas as pd
+from multiprocessing import Process
 
 from snorkel.labeling import PandasLFApplier
 
@@ -17,15 +18,21 @@ def preprocess_dataset(dataset, sel_ds_id, app_type):
     return dataset
 
 def get_finished_batches(sel_ds_id, app_type):
-    path = f"datasets/{sel_ds_id}labels/*"
+    path = f"datasets/{sel_ds_id}_parts/*"
     label_paths = glob.glob(path)
     fin_batches = [int(path.split("_")[-1]) for path in label_paths if "labels_" in path and app_type in path]
     return set(fin_batches)
 
 def save_used_lfs(all_lfs, sel_ds_id):
-    path = f"datasets/{sel_ds_id}labels/used_lfs.pkl"
+    path = f"datasets/{sel_ds_id}_parts/used_lfs.pkl"
     names = [lf.name for lf in all_lfs]
     pickle.dump(names, open(path, "wb"))
+
+
+def apply_lfs(df, lfs, chunk_start, size, sel_ds_id, app_type):
+    applier = PandasLFApplier(lfs)
+    labels = applier.apply(df[chunk_start:chunk_start+size], progress_bar=False)
+    pickle.dump(labels, open(f"datasets/{sel_ds_id}_parts/labels_{app_type}_{chunk_start}", "wb"))
 
 
 if __name__ == "__main__":
@@ -55,7 +62,7 @@ if __name__ == "__main__":
     if not app_type in ['src', 'simp']:
         raise Exception(f"{app_type} is not available, choose one of the following: \n {['src', 'simp']}")
 
-    label_path = f"datasets/{sel_ds_id}labels/"
+    label_path = f"datasets/{sel_ds_id}_parts/"
 
     dataset = preprocess_dataset(dataset, sel_ds_id, app_type)
 
@@ -63,7 +70,8 @@ if __name__ == "__main__":
         os.mkdir(label_path)
     
 
-    batch_size = 20
+    batch_size = 200
+    n_parallel = 10
     start = 0
 
     save_used_lfs(all_lfs, sel_ds_id)
@@ -73,10 +81,23 @@ if __name__ == "__main__":
     for i in tqdm(range(start, len(dataset), batch_size), position=1):
         if not i in get_finished_batches(sel_ds_id, app_type):
             try:
-                applier = PandasLFApplier(all_lfs)
-                labels = applier.apply(dataset[i:i+batch_size], progress_bar=True)
                 
-                pickle.dump(labels, open(f"datasets/{sel_ds_id}labels/labels_{app_type}_{i}", "wb"))
+                procs = []
+                for j in range(n_parallel):
+                    
+                    chunk_size = int(batch_size/n_parallel)
+                    chunk_start = i + j*chunk_size
+
+                    if chunk_start > len(dataset):
+                        continue
+
+                    proc = Process(target=apply_lfs, args=(dataset, all_lfs, chunk_start, chunk_size, sel_ds_id, app_type))
+                    procs.append(proc)
+                    proc.start()
+
+                for proc in procs:
+                    proc.join()
+             
                 print(f"finished on {i}/{len(dataset)}")
 
             except Exception as e:

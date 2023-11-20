@@ -23,6 +23,9 @@ from Levenshtein import distance
 import language_tool_python
 passivepy = PassivePy.PassivePyAnalyzer(spacy_model = "en_core_web_sm")
 
+import os
+os.environ["TOKENIZERS_PARALLELISM"] = "true"
+
 ABSTAIN = -1
 SIMPLE = 0
 NOT_SIMPLE = 1
@@ -118,7 +121,7 @@ def spacy_nlp(x):
   x.simp_tokens_data = [token for token in doc] #token.text, token.lemma_, token.pos_, token.tag_, token.dep_, token.shape_, token.is_alpha, token.is_stop
   # list of pos tags: https://melaniewalsh.github.io/Intro-Cultural-Analytics/05-Text-Analysis/13-POS-Keywords.html
   x.simp_words = [token.text for token in doc if token.pos_ != 'PUNCT']
-  #x.simp_sentences = [s.text for s in doc.sents]
+  x.simp_sentences = [s.text for s in doc.sents]
   x.simp_doc = doc
   x.simp_entities = [e.text for e in doc.ents]
 
