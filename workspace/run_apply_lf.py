@@ -70,8 +70,8 @@ if __name__ == "__main__":
         os.mkdir(label_path)
     
 
-    batch_size = 200
-    n_parallel = 10
+    batch_size = 400
+    n_parallel = 20
     start = 0
 
     save_used_lfs(all_lfs, sel_ds_id)
