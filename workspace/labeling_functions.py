@@ -121,7 +121,7 @@ def spacy_nlp(x):
   x.simp_tokens_data = [token for token in doc] #token.text, token.lemma_, token.pos_, token.tag_, token.dep_, token.shape_, token.is_alpha, token.is_stop
   # list of pos tags: https://melaniewalsh.github.io/Intro-Cultural-Analytics/05-Text-Analysis/13-POS-Keywords.html
   x.simp_words = [token.text for token in doc if token.pos_ != 'PUNCT']
-  x.simp_sentences = [s.text for s in doc.sents]
+  #x.simp_sentences = [s.text for s in doc.sents]
   x.simp_doc = doc
   x.simp_entities = [e.text for e in doc.ents]
 
@@ -158,7 +158,7 @@ def spacy_universal_embeddings(x):
 
 # bjoern: few words per sentence~\cite{simpa}
 def words_per_sentence(x, w_cnt, label):
-    avg_cnt = len(x.simp_words)/len(x.simp_sentences)
+    avg_cnt = len(x.simp_words)/len([s for s in x.simp_doc.sents])
 
     if label == SIMPLE:
       if avg_cnt <= w_cnt:
@@ -338,7 +338,7 @@ def make_infrequent_words_lf(infrequent_threshold, animal, label=SIMPLE):
 def infrequent_words_per_sentence(x, infrequent_threshold, animal, label):
   animal_threshold = word_frequency(animal, 'en')
   lemmas = [a.lemma_ for a in x.simp_tokens_data]
-  infrequent_cnt = len([word for word in lemmas if word_frequency(word, 'en') < animal_threshold])/len(x.simp_sentences)
+  infrequent_cnt = len([word for word in lemmas if word_frequency(word, 'en') < animal_threshold])/len([s for s in x.simp_doc.sents])
 
   if label == SIMPLE:
       if infrequent_cnt <= infrequent_threshold:
@@ -852,7 +852,7 @@ def make_entity_token_ratio_text_lf(thresh, label=SIMPLE):
 
 # Fabian: low entity to token ratio per sentence\cite{DBLP:conf/dsai/StajnerNI20}
 def entity_token_ratio_sentence(x, thresh, label):
-  if len(x.simp_sentences)<=1:
+  if len([s for s in x.simp_doc.sents])<=1:
     ratio = len(x.simp_entities)/len(x.simp_tokens_data)
     if label == SIMPLE:
         if ratio <= thresh:
@@ -1207,7 +1207,7 @@ def make_unique_entity_total_entity_ratio_text_lf(thresh, label=SIMPLE):
 
 # Fabian: low unique entity to total num entities ratio per sentence\cite{DBLP:conf/dsai/StajnerNI20}
 def unique_entity_total_entity_ratio_sentence(x, thresh, label):
-  if len(x.simp_entities)>0 and len(x.simp_sentences)<=1:
+  if len(x.simp_entities)>0 and len([s for s in x.simp_doc.sents])<=1:
     ratio = len(set(x.simp_entities))/len(x.simp_entities)
     if label == SIMPLE:
         if ratio <= thresh:
@@ -1946,7 +1946,7 @@ def low_length_sents_avg_thres(length_sent_threshold, label):
 
 # christin: low number of sentences in text for people with intellectual disability~\cite{arfe}
 def num_sents_num_thres(x, sent_num_threshold, label):
-  num_sent = len(x.simp_sentences)
+  num_sent = len([s for s in x.simp_doc.sents])
 
   if label == SIMPLE:
     if num_sent <= sent_num_threshold:
