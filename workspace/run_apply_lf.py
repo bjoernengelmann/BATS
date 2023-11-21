@@ -11,7 +11,12 @@ from snorkel.labeling import PandasLFApplier
 
 
 def preprocess_dataset(dataset, sel_ds_id, app_type):
-    dataset = dataset[dataset['ds_id'] == sel_ds_id]
+    
+    if sel_ds_id == "eval":
+        dataset = dataset[dataset['val_split'] == True]
+    else:
+        dataset = dataset[dataset['ds_id'] == sel_ds_id]        
+
     dataset['simplified_snt'] = dataset[app_type]
     dataset['source_snt'] = dataset['src']
 
@@ -45,6 +50,7 @@ if __name__ == "__main__":
     
     print("dataset loaded")
     ds_ids = dataset['ds_id'].unique().tolist()
+    ds_ids.append("eval")
 
     parser = argparse.ArgumentParser(description="Run pruned lfs on specified dataset")
     parser.add_argument('ds', type=str, help=f"Please specify one of the following datasets: {ds_ids}")
