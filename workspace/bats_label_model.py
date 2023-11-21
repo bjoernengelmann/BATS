@@ -49,7 +49,7 @@ class BatsModel:
 
     def calc_naive_score(self, text):
         weights = self.norm_weights
-        t_bin = self.transform_to_bin_vec(text)
+        t1_bin = self.transform_to_bin_vec(text)
         
         s_val = 0
         ns_val = 0
