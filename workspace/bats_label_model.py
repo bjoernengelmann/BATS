@@ -100,7 +100,7 @@ class BatsModel:
 
         self.train_model()
 
-        self.all_lfs = prune_lfs()
+        self.all_lfs = prune_lfs(CHOSEN_DS='eval')
         self.set_norm_weights()
 
     def train_model(self):

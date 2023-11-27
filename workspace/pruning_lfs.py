@@ -91,7 +91,7 @@ def prune_lfs(CHOSEN_DS = '', TARGETAUDIENCE = None, DOMAIN = None):
 
     df_md['decision'] = decision
 
-    df_md.to_excel("/workspace/datasets/" + str(datasets) + "_" + TARGETAUDIENCE + "_" + DOMAIN + "_label_data.xlsx")  
+    df_md.to_excel("/workspace/datasets/" + str(datasets) + "_" + str(TARGETAUDIENCE) + "_" + str(DOMAIN) + "_label_data.xlsx")  
 
     keepLFs = []
 
