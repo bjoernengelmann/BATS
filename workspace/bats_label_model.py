@@ -174,12 +174,15 @@ class BatsModel:
         sel_indices = np.array(self.lfs_vec).nonzero()[0]
         opt_X = np.take(X, sel_indices, axis=1)
 
-        self.clf_rf = RandomForestClassifier(random_state=42)
-        self.clf_rf.fit(opt_X, y)
+        self.classifier = RandomForestClassifier(random_state=42)
+        self.classifier.fit(opt_X, y)
 
-        return self.clf_rf
+        return self.classifier
 
     def classify(self, bin_vec):
+
+        _ = self.get_classifier()
+
         if bin_vec.shape[0] == self.lfs_vec.shape[0]:
              #opt lfs transformtation
             sel_indices = np.array(self.lfs_vec).nonzero()[0]
@@ -195,5 +198,5 @@ class BatsModel:
             print("bad input")
             return
 
-        return self.clf_rf.predict(opt_X.reshape(1,-1))
+        return self.classifier.predict(opt_X.reshape(1,-1))
 
