@@ -6,11 +6,15 @@ from snorkel.labeling import PandasLFApplier
 import pandas as pd
 import glob
 
+from sklearn.utils import shuffle
+from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier, GradientBoostingRegressor, RandomForestRegressor
+from sklearn.model_selection import KFold
+
 class BatsModel:
 
     @classmethod
     def get_avail_ds(cls):
-        ds = set([ds.split("/")[-1].split("_")[0] for ds in sorted(glob.glob("/workspace/datasets/ds_labels/*"))])
+        ds = set([ds.split("/")[-1].split("_")[0] for ds in sorted(glob.glob("/workspace/datasets/__all_LFs/*")) if "labels" in ds])
         ds.add("eval")
         return ds
 
@@ -43,19 +47,20 @@ class BatsModel:
         avail_ta, ta_map = self.get_avail_tas()
         avail_domains, domain_map = self.get_avail_domains()
         avail_ds = self.get_avail_ds()
+        self.ds_name = ds_name
 
-        if ds_name in avail_ta:
+        if self.ds_name in avail_ta:
             #load all datasets for specified target audience
 
             simp_labels = []
             src_labels = []
             
-            sel_ds = {k for k,v in ta_map.items() if ds_name in v}.intersection(avail_ds)
+            sel_ds = {k for k,v in ta_map.items() if self.ds_name in v}.intersection(avail_ds)
             
             for ds in sel_ds:
                 print(f"Include: {ds}")
-                simp_path = f"/workspace/datasets/ds_labels/{ds}_simp_labels.pkl"        
-                src_path = f"/workspace/datasets/ds_labels/{ds}_src_labels.pkl"
+                simp_path = f"/workspace/datasets/__all_LFs/{ds}_simp_labels.pkl"        
+                src_path = f"/workspace/datasets/__all_LFs/{ds}_src_labels.pkl"
 
                 simp_labels.append(pickle.load(open(simp_path, "rb")))
                 src_labels.append(pickle.load(open(src_path, "rb")))
@@ -63,18 +68,18 @@ class BatsModel:
             self.simp_labels = np.concatenate(simp_labels)
             self.src_labels = np.concatenate(src_labels)
 
-        elif ds_name in avail_domains:
+        elif self.ds_name in avail_domains:
             #load all datasets for specified domain
 
             simp_labels = []
             src_labels = []
             
-            sel_ds = {k for k,v in domain_map.items() if ds_name in v}.intersection(avail_ds)
+            sel_ds = {k for k,v in domain_map.items() if self.ds_name in v}.intersection(avail_ds)
             
             for ds in sel_ds:
                 print(f"Include: {ds}")
-                simp_path = f"/workspace/datasets/ds_labels/{ds}_simp_labels.pkl"        
-                src_path = f"/workspace/datasets/ds_labels/{ds}_src_labels.pkl"
+                simp_path = f"/workspace/datasets/__all_LFs/{ds}_simp_labels.pkl"        
+                src_path = f"/workspace/datasets/__all_LFs/{ds}_src_labels.pkl"
 
                 simp_labels.append(pickle.load(open(simp_path, "rb")))
                 src_labels.append(pickle.load(open(src_path, "rb")))
@@ -82,9 +87,9 @@ class BatsModel:
             self.simp_labels = np.concatenate(simp_labels)
             self.src_labels = np.concatenate(src_labels)
 
-        elif ds_name in avail_ds:
-            simp_path = f"/workspace/datasets/ds_labels/{ds_name}_simp_labels.pkl"        
-            src_path = f"/workspace/datasets/ds_labels/{ds_name}_src_labels.pkl"  
+        elif self.ds_name in avail_ds:
+            simp_path = f"/workspace/datasets/__all_LFs/{self.ds_name}_simp_labels.pkl"        
+            src_path = f"/workspace/datasets/__all_LFs/{self.ds_name}_src_labels.pkl"  
 
             self.simp_labels = pickle.load(open(simp_path, "rb"))
             self.src_labels = pickle.load(open(src_path, "rb"))
@@ -102,6 +107,9 @@ class BatsModel:
 
         self.all_lfs = prune_lfs(CHOSEN_DS='eval')
         self.set_norm_weights()
+
+        self.classifier = None
+
 
     def train_model(self):
         self.label_model = LabelModel(cardinality=2, verbose=True)
@@ -147,4 +155,45 @@ class BatsModel:
 
         return ns_val / (s_val + ns_val)
 
-    
+    def get_opt_lfs():
+        return self.lfs_vec
+
+    def get_classifier(self):
+        if self.classifier:
+            return self.classifier
+        
+        path_to_lf = f"/workspace/datasets/gen_opt_lfs/{self.ds_name}_lfs.pkl"
+        self.lfs_vec = pickle.load(open(path_to_lf, "rb"))
+
+
+        #train classifier
+        X, y = np.concatenate([self.simp_labels, self.src_labels]), np.array([0]*len(self.simp_labels) + [1]*len(self.src_labels))
+        X, y = shuffle(X, y, random_state=42)
+
+        #only use optimal LFs
+        sel_indices = np.array(self.lfs_vec).nonzero()[0]
+        opt_X = np.take(X, sel_indices, axis=1)
+
+        self.clf_rf = RandomForestClassifier(random_state=42)
+        self.clf_rf.fit(opt_X, y)
+
+        return self.clf_rf
+
+    def classify(self, bin_vec):
+        if bin_vec.shape[0] == self.lfs_vec.shape[0]:
+             #opt lfs transformtation
+            sel_indices = np.array(self.lfs_vec).nonzero()[0]
+            opt_X = np.take(bin_vec, sel_indices)
+        elif bin_vec.shape[0] == np.sum(self.lfs_vec):
+            opt_X = bin_vec
+
+        elif bin_vec.shape[0] * 2 ==  self.lfs_vec.shape[0]:
+            #input is not categorical
+            raise NotImplementedError
+
+        else:
+            print("bad input")
+            return
+
+        return self.clf_rf.predict(opt_X.reshape(1,-1))
+
