@@ -141,7 +141,6 @@ def load_simpeval_ds():
   # https://github.com/Yao-Dou/LENS/
 
     simpeval_path = path_to_datasets + 'simpeval'
-    simpeval_files = sorted(glob.glob(f"{simpeval_path}/LENS/data/*"))
 
     src_simp_simplicity = {}
     src_simp_meaning = {}
@@ -149,7 +148,7 @@ def load_simpeval_ds():
 
     # only the non-simpeval-part of the dataset contains meaning preservation ratings, 
     # the other part does only contain ratings on the simplification
-    for f in ['simpDA_2022.csv', 'simplikert_2022.csv']:
+    for f in ['simplikert_2022.csv']:
         simpeval_df = pd.read_csv(simpeval_path + '/LENS/data/' + f, encoding='latin1', header=0)
 
         input_col = 'Input.original'
@@ -162,13 +161,36 @@ def load_simpeval_ds():
                 src_simp_meaning[comb] = []
                 src_simp_simplicity[comb] = []
 
-            if f == 'simpDA_2022.csv':
-                src_simp_meaning[comb].append(row['Answer.adequacy'])
-                src_simp_simplicity[comb].append(row['Answer.simplicity'])
-            else:
-                src_simp_meaning[comb].append((row['Answer.adequacy'] - 1) * 25) # 5 point likert scale from 1 to 5 -> 0...100
-                src_simp_simplicity[comb].append((row['Answer.simplicity'] + 2) * 25) # 5 point likert scale from -2 to 2 -> 0...100
+            
+            src_simp_meaning[comb].append((row['Answer.adequacy'] - 1) * 25) # 5 point likert scale from 1 to 5 -> 0...100
+            src_simp_simplicity[comb].append((row['Answer.simplicity'] + 2) * 25) # 5 point likert scale from -2 to 2 -> 0...100
 
+            if comb not in ds_orig:
+                ds_orig[comb] = [f[:-4]]
+            else:
+                if f[:-4] not in ds_orig[comb]:
+                    ds_orig[comb].append(f[:-4])
+
+    # only the non-simpeval-part of the dataset contains meaning preservation ratings, 
+    # the other part does only contain ratings on the simplification
+    for f in ['simplicity_DA.csv']:
+        simpeval_df = pd.read_csv(simpeval_path + '/LENS/experiments/meta_evaluation/data/wikida/' + f, encoding='latin1', header=0)
+
+        input_col = 'orig_sent'
+        simplified_col = 'simp_sent'
+        
+        for index, row in simpeval_df.iterrows():
+            
+            comb = str(row[input_col]) + '$$$$$' + str(row[simplified_col]) + '$$$$$' + str(row['sys_type']) 
+            if comb not in src_simp_simplicity:
+                src_simp_meaning[comb] = []
+                src_simp_simplicity[comb] = []
+            else:
+                print('dupl')
+
+            src_simp_meaning[comb].append(row['meaning'])
+            src_simp_simplicity[comb].append(row['simplicity'])
+            
             if comb not in ds_orig:
                 ds_orig[comb] = [f[:-4]]
             else:
