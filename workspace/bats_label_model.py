@@ -3,6 +3,7 @@ from snorkel.labeling.model import LabelModel
 import numpy as np
 from pruning_lfs import prune_lfs
 from snorkel.labeling import PandasLFApplier
+from labeling_functions import get_all_lfs
 import pandas as pd
 import glob
 
@@ -105,7 +106,7 @@ class BatsModel:
 
         self.train_model()
 
-        self.all_lfs = prune_lfs(CHOSEN_DS='eval')
+        self.all_lfs = get_all_lfs()
         self.set_norm_weights()
 
         self.classifier = None
@@ -122,6 +123,13 @@ class BatsModel:
         return np.round(label_model_pred_prob, 3)
 
     def transform_to_bin_vec(self, text):
+        
+        text = pd.DataFrame({'simplified_snt': [text]})
+        applier = PandasLFApplier(self.all_lfs)
+        labels = applier.apply(text, progress_bar=False)
+        return labels
+
+    def transform_to_bin_vec_evol(self, text):
         
         text = pd.DataFrame({'simplified_snt': [text]})
         applier = PandasLFApplier(self.all_lfs)
