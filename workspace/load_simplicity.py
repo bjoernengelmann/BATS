@@ -142,112 +142,68 @@ def load_simpeval_ds():
 
     simpeval_path = path_to_datasets + 'simpeval'
 
-    src_simp_simplicity = {}
-    src_simp_meaning = {}
-    ds_orig = {}
-
-    # only the non-simpeval-part of the dataset contains meaning preservation ratings, 
-    # the other part does only contain ratings on the simplification
-    for f in ['simplikert_2022.csv']:
-        simpeval_df = pd.read_csv(simpeval_path + '/LENS/data/' + f, encoding='latin1', header=0)
-
-        input_col = 'Input.original'
-        simplified_col = 'Input.simplified'
-        
-        for index, row in simpeval_df.iterrows():
-            
-            comb = str(row[input_col]) + '$$$$$' + str(row[simplified_col]) + '$$$$$' + str(row['Input.system']) 
-            if comb not in src_simp_simplicity:
-                src_simp_meaning[comb] = []
-                src_simp_simplicity[comb] = []
-
-            
-            src_simp_meaning[comb].append((row['Answer.adequacy'] - 1) * 25) # 5 point likert scale from 1 to 5 -> 0...100
-            src_simp_simplicity[comb].append((row['Answer.simplicity'] + 2) * 25) # 5 point likert scale from -2 to 2 -> 0...100
-
-            if comb not in ds_orig:
-                ds_orig[comb] = [f[:-4]]
-            else:
-                if f[:-4] not in ds_orig[comb]:
-                    ds_orig[comb].append(f[:-4])
-
-    # only the non-simpeval-part of the dataset contains meaning preservation ratings, 
-    # the other part does only contain ratings on the simplification
-    for f in ['simplicity_DA.csv']:
-        simpeval_df = pd.read_csv(simpeval_path + '/LENS/experiments/meta_evaluation/data/wikida/' + f, encoding='latin1', header=0)
-
-        input_col = 'orig_sent'
-        simplified_col = 'simp_sent'
-        
-        for index, row in simpeval_df.iterrows():
-            
-            comb = str(row[input_col]) + '$$$$$' + str(row[simplified_col]) + '$$$$$' + str(row['sys_type']) 
-            if comb not in src_simp_simplicity:
-                src_simp_meaning[comb] = []
-                src_simp_simplicity[comb] = []
-            else:
-                print('dupl')
-
-            src_simp_meaning[comb].append(row['meaning'])
-            src_simp_simplicity[comb].append(row['simplicity'])
-            
-            if comb not in ds_orig:
-                ds_orig[comb] = [f[:-4]]
-            else:
-                if f[:-4] not in ds_orig[comb]:
-                    ds_orig[comb].append(f[:-4])
-
-    for f in ['simpeval_2022.csv', 'simpeval_past.csv']:
-        simpeval_df = pd.read_csv(simpeval_path + '/LENS/data/' + f, encoding='latin1', header=0)
-
-        input_col = 'original'
-
-        if 'processed_generation' in simpeval_df.columns:
-            simplified_col = 'processed_generation'
-        else:
-            simplified_col = 'generation'
-
-        for index, row in simpeval_df.iterrows():
-            
-            comb = str(row[input_col]) + '$$$$$' + str(row[simplified_col]) + '$$$$$' + str(row['system']) 
-            if comb not in src_simp_simplicity:
-                src_simp_simplicity[comb] = []
-
-            for col in simpeval_df.columns:
-                if len(col) == 8 and col[:7] == 'rating_':
-                    src_simp_simplicity[comb].append(row[col])
-
-            if comb not in ds_orig:
-                ds_orig[comb] = [f[:-4]]
-            else:
-                if f[:-4] not in ds_orig[comb]:
-                    ds_orig[comb].append(f[:-4])
-
     src = []
     simp = []
-    meaning = []
+    system = []
+    ds_orig = []
     simplicity = []
-    origin = []
-    inner_ds = []
+    references = []
 
-    for key in src_simp_simplicity.keys():
-        pts = key.split('$$$$$')
-        src.append(pts[0])
-        simp.append(pts[1])
-        origin.append(pts[2])
-        inner_ds.append(ds_orig[key])
-        if key in src_simp_meaning:
-            meaning.append(sum(src_simp_meaning[key])/len(src_simp_meaning[key]))
-        else:
-            meaning.append(-1) # means data point does not have a meaning value
-        simplicity.append(sum(src_simp_simplicity[key])/len(src_simp_simplicity[key]))
 
-    full_data = {'ds_id': 'SimpEval_22', 'src': src, 'simp': simp, 'simplicityScore': simplicity, 'meaningScore': meaning, 'origin': origin, 'inner_ds': inner_ds}
+    # wikiDA, 600 entries
+
+    # references for wikiDA
+    refs = {}
+
+    with open(simpeval_path + '/LENS/experiments/meta_evaluation/data/wikida/references/test.src', encoding='latin1') as f:
+        src_lines = f.readlines()
+
+        with open(simpeval_path + '/LENS/experiments/meta_evaluation/data/wikida/references/test.dst', encoding='latin1') as f2:
+            ref_lines = f2.readlines()
+
+            for i in range(0, len(src_lines)):
+                refs[src_lines[i].strip()] = ref_lines[i].strip().split('\t')
+    
+    simpeval_df = pd.read_csv(simpeval_path + '/LENS/experiments/meta_evaluation/data/wikida/simplicity_DA.csv', encoding='latin1', header=0)
+
+    for index, row in simpeval_df.iterrows():
+        src.append(row['orig_sent'])
+        simp.append(row['simp_sent'])
+        system.append(row['sys_type'])
+        ds_orig.append('simplicity_DA')
+
+        simplicity.append(row['simplicity'])
+        references.append(refs[row['orig_sent'].strip()])
+
+    # simpeval_2022, 360 entries
+
+    # references for simpeval_2022
+    refs = {}
+
+    with open(simpeval_path + '/LENS/experiments/meta_evaluation/data/simpeval_2022/references/test.src', encoding='latin1') as f:
+        src_lines = f.readlines()
+
+        with open(simpeval_path + '/LENS/experiments/meta_evaluation/data/simpeval_2022/references/test.dst', encoding='latin1') as f2:
+            ref_lines = f2.readlines()
+
+            for i in range(0, len(src_lines)):
+                refs[src_lines[i].strip()] = [ref_lines[i].strip()]
+
+    simpeval_df = pd.read_csv(simpeval_path + '/LENS/experiments/meta_evaluation/data/simpeval_2022/simpeval_2022.csv', encoding='latin1', header=0)
+
+    for index, row in simpeval_df.iterrows():
+        src.append(row['original'])
+        simp.append(row['generation'])
+        system.append(row['system'])
+        ds_orig.append('simpeval_2022')
+
+        simplicity.append(row['average'])
+        references.append(refs[row['original'].strip()])
+
+    full_data = {'ds_id': 'SimpEval_22', 'src': src, 'simp': simp, 'simplicityScore': simplicity, 'origin': system, 'inner_ds': ds_orig, 'references': references}
     simpeval_dataset = pd.DataFrame(data = full_data)
 
     with open('/' + simpeval_path + '/simpeval_mp.pkl', 'wb') as f:
         pickle.dump(simpeval_dataset, f)
     
     return simpeval_dataset
-
-
