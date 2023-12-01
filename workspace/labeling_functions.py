@@ -369,7 +369,10 @@ def avg_age_of_acquisition(x, age, label):
       if c_token in aoa_dic.keys():
         aoas.append(aoa_dic[c_token])
 
-    avg_aoa = np.mean(np.array(aoas))
+    if len(aoas) > 0:
+      avg_aoa = np.mean(np.array(aoas))
+    else:
+      return ABSTAIN
 
     if label == SIMPLE:
       if avg_aoa <= age:
@@ -400,8 +403,11 @@ def max_age_of_acquisition(x, age, label):
       if c_token in aoa_dic.keys():
         aoas.append(aoa_dic[c_token])
 
-    max_aoa = np.max(np.array(aoas))
-
+    if len(aoas) > 0:
+      max_aoa = np.max(np.array(aoas))
+    else:
+      return ABSTAIN
+    
     if label == SIMPLE:
       if max_aoa <= age:
         return label
@@ -431,7 +437,10 @@ def median_age_of_acquisition(x, age, label):
       if c_token in aoa_dic.keys():
         aoas.append(aoa_dic[c_token])
 
-    median_aoa = np.median(np.array(aoas))
+    if len(aoas) > 0:
+      median_aoa = np.median(np.array(aoas))
+    else:
+      return ABSTAIN    
 
     if label == SIMPLE:
       if median_aoa <= age:
