@@ -190,7 +190,10 @@ def avg_conreteness(x, con_threshold, label):
       if c_token in concreteness_dic.keys():
         con_list.append(concreteness_dic[c_token])
 
-    avg_con = np.mean(np.array(con_list))
+    if len(con_list) > 0:
+      avg_con = np.mean(np.array(con_list))
+    else:
+      return ABSTAIN
 
     if label == SIMPLE:
       if avg_con >= con_threshold:
@@ -222,7 +225,10 @@ def max_conreteness(x, con_threshold, label):
       if c_token in concreteness_dic.keys():
         con_list.append(concreteness_dic[c_token])
 
-    max_con = np.max(np.array(con_list))
+    if len(con_list) > 0:
+      max_con = np.max(np.array(con_list))
+    else:
+      return ABSTAIN
 
     if label == SIMPLE:
       if max_con >= con_threshold:
@@ -254,7 +260,10 @@ def median_conreteness(x, con_threshold, label):
       if c_token in concreteness_dic.keys():
         con_list.append(concreteness_dic[c_token])
 
-    median_con = np.median(np.array(con_list))
+    if len(con_list) > 0:
+      median_con = np.median(np.array(con_list))
+    else:
+      return ABSTAIN
 
     if label == SIMPLE:
       if median_con >= con_threshold:
@@ -470,7 +479,10 @@ def avg_imageability(x, imageability_threshold, label):
       if c_token in imageability_dic.keys():
         im_vals.append(imageability_dic[c_token])
 
-    avg_im = np.mean(np.array(im_vals))
+    if len(im_vals) > 0:
+      avg_im = np.mean(np.array(im_vals))
+    else:
+      return ABSTAIN
 
     if label == SIMPLE:
       if avg_im >= imageability_threshold:
@@ -501,7 +513,10 @@ def min_imageability(x, imageability_threshold, label):
       if c_token in imageability_dic.keys():
         im_vals.append(imageability_dic[c_token])
 
-    min_im = np.min(np.array(im_vals))
+    if len(im_vals) > 0:
+      min_im = np.min(np.array(im_vals))
+    else:
+      return ABSTAIN
 
     if label == SIMPLE:
       if min_im >= imageability_threshold:
@@ -531,7 +546,10 @@ def med_imageability(x, imageability_threshold, label):
       if c_token in imageability_dic.keys():
         im_vals.append(imageability_dic[c_token])
 
-    med_im = np.median(np.array(im_vals))
+    if len(im_vals) > 0:
+      med_im = np.median(np.array(im_vals))
+    else:
+      return ABSTAIN
 
     if label == SIMPLE:
       if med_im >= imageability_threshold:
@@ -814,7 +832,13 @@ def avg_num_words_before_main_verb(x, thresh, label):
   for sentence in x.simp_doc.sents:
     if not "ROOT" in [token.dep_ for token in sentence]:
       return ABSTAIN
-  num_w = np.mean([[token.dep_ for token in sentence].index("ROOT") for sentence in x.simp_doc.sents])
+    
+  hlp = [[token.dep_ for token in sentence].index("ROOT") for sentence in x.simp_doc.sents]
+  if len(hlp) > 0:
+    num_w = np.mean(hlp)
+  else:
+    return ABSTAIN
+  
   if label == SIMPLE:
       if num_w <= thresh:
         return label
@@ -976,7 +1000,12 @@ def make_ratio_academic_word_list_lf(thresh, label=SIMPLE):
 # Fabian: Average lexical richness~\cite{DBLP:conf/lrec/StajnerNH20}
 # as: average number of unique lemmas per sentence
 def num_unique_lemmas(x, thresh, label):
-  avg_lemmas = np.mean([len(set([w.lemma_ for w in sent])) for sent in x.simp_doc.sents])
+  hlp = [len(set([w.lemma_ for w in sent])) for sent in x.simp_doc.sents]
+  if len(hlp) > 0:
+    avg_lemmas = np.mean(hlp)
+  else:
+    return ABSTAIN
+  
   if label == SIMPLE:
       if avg_lemmas <= thresh:
         return label
@@ -1000,7 +1029,12 @@ def make_num_unique_lemmas_lf(thresh, label=SIMPLE):
 # Fabian: Average lexical richness~\cite{DBLP:conf/lrec/StajnerNH20}
 # as: average number of unique lemmas per sentence per number of tokens per sentence
 def num_unique_lemmas_norm(x, thresh, label):
-  avg_lemmas = np.mean([len(set([w.lemma_ for w in sent]))/len(sent) for sent in x.simp_doc.sents])
+  hlp = [len(set([w.lemma_ for w in sent]))/len(sent) for sent in x.simp_doc.sents]
+  if len(hlp) > 0:
+    avg_lemmas = np.mean(hlp)
+  else:
+    return ABSTAIN
+  
   if label == SIMPLE:
       if avg_lemmas <= thresh:
         return label
@@ -1056,7 +1090,12 @@ def make_depth_of_syntactic_tree_lf(thresh, label=SIMPLE):
 
 # Fabian : low number of punctuation in text~\cite{DBLP:conf/dsai/StajnerNI20}
 def avg_num_punctuation_text(x, thresh, label):
-  avg_num_punc = np.mean([[tok.pos_ for tok in sent].count("PUNCT") for sent in x.simp_doc.sents])
+  hlp = [[tok.pos_ for tok in sent].count("PUNCT") for sent in x.simp_doc.sents]
+  if len(hlp) > 0:
+    avg_num_punc = np.mean(hlp)
+  else:
+    return ABSTAIN
+  
   if label == SIMPLE:
       if avg_num_punc <= thresh:
         return label
