@@ -18,11 +18,15 @@ if __name__== "__main__":
     src_part_paths = sorted(glob.glob(f"datasets/{sel_ds_id}_{num_lfs}_parts/labels_src*"), key=lambda p: int(p.split('_')[-1]))
     simp_part_paths = sorted(glob.glob(f"datasets/{sel_ds_id}_{num_lfs}_parts/labels_simp*"), key=lambda p: int(p.split('_')[-1]))
 
+    assert len(src_part_paths) == len(simp_part_paths)
+
     src_labels = [pickle.load(open(path, "rb")) for path in src_part_paths]
     simp_labels = [pickle.load(open(path, "rb")) for path in simp_part_paths]
-    
+
     src_labels = np.concatenate(src_labels)
     simp_labels = np.concatenate(simp_labels)
+
+    assert len(src_labels) == len(simp_labels)
     
     pickle.dump(src_labels, open(f"{ds_label_path}/{sel_ds_id}-{num_lfs}_src_labels.pkl", "wb"))
     pickle.dump(simp_labels, open(f"{ds_label_path}/{sel_ds_id}-{num_lfs}_simp_labels.pkl", "wb"))
