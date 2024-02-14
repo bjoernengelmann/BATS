@@ -1,7 +1,6 @@
 import argparse
 import pickle
 import os
-from pruning_lfs import prune_lfs
 from labeling_functions import get_all_lfs
 
 import glob
@@ -44,8 +43,6 @@ def apply_lfs(df, lfs, chunk_start, size, sel_ds_id, app_type):
 
 if __name__ == "__main__":
 
-   
-
     print("loading dataset file ...")
     with open("datasets/final_combined_with_index.pkl", 'rb') as f:
         dataset = pickle.load(f)
@@ -79,10 +76,7 @@ if __name__ == "__main__":
     if not app_type in ['src', 'simp']:
         raise Exception(f"{app_type} is not available, choose one of the following: \n {['src', 'simp']}")
 
-    if full:
-        all_lfs = get_all_lfs()
-    else:
-        all_lfs = prune_lfs()
+    all_lfs = get_all_lfs()
 
     label_path = f"datasets/{sel_ds_id}_{len(all_lfs)}_parts/"
 

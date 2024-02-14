@@ -1,7 +1,6 @@
 import pickle
 from snorkel.labeling.model import LabelModel
 import numpy as np
-from pruning_lfs import prune_lfs
 from snorkel.labeling import PandasLFApplier
 from labeling_functions import get_all_lfs
 import pandas as pd

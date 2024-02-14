@@ -32,6 +32,8 @@ def get_mapping_of_LF_and_dims():
 
     LFs_to_thresless = {}
     LFs_to_cat = {}
+    LF_to_feature = {}
+
 
     for lf in names:
         curr_lf = lf.replace('label=1', 'label=NOT_SIMPLE').replace('label=0', 'label=SIMPLE')
@@ -56,6 +58,9 @@ def get_mapping_of_LF_and_dims():
         
         LFs_to_thresless[lf] = manualLF2C[manualLF2C['Methode'] == thresless_LFs[curr_lf]]['clustered'].values[0]#['cluster'].values[0]
         LFs_to_cat[lf] = manualLF2C[manualLF2C['Methode'] == thresless_LFs[curr_lf]]['cluster'].values[0]
+        LF_to_feature[lf] = manualLF2C[manualLF2C['Methode'] == thresless_LFs[curr_lf]]['Lit_short'].values[0]
+
+
 
     #overview = {} # how often do we find a LF belonging to Structural, Lexical, Pragmatic, Syntactic
     #labels_to_clusters = {}
@@ -70,4 +75,4 @@ def get_mapping_of_LF_and_dims():
 
     #    final_clustering_of_manual_LFs[lf] = labels_to_clusters[LFs_to_thresless[lf]]
 
-    return dims_to_names, names_to_dims, LFs_to_thresless, LFs_to_cat
+    return dims_to_names, names_to_dims, LFs_to_thresless, LFs_to_cat, LF_to_feature
