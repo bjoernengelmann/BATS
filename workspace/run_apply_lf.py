@@ -12,11 +12,7 @@ from snorkel.labeling import PandasLFApplier
 
 
 def preprocess_dataset(dataset, sel_ds_id, app_type):
-    
-    if sel_ds_id == "eval":
-        dataset = dataset[dataset['val_split'] == True]
-    else:
-        dataset = dataset[dataset['ds_id'] == sel_ds_id]        
+    dataset = dataset[dataset['ds_id'] == sel_ds_id]        
 
     dataset['simplified_snt'] = dataset[app_type]
     dataset['source_snt'] = dataset['src']
