@@ -1,8 +1,8 @@
 version: "3"
 services:
 
-  usb-pipeline:
-    image: usb-pipeline
+  bats:
+    image: bats
     volumes: 
         - ./workspace:/workspace
     
