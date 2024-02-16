@@ -1,1 +1,17 @@
-# USB-Pipeline
+# BATS: BenchmArking Text Simplification
+
+#### Setup
+For setting up the Docker container please run the following commands:
+
+> docker build -t bats .
+
+> docker-compose up
+
+
+#### Data Structure
+
+In the folder *vectors* the pickled initial 1249-dimensional vectors of all datasets used for our evaluation can be found. Additionally, the folder contains pickled required data for ARTS.
+In the folder *additionalData* the additional external resources, e.g., those used in by the labeling functions for constructing our vectors can be found.
+
+#### Experiments
+To re-run our experiments please refer to the three notebooks RQ1, RQ2, and RQ3.
