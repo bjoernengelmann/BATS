@@ -53,17 +53,17 @@ def init():
   global ox5k_a
   global academic_word_list
 
-  aoa_list = pd.read_excel("/workspace/datasets/other_resources/AoA_ratings_Kuperman_et_al_BRM.xlsx")
+  aoa_list = pd.read_excel("/workspace/additionalData/AoA_ratings_Kuperman_et_al_BRM.xlsx")
   aoa_list = aoa_list.drop(["OccurTotal", "OccurNum", "Freq_pm", "Rating.SD", "Dunno"], axis=1)
   aoa_list = aoa_list.set_index('Word')
   aoa_dic = aoa_list['Rating.Mean'].to_dict()
 
-  concrete_list = pd.read_excel("/workspace/datasets/other_resources/13428_2013_403_MOESM1_ESM.xlsx")
+  concrete_list = pd.read_excel("/workspace/additionalData/13428_2013_403_MOESM1_ESM.xlsx")
   concrete_list = concrete_list.drop(["Bigram", "Conc.SD", "Unknown", "Total", "Percent_known", "SUBTLEX"], axis=1)
   concrete_list = concrete_list.set_index('Word')
   concreteness_dic = concrete_list['Conc.M'].to_dict()
 
-  imageability_df = pd.read_csv("/workspace/datasets/other_resources/megahr.en", delimiter="\t", names=["Word", "concreteness", "Imageability"])
+  imageability_df = pd.read_csv("/workspace/additionalData/megahr.en", delimiter="\t", names=["Word", "concreteness", "Imageability"])
   imageability_df = imageability_df.drop(['concreteness'], axis=1).set_index('Word')
   imageability_dic = imageability_df['Imageability'].to_dict()
 
@@ -73,10 +73,10 @@ def init():
   tool_us = language_tool_python.LanguageTool('en-US')
   tool_gb = language_tool_python.LanguageTool('en-GB')
 
-  df_ox5k = pd.read_csv("/workspace/datasets/other_resources/oxford-5k.csv")
+  df_ox5k = pd.read_csv("/workspace/additionalData/oxford-5k.csv")
   ox5k_a = df_ox5k.loc[df_ox5k["level"].isin(['a1','a2'])]["word"].to_list()
 
-  academic_word_list = [line[:-1] for line in open("/workspace/datasets/other_resources/academic_word_list.csv", "r")]
+  academic_word_list = [line[:-1] for line in open("/workspace/additionalData/academic_word_list.csv", "r")]
 
 init()
 
