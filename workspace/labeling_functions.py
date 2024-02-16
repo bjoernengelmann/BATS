@@ -156,7 +156,7 @@ def spacy_universal_embeddings(x):
 
   return x
 
-# bjoern: few words per sentence~\cite{simpa}
+
 def words_per_sentence(x, w_cnt, label):
     avg_cnt = len(x.simp_words)/len([s for s in x.simp_doc.sents])
 
@@ -171,7 +171,7 @@ def words_per_sentence(x, w_cnt, label):
       else:
         return ABSTAIN
       
-# bjoern: few words per sentence~\cite{simpa}
+
 def make_word_cnt_lf(w_cnt, label=SIMPLE):
 
     return LabelingFunction(
@@ -181,7 +181,7 @@ def make_word_cnt_lf(w_cnt, label=SIMPLE):
         pre=[spacy_nlp]
     )
 
-#bjoern : high concreteness~\cite{simpa} avg
+
 def avg_conreteness(x, con_threshold, label):
 
     con_list = []
@@ -206,7 +206,7 @@ def avg_conreteness(x, con_threshold, label):
       else:
         return ABSTAIN
 
-# bjoern: high concreteness~\cite{simpa}
+
 def make_avg_conreteness_lf(con_threshold, label=SIMPLE):
 
     return LabelingFunction(
@@ -216,7 +216,7 @@ def make_avg_conreteness_lf(con_threshold, label=SIMPLE):
         pre=[spacy_nlp]
     )
 
-#bjoern : high concreteness~\cite{simpa} max
+
 def max_conreteness(x, con_threshold, label):
 
     con_list = []
@@ -241,7 +241,7 @@ def max_conreteness(x, con_threshold, label):
       else:
         return ABSTAIN
 
-# bjoern: high concreteness~\cite{simpa}
+
 def make_max_conreteness_lf(con_threshold, label=SIMPLE):
 
     return LabelingFunction(
@@ -251,7 +251,6 @@ def make_max_conreteness_lf(con_threshold, label=SIMPLE):
         pre=[spacy_nlp]
     )
 
-#bjoern : high concreteness~\cite{simpa} median
 def median_conreteness(x, con_threshold, label):
 
     con_list = []
@@ -276,7 +275,7 @@ def median_conreteness(x, con_threshold, label):
       else:
         return ABSTAIN
 
-# bjoern: high concreteness~\cite{simpa}
+
 def make_median_conreteness_lf(con_threshold, label=SIMPLE):
 
     return LabelingFunction(
@@ -286,7 +285,7 @@ def make_median_conreteness_lf(con_threshold, label=SIMPLE):
         pre=[spacy_nlp]
     )
 
-# bjoern : few content words (nouns, adjectives, verbs and adverbs) per sentence~\cite{simpa}
+
 def content_words_ratio(x, ratio_threshold, label):
 
   tokens_data = x.simp_tokens_data
@@ -307,7 +306,7 @@ def content_words_ratio(x, ratio_threshold, label):
     else:
       return ABSTAIN
 
-# bjoern : few content words (nouns, adjectives, verbs and adverbs) per sentence~\cite{simpa}
+}
 def make_content_words_ratio_lf(ratio_threshold, label=SIMPLE):
 
     return LabelingFunction(
@@ -317,7 +316,7 @@ def make_content_words_ratio_lf(ratio_threshold, label=SIMPLE):
         pre=[spacy_nlp]
     )
 
-# bjoern : few infrequent words~\cite{DBLP:conf/coling/StajnerH18}
+
 def infrequent_words(x, infrequent_threshold, animal, label):
   animal_threshold = word_frequency(animal, 'en')
   lemmas = [a.lemma_ for a in x.simp_tokens_data]
@@ -343,7 +342,7 @@ def make_infrequent_words_lf(infrequent_threshold, animal, label=SIMPLE):
         pre=[spacy_nlp]
     )
 
-# bjoern (and C) : few infrequent words~\cite{DBLP:conf/coling/StajnerH18} (per sentence)
+
 def infrequent_words_per_sentence(x, infrequent_threshold, animal, label):
   animal_threshold = word_frequency(animal, 'en')
   lemmas = [a.lemma_ for a in x.simp_tokens_data]
@@ -369,7 +368,7 @@ def make_infrequent_words_per_sentence_lf(infrequent_threshold, animal, label=SI
         pre=[spacy_nlp]
     )
 
-#bjoern :low age of acquisition~\cite{simpa} avg
+
 def avg_age_of_acquisition(x, age, label):
 
     aoas = []
@@ -393,7 +392,7 @@ def avg_age_of_acquisition(x, age, label):
         return label
       else:
         return ABSTAIN
-# bjoern: low age of acquisition~\cite{simpa}
+
 def make_avg_age_of_acquisition_lf(age, label=SIMPLE):
 
     return LabelingFunction(
@@ -427,7 +426,7 @@ def max_age_of_acquisition(x, age, label):
         return label
       else:
         return ABSTAIN
-# bjoern: low age of acquisition~\cite{simpa}  max
+
 def make_max_age_of_acquisition_lf(age, label=SIMPLE):
 
     return LabelingFunction(
@@ -461,7 +460,7 @@ def median_age_of_acquisition(x, age, label):
         return label
       else:
         return ABSTAIN
-# bjoern: low age of acquisition~\cite{simpa}
+
 def make_median_age_of_acquisition_lf(age, label=SIMPLE):
 
     return LabelingFunction(
@@ -471,7 +470,7 @@ def make_median_age_of_acquisition_lf(age, label=SIMPLE):
         pre=[spacy_nlp]
     )
 
-#bjoern :high imageability~\cite{simpa} avg
+
 def avg_imageability(x, imageability_threshold, label):
     im_vals = []
     lemmas = [a.lemma_ for a in x.simp_tokens_data]
@@ -495,7 +494,7 @@ def avg_imageability(x, imageability_threshold, label):
       else:
         return ABSTAIN
 
-# bjoern: high imageability~\cite{simpa} avg
+# anom: high imageability~\cite{simpa} avg
 def make_avg_imageability_lf(imageability_threshold, label=SIMPLE):
 
     return LabelingFunction(
@@ -505,7 +504,7 @@ def make_avg_imageability_lf(imageability_threshold, label=SIMPLE):
         pre=[spacy_nlp]
     )
 
-#bjoern: high imageability~\cite{simpa} min
+#anom: high imageability~\cite{simpa} min
 def min_imageability(x, imageability_threshold, label):
     im_vals = []
     lemmas = [a.lemma_ for a in x.simp_tokens_data]
@@ -529,7 +528,7 @@ def min_imageability(x, imageability_threshold, label):
       else:
         return ABSTAIN
 
-# bjoern: high imageability~\cite{simpa} min
+# anom: high imageability~\cite{simpa} min
 def make_min_imageability_lf(imageability_threshold, label=SIMPLE):
     return LabelingFunction(
         name=f"lf_min_imageability={imageability_threshold}_{label_map[label]}",
@@ -538,7 +537,7 @@ def make_min_imageability_lf(imageability_threshold, label=SIMPLE):
         pre=[spacy_nlp]
     )
 
-# bjoern: high imageability~\cite{simpa} median
+# anom: high imageability~\cite{simpa} median
 def med_imageability(x, imageability_threshold, label):
     im_vals = []
     lemmas = [a.lemma_ for a in x.simp_tokens_data]
@@ -562,7 +561,7 @@ def med_imageability(x, imageability_threshold, label):
       else:
         return ABSTAIN
 
-# bjoern: high imageability~\cite{simpa} median
+# anom: high imageability~\cite{simpa} median
 def make_med_imageability_lf(imageability_threshold, label=SIMPLE):
 
     return LabelingFunction(
@@ -572,7 +571,7 @@ def make_med_imageability_lf(imageability_threshold, label=SIMPLE):
         pre=[spacy_nlp]
     )
 
-# Fabian : high percentage of vocabulary learned in initial stages of foreign language learning~\cite{tanaka} $\rightarrow$ language proficiency test
+# anom : high percentage of vocabulary learned in initial stages of foreign language learning~\cite{tanaka} $\rightarrow$ language proficiency test
 def perc_vocab_initial_forLang_learn(x, thresh, label):
   lemmas = [a.lemma_ for a in x.simp_tokens_data]
   ratio = len([w for w in lemmas if w.lower() in ox5k_a])/len(lemmas)
@@ -596,7 +595,7 @@ def make_perc_vocab_initial_forLang_learn_lf(thresh, label=SIMPLE):
         pre=[spacy_nlp]
     )
 
-# Fabian: word length - frequency per thousand words of words containing more than eight characters~\cite{textevaluator}
+# anom: word length - frequency per thousand words of words containing more than eight characters~\cite{textevaluator}
 
 def perc_more_than_8_characters(x, thresh, label):
   freqElements = len([w for w in x.simp_doc if len(w)>8])/len(x.simp_doc)
@@ -622,7 +621,7 @@ def make_perc_more_than_8_characters_lf(thresh, label=SIMPLE):
     )
 
 
-# Fabian: Frequency of negation~\cite{textevaluator} 
+# anom: Frequency of negation~\cite{textevaluator} 
 def freq_negations(x, thresh, label):
   countElements = len([tok for tok in x.simp_doc if tok.dep_ == 'neg'])
 
@@ -647,7 +646,7 @@ def make_freq_negations_lf(thresh, label=SIMPLE):
     )
 
 
-# Fabian: Frequency of negation~\cite{textevaluator} (ratio)
+# anom: Frequency of negation~\cite{textevaluator} (ratio)
 def freq_negations_ratio(x, thresh, label):
   countElements = len([tok for tok in x.simp_doc if tok.dep_ == 'neg'])/len(x.simp_tokens_data)
 
@@ -673,7 +672,7 @@ def make_freq_negations_ratio_lf(thresh, label=SIMPLE):
 
 
 
-# Fabian: frequency of third person singular pronouns~\cite{textevaluator}
+# anom: frequency of third person singular pronouns~\cite{textevaluator}
 def freq_third_person_singular_pronouns(x, thresh, label):
   countElements = 0
   for token in x.simp_doc:
@@ -701,7 +700,7 @@ def make_freq_third_person_singular_pronouns_lf(thresh, label=SIMPLE):
         pre=[spacy_nlp]
     )
 
-# Fabian: frequency of third person singular pronouns~\cite{textevaluator} (ratio)
+# anom: frequency of third person singular pronouns~\cite{textevaluator} (ratio)
 def freq_third_person_singular_pronouns_ratio(x, thresh, label):
   countElements = 0
   for token in x.simp_doc:
@@ -732,7 +731,7 @@ def make_freq_third_person_singular_pronouns_ratio_lf(thresh, label=SIMPLE):
     )
 
 
-# Fabian: frequency of past tense aspect verbs~\cite{textevaluator}
+# anom: frequency of past tense aspect verbs~\cite{textevaluator}
 def num_past_tense(x, thresh, label):
   num_w = len([w for w in x.simp_doc if w.tag_ == "VBD"])
   if label == SIMPLE:
@@ -755,7 +754,7 @@ def make_num_past_tense_lf(thresh, label=SIMPLE):
         pre=[spacy_nlp]
     )
 
-# Fabian: percentage of past tense aspect verbs~\cite{textevaluator}
+# anom: percentage of past tense aspect verbs~\cite{textevaluator}
 def perc_past_tense(x, thresh, label):
   num_w = len([w for w in x.simp_doc if w.tag_ == "VBD"])/max(1,len([w for w in x.simp_doc if w.pos_ == "VERB"]))
   if label == SIMPLE:
@@ -779,7 +778,7 @@ def make_perc_past_tense_lf(thresh, label=SIMPLE):
     )
 
 
-# Fabian: frequency of past perfect verbs~\cite{textevaluator}
+# anom: frequency of past perfect verbs~\cite{textevaluator}
 def num_past_perfect(x, thresh, label):
   num_w = len([w for w in x.simp_doc if w.tag_ == "VBN"])
   if label == SIMPLE:
@@ -803,7 +802,7 @@ def make_num_past_perfect_lf(thresh, label=SIMPLE):
     )
 
 
-# Fabian: percentage of past perfect aspect verbs~\cite{textevaluator}
+# anom: percentage of past perfect aspect verbs~\cite{textevaluator}
 def perc_past_perfect(x, thresh, label):
   num_w = len([w for w in x.simp_doc if w.tag_ == "VBN"])/ max(1,len([w for w in x.simp_doc if w.pos_ == "VERB"]))
   if label == SIMPLE:
@@ -827,7 +826,7 @@ def make_perc_past_perfect_lf(thresh, label=SIMPLE):
     )
 
 
-# Fabian: average number of words before the main verb~\cite{textevaluator}
+# anom: average number of words before the main verb~\cite{textevaluator}
 def avg_num_words_before_main_verb(x, thresh, label):
   for sentence in x.simp_doc.sents:
     if not "ROOT" in [token.dep_ for token in sentence]:
@@ -860,7 +859,7 @@ def make_avg_num_words_before_main_verb_lf(thresh, label=SIMPLE):
     )
 
 
-# Fabian: low entity to token ratio per text\cite{DBLP:conf/dsai/StajnerNI20}
+# anom: low entity to token ratio per text\cite{DBLP:conf/dsai/StajnerNI20}
 def entity_token_ratio_text(x, thresh, label):
   ratio = len(x.simp_entities)/len(x.simp_tokens_data)
   if label == SIMPLE:
@@ -883,7 +882,7 @@ def make_entity_token_ratio_text_lf(thresh, label=SIMPLE):
         pre=[spacy_nlp]
     )
 
-# Fabian: low entity to token ratio per sentence\cite{DBLP:conf/dsai/StajnerNI20}
+# anom: low entity to token ratio per sentence\cite{DBLP:conf/dsai/StajnerNI20}
 def entity_token_ratio_sentence(x, thresh, label):
   if len([s for s in x.simp_doc.sents])<=1:
     ratio = len(x.simp_entities)/len(x.simp_tokens_data)
@@ -927,7 +926,7 @@ def make_entity_token_ratio_sentence_lf(thresh, label=SIMPLE):
         pre=[spacy_nlp]
     )
 
-# Fabian: low entity to token ratio per paragraph\cite{DBLP:conf/dsai/StajnerNI20}
+# anom: low entity to token ratio per paragraph\cite{DBLP:conf/dsai/StajnerNI20}
 def entity_token_ratio_paragraph(x, thresh, label):
   if len(x.simp_paragraph_tokens_data)<=1:
     ratio = len(x.simp_entities)/len(x.simp_tokens_data)
@@ -972,7 +971,7 @@ def make_entity_token_ratio_paragraph_lf(thresh, label=SIMPLE):
         pre=[spacy_nlp_paragraph]
     )
 
-# Fabian: frequency per thousand words/ratio of all words on Academic Word List \url{https://www.eapfoundation.com/vocab/academic/awllists/}~\cite{textevaluator}
+# anom: frequency per thousand words/ratio of all words on Academic Word List \url{https://www.eapfoundation.com/vocab/academic/awllists/}~\cite{textevaluator}
 def ratio_academic_word_list(x, thresh, label):
   lemmas = [a.lemma_ for a in x.simp_tokens_data]
   ratio_awl = len([w for w in lemmas if w.lower() in academic_word_list])/len(lemmas)
@@ -997,7 +996,7 @@ def make_ratio_academic_word_list_lf(thresh, label=SIMPLE):
     )
 
 
-# Fabian: Average lexical richness~\cite{DBLP:conf/lrec/StajnerNH20}
+# anom: Average lexical richness~\cite{DBLP:conf/lrec/StajnerNH20}
 # as: average number of unique lemmas per sentence
 def num_unique_lemmas(x, thresh, label):
   hlp = [len(set([w.lemma_ for w in sent])) for sent in x.simp_doc.sents]
@@ -1026,7 +1025,7 @@ def make_num_unique_lemmas_lf(thresh, label=SIMPLE):
         pre=[spacy_nlp]
     )
 
-# Fabian: Average lexical richness~\cite{DBLP:conf/lrec/StajnerNH20}
+# anom: Average lexical richness~\cite{DBLP:conf/lrec/StajnerNH20}
 # as: average number of unique lemmas per sentence per number of tokens per sentence
 def num_unique_lemmas_norm(x, thresh, label):
   hlp = [len(set([w.lemma_ for w in sent]))/len(sent) for sent in x.simp_doc.sents]
@@ -1055,7 +1054,7 @@ def make_num_unique_lemmas_norm_lf(thresh, label=SIMPLE):
         pre=[spacy_nlp]
     )
 
-# Fabian : low depth of the syntactic tree~\cite{DBLP:conf/lrec/StajnerNH20}
+# anom : low depth of the syntactic tree~\cite{DBLP:conf/lrec/StajnerNH20}
 def depth_of_syntactic_tree(x, thresh, label):
   doc = x.simp_doc
   depths = {}
@@ -1088,7 +1087,7 @@ def make_depth_of_syntactic_tree_lf(thresh, label=SIMPLE):
         pre=[spacy_nlp]
     )
 
-# Fabian : low number of punctuation in text~\cite{DBLP:conf/dsai/StajnerNI20}
+# anom : low number of punctuation in text~\cite{DBLP:conf/dsai/StajnerNI20}
 def avg_num_punctuation_text(x, thresh, label):
   hlp = [[tok.pos_ for tok in sent].count("PUNCT") for sent in x.simp_doc.sents]
   if len(hlp) > 0:
@@ -1116,7 +1115,7 @@ def make_avg_num_punctuation_text_lf(thresh, label=SIMPLE):
         pre=[spacy_nlp]
     )
 
-# Fabian : low number of unique entities in text~\cite{DBLP:conf/dsai/StajnerNI20}
+# anom : low number of unique entities in text~\cite{DBLP:conf/dsai/StajnerNI20}
 def unique_entities_text(x, thresh, label):
   num_unique_ents = len(set(x.simp_entities))
   if label == SIMPLE:
@@ -1139,7 +1138,7 @@ def make_unique_entities_text_lf(thresh, label=SIMPLE):
         pre=[spacy_nlp]
     )
 
-# Fabian : low number of unique entities in text~\cite{DBLP:conf/dsai/StajnerNI20} (ratio)
+# anom : low number of unique entities in text~\cite{DBLP:conf/dsai/StajnerNI20} (ratio)
 def unique_entities_text_ratio(x, thresh, label):
   num_unique_ents = len(set(x.simp_entities))/len(x.simp_tokens_data)
   if label == SIMPLE:
@@ -1162,7 +1161,7 @@ def make_unique_entities_text_ratio_lf(thresh, label=SIMPLE):
         pre=[spacy_nlp]
     )
 
-# Fabian : low average number of unique entities per sentence~\cite{DBLP:conf/dsai/StajnerNI20}
+# anom : low average number of unique entities per sentence~\cite{DBLP:conf/dsai/StajnerNI20}
 def average_entities_sentence(x, thresh, label):
   avgs = []
   for sentence in x.simp_doc.sents:
@@ -1193,7 +1192,7 @@ def make_average_entities_sentence_lf(thresh, label=SIMPLE):
         pre=[spacy_nlp]
     )
 
-# Fabian : low average number of unique entities per paragraph~\cite{DBLP:conf/dsai/StajnerNI20}
+# anom : low average number of unique entities per paragraph~\cite{DBLP:conf/dsai/StajnerNI20}
 def average_entities_paragraph(x, thresh, label):
   avgs = []
   for paragraph in x.simp_paragraph_tokens_data:
@@ -1226,7 +1225,7 @@ def make_average_entities_paragraph_lf(thresh, label=SIMPLE):
     )
 
 #low unique entities to total number of entities ratio per text/sentence (avg) /paragraph (avg)~\cite{DBLP:conf/dsai/StajnerNI20}
-# Fabian: low unique entity to total num entities ratio per text\cite{DBLP:conf/dsai/StajnerNI20}
+# anom: low unique entity to total num entities ratio per text\cite{DBLP:conf/dsai/StajnerNI20}
 def unique_entity_total_entity_ratio_text(x, thresh, label):
   if len(x.simp_entities)>0:
     ratio = len(set(x.simp_entities))/len(x.simp_entities)
@@ -1253,7 +1252,7 @@ def make_unique_entity_total_entity_ratio_text_lf(thresh, label=SIMPLE):
         pre=[spacy_nlp]
     )
 
-# Fabian: low unique entity to total num entities ratio per sentence\cite{DBLP:conf/dsai/StajnerNI20}
+# anom: low unique entity to total num entities ratio per sentence\cite{DBLP:conf/dsai/StajnerNI20}
 def unique_entity_total_entity_ratio_sentence(x, thresh, label):
   if len(x.simp_entities)>0 and len([s for s in x.simp_doc.sents])<=1:
     ratio = len(set(x.simp_entities))/len(x.simp_entities)
@@ -1301,7 +1300,7 @@ def make_unique_entity_total_entity_ratio_sentence_lf(thresh, label=SIMPLE):
         pre=[spacy_nlp]
     )
 
-# Fabian: low unique entity to total num entities ratio per paragraph\cite{DBLP:conf/dsai/StajnerNI20}
+# anom: low unique entity to total num entities ratio per paragraph\cite{DBLP:conf/dsai/StajnerNI20}
 def unique_entity_total_entity_ratio_paragraph(x, thresh, label):
   if len(x.simp_paragraph_tokens_data)<=1:
     if len(x.simp_entities)>0:
@@ -1353,7 +1352,7 @@ def make_unique_entity_total_entity_ratio_paragraph_lf(thresh, label=SIMPLE):
         pre=[spacy_nlp_paragraph]
     )
 
-# Fabian: few relative-clauses for people with poor language skills~\cite{arfe}
+# anom: few relative-clauses for people with poor language skills~\cite{arfe}
 def no_relative_clauses(x, thresh, label):
   rel_pron = ["which", "that", "whose", "whoever", "whomever", "who", "whom"]
   all_pron_tokens = [(a.text, a.text.lower() in rel_pron, a.pos_) for a in x.simp_tokens_data if a.pos_ == "PRON"]
@@ -1379,7 +1378,7 @@ def make_no_relative_clauses_lf(thresh, label=SIMPLE):
         pre=[spacy_nlp_paragraph]
     )
 
-# Fabian: few relative-clauses for people with poor language skills~\cite{arfe}
+# anom: few relative-clauses for people with poor language skills~\cite{arfe}
 def low_relative_clauses_ratio(x, thresh, label):
   rel_pron = ["which", "that", "whose", "whoever", "whomever", "who", "whom"]
   all_pron_tokens = [(a.text, a.text.lower() in rel_pron, a.pos_) for a in x.simp_tokens_data if a.pos_ == "PRON"]
@@ -1405,7 +1404,7 @@ def make_low_relative_clauses_ratio_lf(thresh, label=SIMPLE):
         pre=[spacy_nlp_paragraph]
     )
 
-# Fabian: few relative-sub-clauses for people with poor language skills~\cite{arfe}
+# anom: few relative-sub-clauses for people with poor language skills~\cite{arfe}
 def no_relative_sub_clauses(x, thresh, label):
   rel_pron = ["which", "that", "whose", "whoever", "whomever", "who", "whom"]
 
@@ -1438,7 +1437,7 @@ def make_no_relative_sub_clauses_lf(thresh, label=SIMPLE):
         pre=[spacy_nlp_paragraph]
     )
 
-# Fabian: few relative-sub-clauses for people with poor language skills~\cite{arfe} (ratio)
+# anom: few relative-sub-clauses for people with poor language skills~\cite{arfe} (ratio)
 def low_relative_sub_clauses_ratio(x, thresh, label):
   rel_pron = ["which", "that", "whose", "whoever", "whomever", "who", "whom"]
 
@@ -1470,7 +1469,7 @@ def make_low_relative_sub_clauses_ratio_lf(thresh, label=SIMPLE):
         pre=[spacy_nlp_paragraph]
     )
 
-# Fabian: low number of cases with max distance paragraph between 2 appearances of same entity~\cite{DBLP:conf/dsai/StajnerNI20}
+# anom: low number of cases with max distance paragraph between 2 appearances of same entity~\cite{DBLP:conf/dsai/StajnerNI20}
 def distance_appearance_same_entities_paragraph(x, thresh_distance, thresh_number, label=SIMPLE):
   count_num_appearances_max_or_higher = 0
 
@@ -1520,7 +1519,7 @@ def make_distance_appearance_same_entities_paragraph_lf(thresh_distance, thresh_
         pre=[spacy_nlp_paragraph]
     )
 
-# Fabian: low avg distance paragraphs between all pairs of same entities~\cite{DBLP:conf/dsai/StajnerNI20}
+# anom: low avg distance paragraphs between all pairs of same entities~\cite{DBLP:conf/dsai/StajnerNI20}
 def avarage_distance_appearance_same_entities_paragraph(x, thresh, label=SIMPLE):
 
   list_of_par_entities = []
@@ -1580,7 +1579,7 @@ def make_average_distance_appearance_same_entities_paragraph_lf(thresh, label=SI
         pre=[spacy_nlp_paragraph]
     )
 
-# Fabian: low avg distance sentence between all pairs of same entities~\cite{DBLP:conf/dsai/StajnerNI20}
+# anom: low avg distance sentence between all pairs of same entities~\cite{DBLP:conf/dsai/StajnerNI20}
 def avarage_distance_appearance_same_entities_sentence(x, thresh, label=SIMPLE):
 
   list_of_par_entities = []
@@ -1639,7 +1638,7 @@ def make_average_distance_appearance_same_entities_sentence_lf(thresh, label=SIM
         pre=[spacy_nlp]
     )
 
-# Fabian: low number of cases with max distance sentence between 2 appearances of same entity~\cite{DBLP:conf/dsai/StajnerNI20}
+# anom: low number of cases with max distance sentence between 2 appearances of same entity~\cite{DBLP:conf/dsai/StajnerNI20}
 def distance_appearance_same_entities_sentence(x, thresh_distance, thresh_number, label=SIMPLE):
   list_of_par_entities = []
   for paragraph in x.simp_doc.sents:
@@ -1687,7 +1686,7 @@ def make_distance_appearance_same_entities_sentence_lf(thresh_distance, thresh_n
         pre=[spacy_nlp_paragraph]
     )
 
-# Fabian: high average distance (in sentences, paragraphs) between consecutive entities ~\cite{DBLP:conf/dsai/StajnerNI20}
+# anom: high average distance (in sentences, paragraphs) between consecutive entities ~\cite{DBLP:conf/dsai/StajnerNI20}
 def avarage_distance_entities(x, thresh, scope, same_or_consecutive, label=SIMPLE):
   thresh = 1
   # scope "sent" or else
@@ -1790,7 +1789,7 @@ def make_avarage_distance_entities_lf(thresh, scope, same_or_consecutive, label=
         pre=[spacy_nlp_paragraph]
     )
 
-# christin: low proportion of long (letters, syllables) words~\cite{arfe}
+# anom: low proportion of long (letters, syllables) words~\cite{arfe}
 def proportion_of_long_words_syllables(x, proportion, long_length, label):
   number_of_words = len(x.simp_words)
   number_long_words = 0
@@ -1821,7 +1820,7 @@ def low_proportion_of_long_words_syllables(long_length, proportion, label):
   )
 
 
-# christin: low proportion of long (letters, syllables) words~\cite{arfe}
+# anom: low proportion of long (letters, syllables) words~\cite{arfe}
 def proportion_of_long_words_letters(x, proportion, long_length, label):
   number_of_words = len(x.simp_words)
   number_long_words = 0
@@ -1849,7 +1848,7 @@ def low_proportion_of_long_words_letters(long_length, proportion, label):
                      label=label), pre=[spacy_nlp]
   )
 
-# christin: low Flesch-Kincaid Grade Level Index~\cite{DBLP:conf/acl/NarayanG14}
+# anom: low Flesch-Kincaid Grade Level Index~\cite{DBLP:conf/acl/NarayanG14}
 def Flesch_Kincaid_grade_level(x, fkg_threshold, label):
   fkg = textstat.flesch_kincaid_grade(x.simplified_snt)
 
@@ -1872,7 +1871,7 @@ def low_Flesch_Kincaid_grade_level(fkg_threshold, label):
   )
 
 
-# christin: high Flesch reading ease~\cite{simpa}
+# anom: high Flesch reading ease~\cite{simpa}
 def Flesch_Kincaid_reading_ease(x, fkre_threshold, label):
   fkre = textstat.flesch_reading_ease(x.simplified_snt)
 
@@ -1896,7 +1895,7 @@ def high_Flesch_Kincaid_reading_ease(fkre_threshold, label):
 
 
 
-# christin: no passive voice~\cite{arfe}
+# anom: no passive voice~\cite{arfe}
 @labeling_function(pre=[spacy_nlp], name="no_passive_voice")
 def lf_no_passive_voice(x):
   for sent in [s.text for s in x.simp_doc.sents]:
@@ -1934,7 +1933,7 @@ def lf_percentage_passive_voice(passive_threshold, label):
   )
 
 
-# christin: low sentence length (words)~\cite{arfe}, especially for children or non-native speakers~\cite{DBLP:conf/coling/StajnerH18}
+# anom: low sentence length (words)~\cite{arfe}, especially for children or non-native speakers~\cite{DBLP:conf/coling/StajnerH18}
 def length_sents_max_thres(x, length_sent_threshold, label):
   num_words = []
 
@@ -1963,7 +1962,7 @@ def low_length_sents_max_thres(length_sent_threshold, label):
       pre=[spacy_nlp]
   )
 
-# christin: low sentence length (words)~\cite{arfe}, especially for children or non-native speakers~\cite{DBLP:conf/coling/StajnerH18}
+# anom: low sentence length (words)~\cite{arfe}, especially for children or non-native speakers~\cite{DBLP:conf/coling/StajnerH18}
 def length_sents_avg_thres(x, length_sent_threshold, label):
   num_words = []
 
@@ -1992,7 +1991,7 @@ def low_length_sents_avg_thres(length_sent_threshold, label):
       pre=[spacy_nlp]
   )
 
-# christin: low number of sentences in text for people with intellectual disability~\cite{arfe}
+# anom: low number of sentences in text for people with intellectual disability~\cite{arfe}
 def num_sents_num_thres(x, sent_num_threshold, label):
   num_sent = len([s for s in x.simp_doc.sents])
 
@@ -2015,7 +2014,7 @@ def low_sents_num_thres(sent_num_threshold, label):
       pre=[spacy_nlp]
   )
 
-# christin: no (few) conjunctions for people with language problems~\cite{arfe}
+# anom: no (few) conjunctions for people with language problems~\cite{arfe}
 def few_conjunctions(x, few_con_threshold, label):
   conj_pos = [token.pos_ for token in x.simp_doc if token.pos_ in ['CONJ', 'CCONJ', 'SCONJ']]
 
@@ -2038,7 +2037,7 @@ def few_conjunctions_thres(few_con_threshold, label):
       pre=[spacy_nlp]
   )
 
-# christin: no (few) conjunctions for people with language problems~\cite{arfe} (ratio)
+# anom: no (few) conjunctions for people with language problems~\cite{arfe} (ratio)
 def few_conjunctions_ratio(x, few_con_threshold, label):
   conj_pos = [token.pos_ for token in x.simp_doc if token.pos_ in ['CONJ', 'CCONJ', 'SCONJ']]
 
@@ -2063,7 +2062,7 @@ def few_conjunctions_thres_ratio(few_con_threshold, label):
       pre=[spacy_nlp]
   )
 
-# christin: no conditional (if-then) clauses~\cite{arfe}
+# anom: no conditional (if-then) clauses~\cite{arfe}
 @labeling_function(pre=[spacy_nlp], name="no_conditional")
 def lf_no_conditional(x):
   s_t = [sw.text.lower() for sw in x.simp_tokens_data]
@@ -2089,7 +2088,7 @@ def lf_no_conditional(x):
 
   return SIMPLE
 
-# christin: no conditional (if-then) clauses~\cite{arfe} (percentage conditionals)
+# anom: no conditional (if-then) clauses~\cite{arfe} (percentage conditionals)
 def percentage_conditional(x, conditional_threshold, label):
   s_t = [sw.text.lower() for sw in x.simp_tokens_data]
 
@@ -2120,7 +2119,7 @@ def lf_percentage_conditional(conditional_threshold, label):
       resources=dict(conditional_threshold=conditional_threshold, label=label), pre=[spacy_nlp]
   )
 
-# christin: no appositions~\cite{DBLP:conf/acl/NarayanG14}
+# anom: no appositions~\cite{DBLP:conf/acl/NarayanG14}
 @labeling_function(pre=[spacy_nlp], name="no_apposition")
 def lf_no_apposition(x):
   deps = [token.dep_ for token in x.simp_tokens_data]
@@ -2129,7 +2128,7 @@ def lf_no_apposition(x):
 
   return SIMPLE
 
-# christin: no appositions~\cite{DBLP:conf/acl/NarayanG14} (percentage conditionals)
+# anom: no appositions~\cite{DBLP:conf/acl/NarayanG14} (percentage conditionals)
 def percentage_appositions(x, apposition_threshold, label):
   deps = [token.dep_ for token in x.simp_tokens_data]
 
@@ -2158,7 +2157,7 @@ def lf_percentage_appositions(apposition_threshold, label):
       resources=dict(apposition_threshold=apposition_threshold, label=label), pre=[spacy_nlp]
   )
 
-# christin grammatical correctness~\cite{DBLP:journals/tacl/XuCN15} (few errors)
+# anom grammatical correctness~\cite{DBLP:journals/tacl/XuCN15} (few errors)
 def few_gram_errors(x, few_gram_errors_thres, label):
   return ABSTAIN
 
@@ -2184,7 +2183,7 @@ def few_gram_errors_thres(few_gram_errors_thres, label):
       pre=[spacy_nlp]
   )
 
-# christin grammatical correctness~\cite{DBLP:journals/tacl/XuCN15} (few errors)
+# anom grammatical correctness~\cite{DBLP:journals/tacl/XuCN15} (few errors)
 def few_gram_errors_ratio(x, few_gram_errors_thres, label):
 
   return ABSTAIN
@@ -2214,8 +2213,8 @@ def few_gram_errors_thres_ratio(few_gram_errors_thres, label):
       pre=[spacy_nlp]
   )
 
-# christin: fewer modifiers~\cite{DBLP:conf/acl/NarayanG14}
-# christin: few NOT FEWER modifiers
+# anom: fewer modifiers~\cite{DBLP:conf/acl/NarayanG14}
+# anom: few NOT FEWER modifiers
 def few_modifiers(x, few_mod_threshold, label):
   mods = ['advmod', 'amod', 'nmod', 'npadvmod', 'nummod', 'quantmod']
 
@@ -2240,8 +2239,8 @@ def few_modifiers_thres(few_mod_threshold, label):
       pre=[spacy_nlp]
   )
 
-# christin: fewer modifiers~\cite{DBLP:conf/acl/NarayanG14} (ratio)
-# christin: few NOT FEWER modifiers
+# anom: fewer modifiers~\cite{DBLP:conf/acl/NarayanG14} (ratio)
+# anom: few NOT FEWER modifiers
 def low_modifier_ratio(x, few_mod_threshold, label):
   mods = ['advmod', 'amod', 'nmod', 'npadvmod', 'nummod', 'quantmod']
 
@@ -2267,7 +2266,7 @@ def low_modifier_ratio_thres(few_mod_threshold, label):
       pre=[spacy_nlp]
   )
 
-# christin: few noun phrases for people with poor language skills~\cite{arfe}
+# anom: few noun phrases for people with poor language skills~\cite{arfe}
 def few_noun_phrases(x, noun_phrase_thres, label):
   noun_phrases = [chunk.text for chunk in x.simp_doc.noun_chunks]
 
@@ -2290,7 +2289,7 @@ def few_noun_phrases_thres(noun_phrase_thres, label):
       pre=[spacy_nlp]
   )
 
-# christin: few noun phrases for people with poor language skills~\cite{arfe} (ratio)
+# anom: few noun phrases for people with poor language skills~\cite{arfe} (ratio)
 def few_noun_phrases_ratio(x, noun_phrase_thres, label):
   noun_phrases = [chunk.text for chunk in x.simp_doc.noun_chunks]
   ratio = len(noun_phrases)/len(x.simp_tokens_data)
