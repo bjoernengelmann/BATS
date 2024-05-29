@@ -7,6 +7,9 @@ For setting up the Docker container please run the following commands:
 
 > docker-compose up
 
+#### ARTS Datasets
+
+ARTS94, ARTS300 and ARTS3000 can be found on [Zenodo](https://zenodo.org/records/11371690).
 
 #### Data Structure
 
